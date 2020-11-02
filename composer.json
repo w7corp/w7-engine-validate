@@ -1,0 +1,21 @@
+{
+    "name": "w7/rangine-validate",
+    "require": {
+        "psr/http-message": "^1.0",
+        "illuminate/validation": "^8.12"
+    },
+    "authors": [
+        {
+            "name": "邪少",
+            "email": "453618847@qq.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "W7\\Validate\\" : "src/"
+        },
+        "files": [
+            "src/Support/helpers.php"
+        ]
+    }
+}
