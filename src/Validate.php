@@ -4,9 +4,10 @@ namespace W7\Validate;
 
 use Closure;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Psr\Http\Message\RequestInterface;
+use W7\Core\Facades\Context;
+use W7\Core\Facades\Validator;
 use W7\Validate\Exception\ValidateException;
 use W7\Validate\Support\Event\ValidateResult;
 use W7\Validate\Support\Rule\BaseRule;
@@ -97,7 +98,8 @@ class Validate
 					$v->sometimes(...$sometime);
 				}
 			}
-			$data = $this->handleEvent($data);
+			
+			$data = $this->handleEvent($v->validate());
 			return $data;
 		} catch (ValidationException $e) {
 			$errors       = $e->errors();
@@ -113,7 +115,8 @@ class Validate
 
 	private function handleEvent(array $data)
 	{
-		$result = (new ValidateHandler($data, $this->handlers, $this->request))->handle();
+		$request = $this->request ?: Context::getRequest();
+		$result = (new ValidateHandler($data, $this->handlers ?: [], $request))->handle();
 		if (is_string($result)) {
 			throw new ValidateException($result, 403);
 		} elseif ($result instanceof ValidateResult) {

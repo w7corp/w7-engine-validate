@@ -1,8 +1,7 @@
 {
     "name": "w7/rangine-validate",
     "require": {
-        "psr/http-message": "^1.0",
-        "illuminate/validation": "^6.0"
+        "w7/rangine": "^2.3"
     },
     "authors": [
         {
