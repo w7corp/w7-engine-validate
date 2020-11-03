@@ -1,39 +1,18 @@
 # 软擎验证扩展
 
-#### 介绍
-{**以下是 Gitee 平台说明，您可以替换此简介**
-Gitee 是 OSCHINA 推出的基于 Git 的代码托管平台（同时支持 SVN）。专为开发者提供稳定、高效、安全的云端软件开发协作平台
-无论是个人、团队、或是企业，都能够用 Gitee 实现代码托管、项目管理、协作开发。企业项目请看 [https://gitee.com/enterprises](https://gitee.com/enterprises)}
+## 说明
+此验证基于Laravel的Validator验证器,做了如下改变
+ - 可通过类的方式定义一个[验证器](https://wiki.w7.cc/chapter/868?id=3234)
+ - 增加[验证场景](https://wiki.w7.cc/chapter/868?id=3233)
+ - 增加[场景事件处理](https://wiki.w7.cc/chapter/868?id=3232)
+ - 修改了[自定义验证规则](https://wiki.w7.cc/chapter/868?id=3231)
 
-#### 软件架构
-软件架构说明
+此文档只说明与Laravel的Validator验证器不同的地方，完整Laravel Validator文档可查看：[完整文档](https://learnku.com/docs/laravel/6.x/validation/5144)
 
+## 安装
+使用composer命令
+``` shell
+composer require w7/rangine-validate
+```
 
-#### 安装教程
-
-1.  xxxx
-2.  xxxx
-3.  xxxx
-
-#### 使用说明
-
-1.  xxxx
-2.  xxxx
-3.  xxxx
-
-#### 参与贡献
-
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
-
-
-#### 特技
-
-1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2.  Gitee 官方博客 [blog.gitee.com](https://blog.gitee.com)
-3.  你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解 Gitee 上的优秀开源项目
-4.  [GVP](https://gitee.com/gvp) 全称是 Gitee 最有价值开源项目，是综合评定出的优秀开源项目
-5.  Gitee 官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6.  Gitee 封面人物是一档用来展示 Gitee 会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+完整文档查看[完整文档](https://wiki.w7.cc/chapter/868?id=3235)

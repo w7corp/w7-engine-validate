@@ -63,7 +63,7 @@ class Validate
 	private static $extendName = [];
 
 	/**
-	 * 验证器中间件
+	 * 验证器事件处理类
 	 * @var array
 	 */
 	private $handlers = [];
