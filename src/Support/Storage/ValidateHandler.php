@@ -34,13 +34,13 @@ class ValidateHandler
 		};
 	}
 	
-	protected function pipes()
+	protected function pipes(string $method)
 	{
-		return array_map(function ($middleware) {
-			return function ($data, $request, $next) use ($middleware) {
+		return array_map(function ($middleware) use ($method) {
+			return function ($data, $request, $next) use ($middleware,$method) {
 				list($callback, $param) = $middleware;
 				if (class_exists($callback) && is_subclass_of($callback, ValidateEventAbstract::class)) {
-					return call_user_func([new $callback(...$param),'process'], $data, $request, $next);
+					return call_user_func([new $callback(...$param), $method], $data, $request, $next);
 				} else {
 					throw new ValidateException('Event error or nonexistence');
 				}
@@ -55,11 +55,11 @@ class ValidateHandler
 		};
 	}
 	
-	public function handle()
+	public function handle(string $method)
 	{
 		$destination = $this->destination();
 		$pipeline    = array_reduce(
-			array_reverse($this->pipes()),
+			array_reverse($this->pipes($method)),
 			$this->carry(),
 			function ($data, $request) use ($destination) {
 				return $destination($data, $request);

@@ -7,5 +7,6 @@ use Psr\Http\Message\ServerRequestInterface;
 
 interface ValidateEventInterface
 {
-	public function process(array $data, ServerRequestInterface $request, Closure $next);
+	public function beforeValidate(array $data, ServerRequestInterface $request, Closure $next);
+	public function afterValidate(array $data, ServerRequestInterface $request, Closure $next);
 }
