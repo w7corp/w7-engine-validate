@@ -4,7 +4,7 @@ namespace W7\Validate\Support\Storage;
 
 use Psr\Http\Message\RequestInterface;
 use W7\Validate\Exception\ValidateException;
-use W7\Validate\Support\Event\EventAbstract;
+use W7\Validate\Support\Event\ValidateEventAbstract;
 use W7\Validate\Support\Event\ValidateResult;
 
 class ValidateHandler
@@ -39,7 +39,7 @@ class ValidateHandler
 		return array_map(function ($middleware) {
 			return function ($data, $request, $next) use ($middleware) {
 				list($callback, $param) = $middleware;
-				if (class_exists($callback) && is_subclass_of($callback, EventAbstract::class)) {
+				if (class_exists($callback) && is_subclass_of($callback, ValidateEventAbstract::class)) {
 					return call_user_func([new $callback(...$param),'process'], $data, $request, $next);
 				} else {
 					throw new ValidateException('Event error or nonexistence');
