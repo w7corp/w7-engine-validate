@@ -88,6 +88,7 @@ class Validate
 	public function check(array $data)
 	{
 		try {
+			$data = $this->handleEvent($data, 'beforeValidate');
 			/** @var \Illuminate\Validation\Validator $v */
 			$v = Validator::make($data, $this->getSceneRules(), $this->message, $this->customAttributes);
 			if (!empty($this->sometimes)) {
@@ -95,8 +96,7 @@ class Validate
 					$v->sometimes(...$sometime);
 				}
 			}
-			
-			$data = $this->handleEvent($v->validate());
+			$data = $this->handleEvent($v->validate(), 'afterValidate');
 			return $data;
 		} catch (ValidationException $e) {
 			$errors       = $e->errors();
@@ -110,10 +110,10 @@ class Validate
 		}
 	}
 
-	private function handleEvent(array $data)
+	private function handleEvent(array $data, string $method)
 	{
 		$request = $this->request ?: Context::getRequest();
-		$result  = (new ValidateHandler($data, $this->handlers ?: [], $request))->handle();
+		$result  = (new ValidateHandler($data, $this->handlers ?: [], $request))->handle($method);
 		if (is_string($result)) {
 			throw new ValidateException($result, 403);
 		} elseif ($result instanceof ValidateResult) {
