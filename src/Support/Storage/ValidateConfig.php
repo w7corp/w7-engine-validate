@@ -9,10 +9,10 @@ use W7\Core\Helper\Traiter\InstanceTraiter;
  * Class ValidateConfig
  * @package W7\Validate\Support\Storage
  * @method ValidateConfig rulesPath(string $path)
- * @method ValidateConfig collectionPath(string $path)
+ * @method ValidateConfig controllerPath(string $path)
  * @method ValidateConfig validatePath(string $path)
  * @property-read string $rulesPath
- * @property-read string $collectionPath
+ * @property-read string $controllerPath
  * @property-read string $validatePath
  */
 class ValidateConfig
@@ -26,7 +26,7 @@ class ValidateConfig
 	protected $rulesPath = '';
 	
 	/** @var string  */
-	protected $collectionPath = null;
+	protected $controllerPath = null;
 	
 	/** @var string  */
 	protected $validatePath = null;
