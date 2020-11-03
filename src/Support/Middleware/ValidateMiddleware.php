@@ -6,7 +6,9 @@ use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use W7\Core\Facades\Context;
 use W7\Core\Middleware\MiddlewareAbstract;
+use W7\Http\Message\Server\Request;
 use W7\Validate\Support\Storage\ValidateConfig;
 use W7\Validate\Validate;
 
@@ -23,7 +25,10 @@ class ValidateMiddleware extends MiddlewareAbstract
 			$data    = $validator->check($data);
 			$request = $validator->getRequest();
 		}
+		
+		/** @var Request $request */
 		$request = $request->withAttribute('validate', $data);
+		Context::setRequest($request);
 		return $handler->handle($request);
 	}
 	
