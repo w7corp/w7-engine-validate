@@ -5,12 +5,14 @@ namespace W7\Validate;
 use Closure;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
+use LogicException;
 use Psr\Http\Message\RequestInterface;
 use W7\Core\Facades\Context;
 use W7\Core\Facades\Validator;
 use W7\Validate\Exception\ValidateException;
 use W7\Validate\Support\Event\ValidateResult;
 use W7\Validate\Support\Rule\BaseRule;
+use W7\Validate\Support\Storage\ValidateConfig;
 use W7\Validate\Support\Storage\ValidateHandler;
 
 class Validate
@@ -72,12 +74,6 @@ class Validate
 	 */
 	protected $request = null;
 	
-	/**
-	 * 自定义规则命名空间前缀
-	 * @var string
-	 */
-	protected static $rulesPath = '';
-	
 	public function __construct(RequestInterface $request = null)
 	{
 		$this->request = $request;
@@ -92,6 +88,7 @@ class Validate
 	public function check(array $data)
 	{
 		try {
+			/** @var \Illuminate\Validation\Validator $v */
 			$v = Validator::make($data, $this->getSceneRules(), $this->message, $this->customAttributes);
 			if (!empty($this->sometimes)) {
 				foreach ($this->sometimes as $sometime) {
@@ -116,7 +113,7 @@ class Validate
 	private function handleEvent(array $data)
 	{
 		$request = $this->request ?: Context::getRequest();
-		$result = (new ValidateHandler($data, $this->handlers ?: [], $request))->handle();
+		$result  = (new ValidateHandler($data, $this->handlers ?: [], $request))->handle();
 		if (is_string($result)) {
 			throw new ValidateException($result, 403);
 		} elseif ($result instanceof ValidateResult) {
@@ -124,7 +121,7 @@ class Validate
 			return $result->getData();
 		}
 		
-		throw new \LogicException('Validate event return type error');
+		throw new LogicException('Validate event return type error');
 	}
 	
 	public function getRequest()
@@ -231,16 +228,11 @@ class Validate
 
 	private function getRuleClass(string $ruleName)
 	{
-		$ruleNameSpace = self::$rulesPath . ucfirst($ruleName);
+		$ruleNameSpace = ValidateConfig::instance()->rulesPath . ucfirst($ruleName);
 		if (class_exists($ruleNameSpace)) {
 			return new $ruleNameSpace();
 		}
 		return false;
-	}
-
-	public static function setRulesPath(string $path)
-	{
-		self::$rulesPath = $path;
 	}
 	
 	/**
