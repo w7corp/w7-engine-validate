@@ -1,3 +1,17 @@
+.project
+*.patch
+.idea/
+.git/
+vendor/
+temp/
+runtime/
+*.lock
+.DS_Store
+Dockerfile
+docker-compose.yml
+phpunit.xml
+.phpstorm.meta*
+/.env
 /vendor
 /.php_cs
 /.idea
