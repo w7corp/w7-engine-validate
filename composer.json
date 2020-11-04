@@ -1,0 +1,16 @@
+{
+  "name": "w7/engine-validate",
+  "type": "library",
+  "description": "w7engine validate",
+  "license": "Apache-2.0",
+  "keywords": [
+    "w7",
+    "validate"
+  ],
+  "authors": [
+    {
+      "name": "we7team",
+      "email": "donknap@gmail.com"
+    }
+  ]
+}
