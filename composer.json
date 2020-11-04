@@ -1,14 +1,23 @@
 {
     "name": "w7/engine-validate",
-    "require": {
-        "w7/rangine": "^2.3"
-    },
+    "license": "Apache-2.0",
     "authors": [
         {
             "name": "邪少",
             "email": "453618847@qq.com"
         }
     ],
+    "keywords": [
+        "w7",
+        "validate"
+    ],
+    "require": {
+        "php": "^7.2|^8.0",
+        "w7/rangine": "^2.3"
+    },
+    "require-dev": {
+        "phpunit/phpunit" : "8.5.8.*"
+    },
     "autoload": {
         "psr-4": {
             "W7\\Validate\\" : "src/"
@@ -16,5 +25,10 @@
         "files": [
             "src/Support/helpers.php"
         ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "W7\\Tests\\" : "tests/"
+        }
     }
 }
