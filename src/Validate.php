@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * WeEngine System
+ *
+ * (c) We7Team 2019 <https://www.w7.cc>
+ *
+ * This is not a free software
+ * Using it under the license terms
+ * visited https://www.w7.cc for more details
+ */
+
 namespace W7\Validate;
 
 use Closure;
@@ -9,6 +19,7 @@ use LogicException;
 use Psr\Http\Message\RequestInterface;
 use W7\Core\Facades\Context;
 use W7\Core\Facades\Validator;
+use W7\Http\Message\Server\Request;
 use W7\Validate\Exception\ValidateException;
 use W7\Validate\Support\Event\ValidateResult;
 use W7\Validate\Support\Rule\BaseRule;
@@ -74,7 +85,7 @@ class Validate
 	 */
 	protected $request = null;
 	
-	public function __construct(RequestInterface $request = null)
+	public function __construct(?RequestInterface $request = null)
 	{
 		$this->request = $request;
 	}
@@ -113,6 +124,7 @@ class Validate
 	private function handleEvent(array $data, string $method)
 	{
 		$request = $this->request ?: Context::getRequest();
+		$request = $request ?: new Request('', null);
 		$result  = (new ValidateHandler($data, $this->handlers ?: [], $request))->handle($method);
 		if (is_string($result)) {
 			throw new ValidateException($result, 403);
@@ -188,7 +200,7 @@ class Validate
 		return $field . '.' . $rule;
 	}
 
-	private function getScene(string $name = null)
+	private function getScene(?string $name = null)
 	{
 		$this->sometimes = [];
 
@@ -242,7 +254,7 @@ class Validate
 	 * @param Closure|string $extension 闭包规则，回调四个值 $attribute, $value, $parameters, $validator
 	 * @param string|null $message 错误消息
 	 */
-	public static function extend(string $rule, $extension, string $message = null)
+	public static function extend(string $rule, $extension, ?string $message = null)
 	{
 		array_push(self::$extendName, $rule);
 		self::$extendName = array_unique(self::$extendName);
@@ -319,7 +331,7 @@ class Validate
 	 * @param string|null $rule 验证规则 null 移除所有规则
 	 * @return $this
 	 */
-	public function remove(string $field, string $rule = null)
+	public function remove(string $field, ?string $rule = null)
 	{
 		if (isset($this->checkRule[$field])) {
 			if (null === $rule) {
@@ -403,7 +415,7 @@ class Validate
 	 * @param array|null $rules [字段 => 规则] 如果$rules为null，则清空全部验证规则
 	 * @return $this
 	 */
-	public function setRules(array $rules = null)
+	public function setRules(?array $rules = null)
 	{
 		if (null === $rules) {
 			$this->rule = [];
@@ -418,7 +430,7 @@ class Validate
 	 * @param string|null $rule 如果第一个值为字段名，则第二个值则为规则，否则请留空
 	 * @return array|mixed|null
 	 */
-	public function getMessages($key = null, string $rule = null)
+	public function getMessages($key = null, ?string $rule = null)
 	{
 		if (null === $key) {
 			return $this->message;
@@ -443,7 +455,7 @@ class Validate
 	 * @param array|null $message [字段.规则 => 验证消息] 如果$message为null，则清空全部验证消息
 	 * @return $this
 	 */
-	public function setMessages(array $message = null)
+	public function setMessages(?array $message = null)
 	{
 		if (null === $message) {
 			$this->message = [];
@@ -459,7 +471,7 @@ class Validate
 	 * @param array|null $scene [场景 => [字段]] 如果$scene为null，则清空全部验证场景
 	 * @return $this
 	 */
-	public function setScene(array $scene = null)
+	public function setScene(?array $scene = null)
 	{
 		if (null === $scene) {
 			$this->scene = [];
