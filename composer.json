@@ -1,5 +1,6 @@
 {
     "name": "w7/engine-validate",
+    "description": "新版微擎表单验证",
     "license": "Apache-2.0",
     "authors": [
         {
