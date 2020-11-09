@@ -49,4 +49,10 @@ class TestArticleValidate extends Validate
 			->remove('title', null)
 			->append('title', 'required|between:4,50|alpha');
 	}
+	
+	public function sceneDynamic()
+	{
+		return $this->only(['title','content'])
+			->remove('content', 'between');
+	}
 }

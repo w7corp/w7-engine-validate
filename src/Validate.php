@@ -341,8 +341,17 @@ class Validate
 				if (!is_array($rules)) {
 					$rules = explode('|', $rules);
 				}
-				$rules                   = collect($rules);
-				$this->checkRule[$field] = $rules->diff(explode('|', $rule));
+				$rules = collect($rules);
+				if (false !== strpos($rule, ':')) {
+					$rule = substr($rule, 0, strpos($rule, ':'));
+				}
+				$rules = $rules->filter(function ($value) use ($rule) {
+					if (false !== strpos($value, ':')) {
+						$value = substr($value, 0, strpos($value, ':'));
+					}
+					return $value !== $rule;
+				});
+				$this->checkRule[$field] = $rules;
 			}
 		}
 		return $this;

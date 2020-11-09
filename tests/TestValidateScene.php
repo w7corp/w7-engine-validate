@@ -18,38 +18,37 @@ use W7\Validate\Exception\ValidateException;
 
 class TestValidateScene extends TestBaseValidate
 {
-    /** @var array */
-    protected $userInput;
-    public function __construct($name = null, array $data = [], $dataName = '')
-    {
-        parent::__construct($name, $data, $dataName);
-        $this->userInput = [
-	        'content' => '内容',
-	        'title'   => '这是一个标题'
-        ];
+	/** @var array */
+	protected $userInput;
+	public function __construct($name = null, array $data = [], $dataName = '')
+	{
+		parent::__construct($name, $data, $dataName);
+		$this->userInput = [
+			'content' => '内容',
+			'title'   => '这是一个标题'
+		];
+	}
 
-    }
-
-    /**
-     * @test 测试没有指定验证场景的情况
-     * @throws ValidateException
-     */
-    public function testNotScene()
+	/**
+	 * @test 测试没有指定验证场景的情况
+	 * @throws ValidateException
+	 */
+	public function testNotScene()
 	{
 		$v = new TestArticleValidate();
 		$this->expectException(ValidateException::class);
 		$v->check($this->userInput);
 	}
 
-    /**
-     * @test 测试制定验证场景
-     * @throws ValidateException
-     */
+	/**
+	 * @test 测试制定验证场景
+	 * @throws ValidateException
+	 */
 	public function testScene()
 	{
-	    $v = new TestArticleValidate();
-	    $data = $v->scene('add')->check($this->userInput);
-	    $this->assertEquals("内容",$data['content']);
+		$v    = new TestArticleValidate();
+		$data = $v->scene('add')->check($this->userInput);
+		$this->assertEquals('内容', $data['content']);
 	}
 	
 	/**
@@ -58,7 +57,6 @@ class TestValidateScene extends TestBaseValidate
 	 */
 	public function testCustomScene()
 	{
-		
 		$validate = new TestArticleValidate();
 		$this->expectException(ValidateException::class);
 		$validate->scene('edit')->check($this->userInput);
@@ -71,7 +69,17 @@ class TestValidateScene extends TestBaseValidate
 	public function testUseScene()
 	{
 		$validate = new TestArticleValidate();
-		$this->expectExceptionMessage("缺少参数：文章Id");
+		$this->expectExceptionMessage('缺少参数：文章Id');
 		$validate->scene('save')->check($this->userInput);
+	}
+	
+	public function testDynamicScene()
+	{
+		$validate = new TestArticleValidate();
+		$data     = $validate->scene('dynamic')->check([
+			'title'   => '标题标题标题标题',
+			'content' => '1'
+		]);
+		$this->assertEquals('1', $data['content']);
 	}
 }
