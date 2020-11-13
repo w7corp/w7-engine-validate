@@ -14,6 +14,7 @@ namespace W7\Validate;
 
 use Closure;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Fluent;
 use Illuminate\Validation\ValidationException;
 use LogicException;
 use Psr\Http\Message\RequestInterface;
@@ -62,12 +63,6 @@ class Validate
 	private $checkRule;
 
 	/**
-	 * sometimes验证
-	 * @var array
-	 */
-	private $sometimes = [];
-
-	/**
 	 * 扩展方法名
 	 * @var array
 	 */
@@ -78,18 +73,24 @@ class Validate
 	 * @var array
 	 */
 	private $handlers = [];
-	
+
 	/**
 	 * Request请求实例
 	 * @var RequestInterface|null
 	 */
 	protected $request = null;
-	
+
+	/**
+	 * 当前进行验证的数据
+	 * @var array
+	 */
+	protected $checkData = [];
+
 	public function __construct(?RequestInterface $request = null)
 	{
 		$this->request = $request;
 	}
-	
+
 	/**
 	 * 自动验证
 	 * @param array $data
@@ -99,14 +100,10 @@ class Validate
 	public function check(array $data)
 	{
 		try {
-			$data = $this->handleEvent($data, 'beforeValidate');
+			$this->checkData = $data;
+			$data            = $this->handleEvent($data, 'beforeValidate');
 			/** @var \Illuminate\Validation\Validator $v */
-			$v = Validator::make($data, $this->getSceneRules(), $this->message, $this->customAttributes);
-			if (!empty($this->sometimes)) {
-				foreach ($this->sometimes as $sometime) {
-					$v->sometimes(...$sometime);
-				}
-			}
+			$v    = Validator::make($data, $this->getSceneRules(), $this->message, $this->customAttributes);
 			$data = $this->handleEvent($v->validate(), 'afterValidate');
 			return $data;
 		} catch (ValidationException $e) {
@@ -132,10 +129,10 @@ class Validate
 			$this->request = $result->getRequest();
 			return $result->getData();
 		}
-		
+
 		throw new LogicException('Validate event return type error');
 	}
-	
+
 	public function getRequest()
 	{
 		return $this->request;
@@ -202,8 +199,6 @@ class Validate
 
 	private function getScene(?string $name = null)
 	{
-		$this->sometimes = [];
-
 		if (empty($name)) {
 			$this->checkRule = collect($this->rule);
 			return $this;
@@ -246,7 +241,7 @@ class Validate
 		}
 		return false;
 	}
-	
+
 	/**
 	 * 注册自定义验证方法
 	 *
@@ -276,7 +271,7 @@ class Validate
 		$this->currentScene = $name;
 		return $this;
 	}
-	
+
 	/**
 	 * @param string $handler
 	 * @param mixed ...$params
@@ -310,11 +305,12 @@ class Validate
 	public function append(string $field, string $rule)
 	{
 		if (isset($this->checkRule[$field])) {
+			if (is_array($this->checkRule[$field])) {
+				$this->checkRule[$field] = collect($this->checkRule[$field]);
+			}
+
 			if ($this->checkRule[$field] instanceof Collection) {
-				$appendRule = $rule;
-				if (!is_array($appendRule)) {
-					$appendRule = explode('|', $appendRule);
-				}
+				$appendRule              = explode('|', $rule);
 				$this->checkRule[$field] = $this->checkRule[$field]->concat($appendRule);
 			} else {
 				$this->checkRule[$field] = $this->checkRule[$field] . '|' . $rule;
@@ -334,9 +330,10 @@ class Validate
 	public function remove(string $field, ?string $rule = null)
 	{
 		$removeRule = $rule;
-		if (!is_array($rule) && false !== strpos($rule, '|')) {
+		if (is_string($rule) && false !== strpos($rule, '|')) {
 			$removeRule = explode('|', $rule);
 		}
+
 		if (is_array($removeRule)) {
 			foreach ($removeRule as $rule) {
 				$this->remove($field, $rule);
@@ -347,10 +344,11 @@ class Validate
 					unset($this->checkRule[$field]);
 				} else {
 					$rules = $this->checkRule[$field];
-					if (!is_array($rules)) {
+					if (is_string($rules)) {
 						$rules = explode('|', $rules);
+						$rules = collect($rules);
 					}
-					$rules = collect($rules);
+
 					if (false !== strpos($rule, ':')) {
 						$rule = substr($rule, 0, strpos($rule, ':'));
 					}
@@ -359,7 +357,8 @@ class Validate
 							$value = substr($value, 0, strpos($value, ':'));
 						}
 						return $value !== $rule;
-					})->toArray();
+					});
+
 					$this->checkRule[$field] = $rules;
 				}
 			}
@@ -373,40 +372,31 @@ class Validate
 	 *
 	 * @param string|string[] $attribute 字段
 	 * @param string|array|BaseRule $rules 规则
-	 * @param callable $callback 回调方法,返回true规则生效
+	 * @param callable $callback 回调方法,返回true获取具体规则生效
 	 * @return $this
 	 */
 	public function sometimes($attribute, $rules, callable $callback)
 	{
-		if (is_string($rules)) {
-			$rules = collect(explode('|', $rules));
-		} elseif (is_array($rules)) {
-			$rules = collect($rules);
+		$data   = new Fluent($this->checkData);
+		$result = $callback($data);
+		if (false === $result) {
+			return $this;
+		} elseif (true === $result) {
+			$result = $rules;
 		}
 
-		if ($rules instanceof Collection) {
-			$rules->transform(function ($rule) use ($attribute) {
-				if (is_string($rule)) {
-					$ruleClass = $this->getRuleClass($rule);
-					if (false !== $ruleClass) {
-						if (is_array($attribute) && !empty($attribute)) {
-							$attr = $attribute[0];
-						} else {
-							$attr = $attribute;
-						}
-						$message = $this->getMessages($attr, $rule);
-						if (false !== $message) {
-							$ruleClass->setMessage($message);
-						}
-						return $ruleClass;
-					}
-				}
-				return $rule;
-			});
-			$rules = $rules->toArray();
+		if (is_array($result)) {
+			$result = implode('|', $result);
 		}
 
-		$this->sometimes[] = [$attribute,$rules,$callback];
+		if (is_array($attribute)) {
+			foreach ($attribute as $filed) {
+				$this->append($filed, $result);
+			}
+		} else {
+			$this->append($attribute, $result);
+		}
+
 		return $this;
 	}
 
