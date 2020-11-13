@@ -333,27 +333,38 @@ class Validate
 	 */
 	public function remove(string $field, ?string $rule = null)
 	{
-		if (isset($this->checkRule[$field])) {
-			if (null === $rule) {
-				unset($this->checkRule[$field]);
-			} else {
-				$rules = $this->checkRule[$field];
-				if (!is_array($rules)) {
-					$rules = explode('|', $rules);
-				}
-				$rules = collect($rules);
-				if (false !== strpos($rule, ':')) {
-					$rule = substr($rule, 0, strpos($rule, ':'));
-				}
-				$rules = $rules->filter(function ($value) use ($rule) {
-					if (false !== strpos($value, ':')) {
-						$value = substr($value, 0, strpos($value, ':'));
+		$removeRule = $rule;
+		if (!is_array($rule) && false !== strpos($rule, '|')) {
+			$removeRule = explode('|', $rule);
+		}
+		if (is_array($removeRule)) {
+			foreach ($removeRule as $rule) {
+				$this->remove($field, $rule);
+			}
+		} else {
+			if (isset($this->checkRule[$field])) {
+				if (null === $rule) {
+					unset($this->checkRule[$field]);
+				} else {
+					$rules = $this->checkRule[$field];
+					if (!is_array($rules)) {
+						$rules = explode('|', $rules);
 					}
-					return $value !== $rule;
-				});
-				$this->checkRule[$field] = $rules;
+					$rules = collect($rules);
+					if (false !== strpos($rule, ':')) {
+						$rule = substr($rule, 0, strpos($rule, ':'));
+					}
+					$rules = $rules->filter(function ($value) use ($rule) {
+						if (false !== strpos($value, ':')) {
+							$value = substr($value, 0, strpos($value, ':'));
+						}
+						return $value !== $rule;
+					})->toArray();
+					$this->checkRule[$field] = $rules;
+				}
 			}
 		}
+
 		return $this;
 	}
 
