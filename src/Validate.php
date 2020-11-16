@@ -197,41 +197,53 @@ class Validate
 		return $field . '.' . $rule;
 	}
 
-	private function getScene(?string $name = null)
-	{
-		if (empty($name)) {
-			$this->checkRule = collect($this->rule);
-			return $this;
-		}
-		# 判断自定义验证场景是否存在
-		if (method_exists($this, 'scene' . ucfirst($name))) {
-			$this->checkRule = collect($this->rule);
-			call_user_func([$this, 'scene' . ucfirst($name)]);
-		} elseif (isset($this->scene[$name])) { // 判断验证场景是否存在
-			$sceneRule = $this->scene[$name];
-			if (isset($sceneRule['use']) && !empty($sceneRule['use'])) { // 判断验证场景是否指定了其他验证场景
-				$this->getScene($sceneRule['use']);
-			} else {
-				$this->checkRule = collect($this->rule)->only($sceneRule);
-			}
+    private function getScene(?string $name = null)
+    {
+        if (empty($name)) {
+            $this->checkRule = collect($this->rule);
+            return $this;
+        }
+        # 判断自定义验证场景是否存在
+        if (method_exists($this, 'scene' . ucfirst($name))) {
+            $this->checkRule = collect($this->rule);
+            call_user_func([$this, 'scene' . ucfirst($name)]);
+        } elseif (isset($this->scene[$name])) { // 判断验证场景是否存在
+            $sceneRule = $this->scene[$name];
 
-			# 判断是否定义了事件
-			if (isset($sceneRule['handler'])) {
-				$handler = $sceneRule['handler'];
-				if (is_string($handler)) {
-					$this->handlers[] = [$handler,[]];
-				} else {
-					$handlerClass = array_shift($handler);
-					$this->handler($handlerClass, ...$handler);
-				}
-			}
-		} else {
-			# 如果验证场景找不到，则默认验证全部规则
-			$this->checkRule = collect($this->rule);
-		}
+            # 判断是否定义了事件
+            if (isset($sceneRule['handler'])) {
+                $handlers = $sceneRule['handler'];
+                if (is_string($handlers)) {
+                    $this->handlers[] = [$handlers,[]];
+                } else {
+                    foreach ($handlers as $handlerClass => $param) {
+                        if (is_int($handlerClass)) {
+                            $this->handlers[] = [$param,[]];
+                        } elseif (is_string($handlerClass)) {
+                            if (is_array($param)){
+                                $this->handler($handlerClass, ...$param);
+                            }else{
+                                $this->handler($handlerClass, $param);
+                            }
+                        }
+                    }
+                }
+                unset($sceneRule['handler']);
+            }
 
-		return $this;
-	}
+            if (isset($sceneRule['use']) && !empty($sceneRule['use'])) { // 判断验证场景是否指定了其他验证场景
+                $this->getScene($sceneRule['use']);
+                unset($sceneRule['use']);
+            } else {
+                $this->checkRule = collect($this->rule)->only($sceneRule);
+            }
+        } else {
+            # 如果验证场景找不到，则默认验证全部规则
+            $this->checkRule = collect($this->rule);
+        }
+
+        return $this;
+    }
 
 	private function getRuleClass(string $ruleName)
 	{
