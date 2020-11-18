@@ -243,9 +243,17 @@ class Validate
 				unset($sceneRule['handler']);
 			}
 
-			if (isset($sceneRule['use']) && !empty($sceneRule['use'])) { // 判断验证场景是否指定了其他验证场景
-				$this->getScene($sceneRule['use']);
-				unset($sceneRule['use']);
+			# 判断验证场景是否指定了其他验证场景
+			if (isset($sceneRule['use']) && !empty($sceneRule['use'])) {
+				$use = $sceneRule['use'];
+				if (method_exists($this, 'use' . ucfirst($use))) {
+					$use = call_user_func([$this,'use' . ucfirst($use)], $this->checkData);
+					if (is_array($use)) {
+						$this->checkRule = collect($this->rule)->only($use);
+						return $this;
+					}
+				}
+				$this->getScene($use);
 			} else {
 				$this->checkRule = collect($this->rule)->only($sceneRule);
 			}
