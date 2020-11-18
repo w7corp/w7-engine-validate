@@ -233,7 +233,7 @@ class Validate
 		if (method_exists($this, 'scene' . ucfirst($name))) {
 			$this->checkRule = collect($this->rule);
 			call_user_func([$this, 'scene' . ucfirst($name)]);
-		} elseif (isset($this->scene[$name])) { // 判断验证场景是否存在
+		} elseif (isset($this->scene[$name])) {  // 判断验证场景是否存在
 			$sceneRule = $this->scene[$name];
 
 			# 判断是否定义了事件
@@ -246,8 +246,12 @@ class Validate
 			# 判断验证场景是否指定了其他验证场景
 			if (isset($sceneRule['use']) && !empty($sceneRule['use'])) {
 				$use = $sceneRule['use'];
+				unset($this->scene[$name]['use']);
 				if (method_exists($this, 'use' . ucfirst($use))) {
-					$use = call_user_func([$this,'use' . ucfirst($use)], $this->checkData);
+					/** @var \Illuminate\Validation\Validator $v */
+					$v    = Validator::make($this->checkData, $this->getSceneRules(), $this->message, $this->customAttributes);
+					$data = $v->validate();
+					$use  = call_user_func([$this,'use' . ucfirst($use)], $data);
 					if (is_array($use)) {
 						$this->checkRule = collect($this->rule)->only($use);
 						return $this;
