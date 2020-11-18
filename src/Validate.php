@@ -107,9 +107,10 @@ class Validate
 	{
 		try {
 			$this->checkData = $data;
+			$rule            = $this->getSceneRules();
 			$data            = $this->handleEvent($data, 'beforeValidate');
 			/** @var \Illuminate\Validation\Validator $v */
-			$v    = Validator::make($data, $this->getSceneRules(), $this->message, $this->customAttributes);
+			$v    = Validator::make($data, $rule, $this->message, $this->customAttributes);
 			$data = $this->handleEvent($v->validate(), 'afterValidate');
 			return $data;
 		} catch (ValidationException $e) {
@@ -241,17 +242,26 @@ class Validate
 				$handlers = $sceneRule['handler'];
 				$this->addHandler($handlers);
 				unset($sceneRule['handler']);
+				unset($this->scene[$name]['handler']);
 			}
 
 			# 判断验证场景是否指定了其他验证场景
 			if (isset($sceneRule['use']) && !empty($sceneRule['use'])) {
 				$use = $sceneRule['use'];
+				unset($sceneRule['use']);
 				unset($this->scene[$name]['use']);
+				# 如果指定的use是一个方法
 				if (method_exists($this, 'use' . ucfirst($use))) {
-					/** @var \Illuminate\Validation\Validator $v */
-					$v    = Validator::make($this->checkData, $this->getSceneRules(), $this->message, $this->customAttributes);
-					$data = $v->validate();
-					$use  = call_user_func([$this,'use' . ucfirst($use)], $data);
+					# 进行预验证，将需要传给闭包的值按指定规则进行验证
+					$data = [];
+					if (!empty($sceneRule)) {
+						$randScene = md5(rand(1, 1000000) . time());
+						$data      = (clone $this)->setScene(
+							[$randScene => $sceneRule]
+						)->scene($randScene)->check($this->checkData);
+					}
+
+					$use = call_user_func([$this,'use' . ucfirst($use)], $data);
 					if (is_array($use)) {
 						$this->checkRule = collect($this->rule)->only($use);
 						return $this;
