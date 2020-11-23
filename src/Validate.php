@@ -129,8 +129,7 @@ class Validate
 	{
 		$request = $this->request ?: Context::getRequest();
 		$request = $request ?: new Request('', null);
-		$this->addHandler($this->handler);
-		$result = (new ValidateHandler($data, $this->handlers, $request))->handle($method);
+		$result  = (new ValidateHandler($data, $this->handlers, $request, $this->currentScene))->handle($method);
 		if (is_string($result)) {
 			throw new ValidateException($result, 403);
 		} elseif ($result instanceof ValidateResult) {
@@ -155,6 +154,7 @@ class Validate
 	private function getSceneRules()
 	{
 		$this->init();
+		$this->addHandler($this->handler);
 		$this->getScene($this->currentScene);
 		$this->checkRule->transform(function ($rule, $field) {
 			if (!is_array($rule) && !$rule instanceof Collection) {

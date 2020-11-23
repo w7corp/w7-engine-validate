@@ -18,6 +18,24 @@ use Psr\Http\Message\ServerRequestInterface;
 abstract class ValidateEventAbstract implements ValidateEventInterface
 {
 	/**
+	 * 当前验证场景
+	 * @var string
+	 */
+	protected $sceneName;
+
+	/**
+	 * 当前控制器名称
+	 * @var string
+	 */
+	protected $controller;
+
+	/**
+	 * 当前操作方法
+	 * @var string
+	 */
+	protected $method;
+
+	/**
 	 * 场景验证前
 	 * @param array $data 用户输入的数据
 	 * @param ServerRequestInterface $request
@@ -39,5 +57,23 @@ abstract class ValidateEventAbstract implements ValidateEventInterface
 	public function afterValidate(array $data, ServerRequestInterface $request, Closure $next)
 	{
 		return $next($data, $request);
+	}
+
+	final public function setSceneName(?string $sceneName)
+	{
+		$this->sceneName = $sceneName;
+		return $this;
+	}
+
+	final public function setController(string $controller)
+	{
+		$this->controller = $controller;
+		return $this;
+	}
+
+	final public function setMethod(string $method)
+	{
+		$this->method = $method;
+		return $this;
 	}
 }
