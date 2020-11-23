@@ -27,12 +27,26 @@ class ValidateHandler
 	
 	/** @var RequestInterface */
 	protected $request;
-	
-	public function __construct(array $data, array $handlers, RequestInterface $request)
+
+	/** @var string */
+	protected $sceneName = null;
+
+	/** @var string */
+	protected $controller;
+
+	/** @var string */
+	protected $method;
+
+	public function __construct(array $data, array $handlers, RequestInterface $request, string $sceneName = null)
 	{
-		$this->data     = $data;
-		$this->request  = $request;
-		$this->handlers = $handlers;
+		$this->data      = $data;
+		$this->request   = $request;
+		$this->handlers  = $handlers;
+		$this->sceneName = $sceneName;
+		
+		$route            = $request->getAttribute('route');
+		$this->controller = $route['controller'] ?? '';
+		$this->method     = $route['method']     ?? '';
 	}
 	
 	protected function carry()
@@ -47,10 +61,15 @@ class ValidateHandler
 	protected function pipes(string $method)
 	{
 		return array_map(function ($middleware) use ($method) {
-			return function ($data, $request, $next) use ($middleware,$method) {
+			return function ($data, $request, $next) use ($middleware, $method) {
 				list($callback, $param) = $middleware;
 				if (class_exists($callback) && is_subclass_of($callback, ValidateEventAbstract::class)) {
-					return call_user_func([new $callback(...$param), $method], $data, $request, $next);
+					/** @var ValidateEventAbstract $handler */
+					$handler = new $callback(...$param);
+					$handler->setSceneName($this->sceneName)
+							->setController($this->controller)
+							->setMethod($this->method);
+					return call_user_func([$handler, $method], $data, $request, $next);
 				} else {
 					throw new ValidateException('Event error or nonexistence');
 				}
