@@ -30,7 +30,12 @@ class ValidateCollection extends Collection
 		
 		return true;
 	}
-	
+
+	public function whenHas($key, Closure $closure)
+	{
+		return $this->when($this->has($key), $closure);
+	}
+
 	public function get($key, $default = null)
 	{
 		if (false !== strpos($key, '.')) {
