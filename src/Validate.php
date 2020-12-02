@@ -387,7 +387,7 @@ class Validate
 		} else {
 			if (isset($this->checkRule[$field])) {
 				if (null === $rule) {
-					unset($this->checkRule[$field]);
+					$this->checkRule[$field] = [];
 				} else {
 					$rules = $this->checkRule[$field];
 					if (is_string($rules)) {
