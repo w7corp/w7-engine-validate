@@ -36,6 +36,11 @@ class ValidateCollection extends Collection
 		return $this->when($this->has($key), $closure);
 	}
 
+	public function whenNotHas($key, Closure $closure)
+	{
+		return $this->when(!$this->has($key), $closure);
+	}
+	
 	public function get($key, $default = null)
 	{
 		if (false !== strpos($key, '.')) {
