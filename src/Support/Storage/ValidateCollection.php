@@ -31,14 +31,14 @@ class ValidateCollection extends Collection
 		return true;
 	}
 
-	public function whenHas($key, Closure $closure)
+	public function whenHas($key, callable $callback, callable $default = null)
 	{
-		return $this->when($this->has($key), $closure);
+		return $this->when($this->has($key), $callback, $default);
 	}
 
-	public function whenNotHas($key, Closure $closure)
+	public function whenNotHas($key, callable $callback, callable $default = null)
 	{
-		return $this->when(!$this->has($key), $closure);
+		return $this->when(!$this->has($key), $callback, $default);
 	}
 	
 	public function get($key, $default = null)
