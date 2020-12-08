@@ -12,6 +12,7 @@
 
 namespace W7\Validate\Support\Storage;
 
+use Closure;
 use Psr\Http\Message\RequestInterface;
 use W7\Validate\Exception\ValidateException;
 use W7\Validate\Support\Event\ValidateEventAbstract;
@@ -49,8 +50,8 @@ class ValidateHandler
 		$this->method     = $route['method']     ?? '';
 	}
 	
-	protected function carry()
-	{
+	protected function carry(): Closure
+    {
 		return function ($stack, $pipe) {
 			return function ($data, $request) use ($stack, $pipe) {
 				return $pipe($data, $request, $stack);
@@ -58,8 +59,8 @@ class ValidateHandler
 		};
 	}
 	
-	protected function pipes(string $method)
-	{
+	protected function pipes(string $method): array
+    {
 		return array_map(function ($middleware) use ($method) {
 			return function ($data, $request, $next) use ($middleware, $method) {
 				list($callback, $param) = $middleware;
@@ -77,8 +78,8 @@ class ValidateHandler
 		}, $this->handlers);
 	}
 	
-	protected function destination()
-	{
+	protected function destination(): Closure
+    {
 		return function ($data, $request) {
 			return new ValidateResult($data, $request);
 		};

@@ -26,7 +26,7 @@ class ValidateException extends Exception
 		parent::__construct($message, $code, $previous);
 	}
 
-	public function getData()
+	public function getData(): array
 	{
 		return $this->data;
 	}

@@ -18,18 +18,18 @@ abstract class BaseRule implements Rule
 {
 	protected $message = '';
 	
-	public function setMessage(string $message)
+	public function setMessage(string $message): BaseRule
 	{
 		$this->message = $message;
 		return $this;
 	}
 	
-	public function getMessage()
+	public function getMessage(): string
 	{
 		return $this->message;
 	}
 	
-	public function message()
+	public function message(): string
 	{
 		return $this->getMessage();
 	}

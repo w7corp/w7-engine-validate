@@ -18,7 +18,7 @@ use Illuminate\Support\Collection;
 
 class ValidateCollection extends Collection
 {
-	public function has($key)
+	public function has($key): bool
 	{
 		$keys = is_array($key) ? $key : func_get_args();
 		
@@ -49,7 +49,7 @@ class ValidateCollection extends Collection
 		return parent::get($key, $default);
 	}
 	
-	public function set($key, $value)
+	public function set($key, $value): ValidateCollection
 	{
 		Arr::set($this->items, $key, $value);
 		return $this;

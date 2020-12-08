@@ -59,20 +59,20 @@ abstract class ValidateEventAbstract implements ValidateEventInterface
 		return $next($data, $request);
 	}
 
-	final public function setSceneName(?string $sceneName)
-	{
+	final public function setSceneName(?string $sceneName): ValidateEventAbstract
+    {
 		$this->sceneName = $sceneName;
 		return $this;
 	}
 
-	final public function setController(string $controller)
-	{
+	final public function setController(string $controller): ValidateEventAbstract
+    {
 		$this->controller = $controller;
 		return $this;
 	}
 
-	final public function setMethod(string $method)
-	{
+	final public function setMethod(string $method): ValidateEventAbstract
+    {
 		$this->method = $method;
 		return $this;
 	}
