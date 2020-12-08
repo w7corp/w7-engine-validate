@@ -28,13 +28,13 @@ class ValidateResult
 		$this->request = $request;
 	}
 	
-	public function getData()
-	{
+	public function getData(): array
+    {
 		return $this->data;
 	}
 	
-	public function getRequest()
-	{
+	public function getRequest(): RequestInterface
+    {
 		return $this->request;
 	}
 }

@@ -18,8 +18,8 @@ use Illuminate\Support\Fluent;
 use Illuminate\Validation\ValidationException;
 use LogicException;
 use Psr\Http\Message\RequestInterface;
-use W7\Core\Facades\Context;
-use W7\Core\Facades\Validator;
+use W7\Facade\Context;
+use W7\Facade\Validator;
 use W7\Http\Message\Server\Request;
 use W7\Validate\Exception\ValidateException;
 use W7\Validate\Support\Event\ValidateResult;
@@ -103,7 +103,7 @@ class Validate
 	 * @return array 返回验证成功后的数据
 	 * @throws ValidateException
 	 */
-	public function check(array $data)
+	public function check(array $data): array
 	{
 		try {
 			$this->checkData = $data;
@@ -125,7 +125,7 @@ class Validate
 		}
 	}
 
-	private function handleEvent(array $data, string $method)
+	private function handleEvent(array $data, string $method): array
 	{
 		$request = $this->request ?: Context::getRequest();
 		$request = $request ?: new Request('', null);
@@ -140,7 +140,7 @@ class Validate
 		throw new LogicException('Validate event return type error');
 	}
 
-	public function getRequest()
+	public function getRequest(): ?RequestInterface
 	{
 		return $this->request;
 	}
@@ -151,7 +151,7 @@ class Validate
 		$this->handlers  = [];
 	}
 
-	private function getSceneRules()
+	private function getSceneRules(): array
 	{
 		$this->init();
 		$this->addHandler($this->handler);
@@ -183,7 +183,7 @@ class Validate
 		return $this->checkRule->toArray();
 	}
 
-	private function getExtendsName(string $rule, string $field = null)
+	private function getExtendsName(string $rule, string $field = null): string
 	{
 		# 取回真实的自定义规则方法名称，以及修改对应的错误消息
 		if (in_array($rule, self::$extendName)) {
@@ -197,7 +197,7 @@ class Validate
 		return $rule;
 	}
 
-	private function makeMessageName(string $field, string $rule)
+	private function makeMessageName(string $field, string $rule): string
 	{
 		if (false !== strpos($rule, ':')) {
 			$rule = substr($rule, 0, strpos($rule, ':'));
@@ -224,7 +224,7 @@ class Validate
 		}
 	}
 
-	private function getScene(?string $name = null)
+	private function getScene(?string $name = null): Validate
 	{
 		if (empty($name)) {
 			$this->checkRule = collect($this->rule);
@@ -279,12 +279,19 @@ class Validate
 		return $this;
 	}
 
+	/**
+	 * @param string $ruleName
+	 * @return false|mixed|Closure
+	 */
 	private function getRuleClass(string $ruleName)
 	{
-		$ruleNameSpace = ValidateConfig::instance()->rulesPath . ucfirst($ruleName);
-		if (class_exists($ruleNameSpace)) {
-			return new $ruleNameSpace();
+		foreach (ValidateConfig::instance()->getRulePath() as $rulesPath) {
+			$ruleNameSpace = $rulesPath . ucfirst($ruleName);
+			if (class_exists($ruleNameSpace)) {
+				return new $ruleNameSpace();
+			}
 		}
+
 		return false;
 	}
 
@@ -312,7 +319,7 @@ class Validate
 	 * @param string $name
 	 * @return $this
 	 */
-	public function scene(string $name)
+	public function scene(string $name): Validate
 	{
 		$this->currentScene = $name;
 		return $this;
@@ -323,7 +330,7 @@ class Validate
 	 * @param mixed ...$params
 	 * @return $this
 	 */
-	public function handler(string $handler, ...$params)
+	public function handler(string $handler, ...$params): Validate
 	{
 		$this->handlers[] = [$handler,$params];
 		return $this;
@@ -335,7 +342,7 @@ class Validate
 	 * @param array $fields 字段名
 	 * @return $this
 	 */
-	public function only(array $fields)
+	public function only(array $fields): Validate
 	{
 		$this->checkRule = $this->checkRule->only($fields);
 		return $this;
@@ -348,7 +355,7 @@ class Validate
 	 * @param string $rule 验证规则
 	 * @return $this
 	 */
-	public function append(string $field, string $rule)
+	public function append(string $field, string $rule): Validate
 	{
 		if (isset($this->checkRule[$field])) {
 			if (is_array($this->checkRule[$field])) {
@@ -373,7 +380,7 @@ class Validate
 	 * @param string|null $rule 验证规则 null 移除所有规则
 	 * @return $this
 	 */
-	public function remove(string $field, ?string $rule = null)
+	public function remove(string $field, ?string $rule = null): Validate
 	{
 		$removeRule = $rule;
 		if (is_string($rule) && false !== strpos($rule, '|')) {
@@ -421,7 +428,7 @@ class Validate
 	 * @param callable $callback 回调方法,返回true获取具体规则生效
 	 * @return $this
 	 */
-	public function sometimes($attribute, $rules, callable $callback)
+	public function sometimes($attribute, $rules, callable $callback): Validate
 	{
 		$data   = new Fluent($this->checkData);
 		$result = $callback($data);
@@ -452,7 +459,7 @@ class Validate
 	 * @param null $rule 验证字段
 	 * @return array|mixed|null
 	 */
-	public function getRules($rule = null)
+	public function getRules($rule = null): ?array
 	{
 		if (null === $rule) {
 			return $this->rule;
@@ -471,7 +478,7 @@ class Validate
 	 * @param array|null $rules [字段 => 规则] 如果$rules为null，则清空全部验证规则
 	 * @return $this
 	 */
-	public function setRules(?array $rules = null)
+	public function setRules(?array $rules = null): Validate
 	{
 		if (null === $rules) {
 			$this->rule = [];
@@ -486,7 +493,7 @@ class Validate
 	 * @param string|null $rule 如果第一个值为字段名，则第二个值则为规则，否则请留空
 	 * @return array|mixed|null
 	 */
-	public function getMessages($key = null, ?string $rule = null)
+	public function getMessages($key = null, ?string $rule = null): ?array
 	{
 		if (null === $key) {
 			return $this->message;
@@ -511,7 +518,7 @@ class Validate
 	 * @param array|null $message [字段.规则 => 验证消息] 如果$message为null，则清空全部验证消息
 	 * @return $this
 	 */
-	public function setMessages(?array $message = null)
+	public function setMessages(?array $message = null): Validate
 	{
 		if (null === $message) {
 			$this->message = [];
@@ -527,7 +534,7 @@ class Validate
 	 * @param array|null $scene [场景 => [字段]] 如果$scene为null，则清空全部验证场景
 	 * @return $this
 	 */
-	public function setScene(?array $scene = null)
+	public function setScene(?array $scene = null): Validate
 	{
 		if (null === $scene) {
 			$this->scene = [];

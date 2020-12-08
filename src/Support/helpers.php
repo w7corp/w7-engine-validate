@@ -11,7 +11,7 @@
  */
 
 use Psr\Http\Message\ServerRequestInterface;
-use W7\Core\Facades\Context;
+use W7\Facade\Context;
 use W7\Validate\Support\Storage\ValidateCollection;
 
 if (!function_exists('validate_collect')) {
@@ -20,8 +20,8 @@ if (!function_exists('validate_collect')) {
 	 * @param null $value
 	 * @return ValidateCollection
 	 */
-	function validate_collect($value = null)
-	{
+	function validate_collect($value = null): ValidateCollection
+    {
 		return new ValidateCollection($value);
 	}
 }
@@ -32,8 +32,8 @@ if (!function_exists('get_validate_data')) {
 	 * @param ServerRequestInterface|null $request 请求示例，如果为null，则自动从上下文中获取
 	 * @return ValidateCollection 返回验证器集合ValidateCollection类型
 	 */
-	function get_validate_data(ServerRequestInterface $request = null)
-	{
+	function get_validate_data(ServerRequestInterface $request = null): ValidateCollection
+    {
 		if (null === $request) {
 			$request = Context::getRequest();
 		}
