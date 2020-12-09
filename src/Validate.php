@@ -459,7 +459,7 @@ class Validate
 	 * @param null $rule 验证字段
 	 * @return array|mixed|null
 	 */
-	public function getRules($rule = null): ?array
+	public function getRules($rule = null)
 	{
 		if (null === $rule) {
 			return $this->rule;
@@ -493,7 +493,7 @@ class Validate
 	 * @param string|null $rule 如果第一个值为字段名，则第二个值则为规则，否则请留空
 	 * @return array|mixed|null
 	 */
-	public function getMessages($key = null, ?string $rule = null): ?array
+	public function getMessages($key = null, ?string $rule = null)
 	{
 		if (null === $key) {
 			return $this->message;
