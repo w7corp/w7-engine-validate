@@ -86,7 +86,7 @@ class ValidateMiddleware extends MiddlewareAbstract
 				}
 			}
 			if (empty($controllerPath)) {
-				return true;
+				return false;
 			}
 
 			$validate   = str_replace($controllerPath, '', $controller);
