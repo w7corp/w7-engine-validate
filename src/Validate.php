@@ -183,8 +183,17 @@ class Validate
 		return $this->checkRule->toArray();
 	}
 
-	private function getExtendsName(string $rule, string $field = null): string
+	private function getExtendsName(string $rule, string $field = null):string
 	{
+		$param = null;
+		if (false !== strpos($rule, ':')) {
+			$rules = explode(':', $rule, 2);
+			$rule  = $rules[0];
+			if (count($rules) >= 2) {
+				$param = $rules[1];
+			}
+		}
+
 		# 取回真实的自定义规则方法名称，以及修改对应的错误消息
 		if (in_array($rule, self::$extendName)) {
 			$ruleName = md5(get_called_class() . $rule);
@@ -192,7 +201,12 @@ class Validate
 			if (null !== $field && isset($this->message[$field . '.' . $rule])) {
 				$this->message[$ruleName] = $this->message[$field . '.' . $rule];
 			}
-			return $ruleName;
+
+			$rule = $ruleName;
+		}
+
+		if (!empty($param)) {
+			$rule = $rule . ':' . $param;
 		}
 		return $rule;
 	}
