@@ -185,7 +185,7 @@ class Validate
 
 	private function getExtendsName(string $rule, string $field = null):string
 	{
-		$param = null;
+		$param = '';
 		if (false !== strpos($rule, ':')) {
 			$rules = explode(':', $rule, 2);
 			$rule  = $rules[0];
@@ -205,7 +205,7 @@ class Validate
 			$rule = $ruleName;
 		}
 
-		if (!empty($param)) {
+		if ('' !== $param) {
 			$rule = $rule . ':' . $param;
 		}
 		return $rule;
