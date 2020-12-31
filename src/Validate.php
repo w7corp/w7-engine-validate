@@ -53,8 +53,17 @@ class Validate
 	 */
 	protected $handler = [];
 
-	/** @var array  */
+	/**
+	 * 字段名称
+	 * @var array
+	 */
 	protected $customAttributes = [];
+
+	/**
+	 * 是否首次验证失败后停止运行
+	 * @var bool
+	 */
+	protected $bail = true;
 
 	/**
 	 * 当前验证场景
@@ -108,7 +117,10 @@ class Validate
 		try {
 			$this->checkData = $data;
 			$rule            = $this->getSceneRules();
-			$data            = $this->handleEvent($data, 'beforeValidate');
+			if ($this->bail) {
+				$rule = $this->addBailRule($rule);
+			}
+			$data = $this->handleEvent($data, 'beforeValidate');
 			/** @var \Illuminate\Validation\Validator $v */
 			$v    = Validator::make($data, $rule, $this->message, $this->customAttributes);
 			$data = $this->handleEvent($v->validate(), 'afterValidate');
@@ -236,6 +248,18 @@ class Validate
 				}
 			}
 		}
+	}
+
+	private function addBailRule(array $rules):array
+	{
+		foreach ($rules as $key => $rule) {
+			if (!in_array('bail', $rule)) {
+				array_unshift($rule, 'bail');
+				$rules[$key] = $rule;
+			}
+		}
+
+		return $rules;
 	}
 
 	private function getScene(?string $name = null): Validate
