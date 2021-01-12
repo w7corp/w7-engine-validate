@@ -16,6 +16,7 @@ use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use W7\Core\Route\Route;
 use W7\Facade\Context;
 use W7\Core\Middleware\MiddlewareAbstract;
 use W7\Http\Message\Server\Request;
@@ -35,18 +36,23 @@ class ValidateMiddleware extends MiddlewareAbstract
 			$data    = $validator->check($data);
 			$request = $validator->getRequest();
 		}
-		
+
 		/** @var Request $request */
 		$request = $request->withAttribute('validate', $data);
 		Context::setRequest($request);
 		return $handler->handle($request);
 	}
-	
+
 	final public function getValidate(ServerRequestInterface $request)
 	{
-		$route      = $request->getAttribute('route');
-		$controller = $route['controller'] ?? '';
-		$scene      = $route['method']     ?? '';
+		/** @var Route $route */
+		$route   = $request->getAttribute('route');
+		$handler = $route->handler;
+		if (!is_array($handler) || 2 !== count($handler)) {
+			return false;
+		}
+		$controller = $handler[0] ?? '';
+		$scene      = $handler[1] ?? '';
 		$haveLink   = false;
 		$validate   = '';
 
@@ -102,7 +108,7 @@ class ValidateMiddleware extends MiddlewareAbstract
 				$validator->scene($scene);
 				return $validator;
 			}
-			
+
 			throw new Exception("The given 'Validate' " . $validate . ' has to be a subtype of W7\Validate\Validate');
 		}
 		return false;
