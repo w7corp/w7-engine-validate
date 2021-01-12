@@ -197,14 +197,7 @@ class Validate
 
 	private function getExtendsName(string $rule, string $field = null):string
 	{
-		$param = '';
-		if (false !== strpos($rule, ':')) {
-			$rules = explode(':', $rule, 2);
-			$rule  = $rules[0];
-			if (count($rules) >= 2) {
-				$param = $rules[1];
-			}
-		}
+		list($rule, $param) = $this->getKeyAndParam($rule, false);
 
 		# 取回真实的自定义规则方法名称，以及修改对应的错误消息
 		if (in_array($rule, self::$extendName)) {
@@ -221,6 +214,25 @@ class Validate
 			$rule = $rule . ':' . $param;
 		}
 		return $rule;
+	}
+
+	private function getKeyAndParam(string $value, bool $parsing = false): array
+	{
+		$param = '';
+		if (false !== strpos($value, ':')) {
+			$arg = explode(':', $value, 2);
+			$key = $arg[0];
+			if (count($arg) >= 2) {
+				$param = $arg[1];
+			}
+		} else {
+			$key = $value;
+		}
+
+		if ($parsing) {
+			$param = explode(',', $param);
+		}
+		return [$key,$param];
 	}
 
 	private function makeMessageName(string $field, string $rule): string
@@ -323,10 +335,12 @@ class Validate
 	 */
 	private function getRuleClass(string $ruleName)
 	{
+		list($ruleName, $param) = $this->getKeyAndParam($ruleName, true);
+		
 		foreach (ValidateConfig::instance()->getRulePath() as $rulesPath) {
 			$ruleNameSpace = $rulesPath . ucfirst($ruleName);
 			if (class_exists($ruleNameSpace)) {
-				return new $ruleNameSpace();
+				return new $ruleNameSpace(...$param);
 			}
 		}
 
