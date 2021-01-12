@@ -139,6 +139,9 @@ class Validate
 
 	private function handleEvent(array $data, string $method): array
 	{
+		if (empty($this->handlers)){
+			return $data;
+		}
 		$request = $this->request ?: Context::getRequest();
 		$request = $request ?: new Request('', null);
 		$result  = (new ValidateHandler($data, $this->handlers, $request, $this->currentScene))->handle($method);
@@ -336,7 +339,7 @@ class Validate
 	private function getRuleClass(string $ruleName)
 	{
 		list($ruleName, $param) = $this->getKeyAndParam($ruleName, true);
-		
+
 		foreach (ValidateConfig::instance()->getRulePath() as $rulesPath) {
 			$ruleNameSpace = $rulesPath . ucfirst($ruleName);
 			if (class_exists($ruleNameSpace)) {
