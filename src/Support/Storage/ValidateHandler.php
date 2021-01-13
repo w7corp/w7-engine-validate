@@ -32,26 +32,16 @@ class ValidateHandler
 	/** @var string */
 	protected $sceneName = null;
 
-	/** @var string */
-	protected $controller;
-
-	/** @var string */
-	protected $method;
-
 	public function __construct(array $data, array $handlers, RequestInterface $request, string $sceneName = null)
 	{
 		$this->data      = $data;
 		$this->request   = $request;
 		$this->handlers  = $handlers;
 		$this->sceneName = $sceneName;
-		
-		$route            = $request->getAttribute('route');
-		$this->controller = $route['controller'] ?? '';
-		$this->method     = $route['method']     ?? '';
 	}
 	
 	protected function carry(): Closure
-    {
+	{
 		return function ($stack, $pipe) {
 			return function ($data, $request) use ($stack, $pipe) {
 				return $pipe($data, $request, $stack);
@@ -60,16 +50,14 @@ class ValidateHandler
 	}
 	
 	protected function pipes(string $method): array
-    {
+	{
 		return array_map(function ($middleware) use ($method) {
 			return function ($data, $request, $next) use ($middleware, $method) {
 				list($callback, $param) = $middleware;
 				if (class_exists($callback) && is_subclass_of($callback, ValidateEventAbstract::class)) {
 					/** @var ValidateEventAbstract $handler */
 					$handler = new $callback(...$param);
-					$handler->setSceneName($this->sceneName)
-							->setController($this->controller)
-							->setMethod($this->method);
+					$handler->setSceneName($this->sceneName);
 					return call_user_func([$handler, $method], $data, $request, $next);
 				} else {
 					throw new ValidateException('Event error or nonexistence');
@@ -79,7 +67,7 @@ class ValidateHandler
 	}
 	
 	protected function destination(): Closure
-    {
+	{
 		return function ($data, $request) {
 			return new ValidateResult($data, $request);
 		};

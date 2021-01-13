@@ -108,8 +108,8 @@ class Validate
 
 	/**
 	 * 自动验证
-	 * @param array $data
-	 * @return array 返回验证成功后的数据
+	 * @param array $data 待验证的数据
+	 * @return array
 	 * @throws ValidateException
 	 */
 	public function check(array $data): array
@@ -137,6 +137,13 @@ class Validate
 		}
 	}
 
+	/**
+	 * 验证事件处理
+	 * @param array $data    验证的数据
+	 * @param string $method 事件名称
+	 * @return array
+	 * @throws ValidateException
+	 */
 	private function handleEvent(array $data, string $method): array
 	{
 		if (empty($this->handlers)){
@@ -155,17 +162,28 @@ class Validate
 		throw new LogicException('Validate event return type error');
 	}
 
+	/**
+	 * 获取请求类
+	 * @return RequestInterface|null
+	 */
 	public function getRequest(): ?RequestInterface
 	{
 		return $this->request;
 	}
 
+	/**
+	 * 初始化验证
+	 */
 	private function init()
 	{
 		$this->checkRule = [];
 		$this->handlers  = [];
 	}
 
+	/**
+	 * 获取当前场景下需要验证的规则
+	 * @return array
+	 */
 	private function getSceneRules(): array
 	{
 		$this->init();
@@ -198,6 +216,13 @@ class Validate
 		return $this->checkRule->toArray();
 	}
 
+	/**
+	 * 获取扩展方法的名称
+	 * 由于为了区分多个验证器的相同自定义方法名，对方法名做了处理，此方法为了使规则和处理后的方法名对应上
+	 * @param string      $rule   规则名称
+	 * @param string|null $field  字段
+	 * @return string
+	 */
 	private function getExtendsName(string $rule, string $field = null):string
 	{
 		list($rule, $param) = $this->getKeyAndParam($rule, false);
@@ -219,6 +244,12 @@ class Validate
 		return $rule;
 	}
 
+	/**
+	 * 获取规则的名称和参数
+	 * @param string $value  规则
+	 * @param bool $parsing  是否解析参数，默认为false
+	 * @return array
+	 */
 	private function getKeyAndParam(string $value, bool $parsing = false): array
 	{
 		$param = '';
@@ -238,6 +269,12 @@ class Validate
 		return [$key,$param];
 	}
 
+	/**
+	 * 生成错误消息的名称
+	 * @param string $field 字段
+	 * @param string $rule  规则
+	 * @return string
+	 */
 	private function makeMessageName(string $field, string $rule): string
 	{
 		if (false !== strpos($rule, ':')) {
@@ -246,6 +283,10 @@ class Validate
 		return $field . '.' . $rule;
 	}
 
+	/**
+	 * 添加事件
+	 * @param $handlers
+	 */
 	private function addHandler($handlers)
 	{
 		if (is_string($handlers)) {
@@ -265,6 +306,11 @@ class Validate
 		}
 	}
 
+	/**
+	 * 添加bail规则
+	 * @param array $rules 原规则
+	 * @return array
+	 */
 	private function addBailRule(array $rules):array
 	{
 		foreach ($rules as $key => $rule) {
@@ -277,6 +323,12 @@ class Validate
 		return $rules;
 	}
 
+	/**
+	 * 进入场景
+	 * @param string|null $name 场景名称
+	 * @return Validate
+	 * @throws ValidateException
+	 */
 	private function getScene(?string $name = null): Validate
 	{
 		if (empty($name)) {
@@ -333,7 +385,9 @@ class Validate
 	}
 
 	/**
-	 * @param string $ruleName
+	 * 获取自定义规则的实例类
+	 *
+	 * @param string $ruleName 自定义规则名称
 	 * @return false|mixed|Closure
 	 */
 	private function getRuleClass(string $ruleName)
@@ -381,8 +435,10 @@ class Validate
 	}
 
 	/**
-	 * @param string $handler
-	 * @param mixed ...$params
+	 * 加入事件
+	 *
+	 * @param string $handler  事件的完整类名，完整命名空间字符串或者加::class
+	 * @param mixed ...$params 要传递给事件的参数
 	 * @return $this
 	 */
 	public function handler(string $handler, ...$params): Validate
