@@ -24,18 +24,6 @@ abstract class ValidateEventAbstract implements ValidateEventInterface
 	protected $sceneName;
 
 	/**
-	 * 当前控制器名称
-	 * @var string
-	 */
-	protected $controller;
-
-	/**
-	 * 当前操作方法
-	 * @var string
-	 */
-	protected $method;
-
-	/**
 	 * 场景验证前
 	 * @param array $data 用户输入的数据
 	 * @param ServerRequestInterface $request
@@ -59,21 +47,14 @@ abstract class ValidateEventAbstract implements ValidateEventInterface
 		return $next($data, $request);
 	}
 
+	/**
+	 * 写入当前的验证场景名称
+	 * @param string|null $sceneName
+	 * @return $this
+	 */
 	final public function setSceneName(?string $sceneName): ValidateEventAbstract
-    {
+	{
 		$this->sceneName = $sceneName;
-		return $this;
-	}
-
-	final public function setController(string $controller): ValidateEventAbstract
-    {
-		$this->controller = $controller;
-		return $this;
-	}
-
-	final public function setMethod(string $method): ValidateEventAbstract
-    {
-		$this->method = $method;
 		return $this;
 	}
 }

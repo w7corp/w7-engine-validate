@@ -16,19 +16,29 @@ use Illuminate\Contracts\Validation\Rule;
 
 abstract class BaseRule implements Rule
 {
+	/**
+	 * 错误消息，支持format字符串
+	 * @var string
+	 */
 	protected $message = '';
-	
+
+	/**
+	 * 用于format错误消息的参数
+	 * @var array
+	 */
+	protected $messageParam = [];
+
 	public function setMessage(string $message): BaseRule
 	{
 		$this->message = $message;
 		return $this;
 	}
-	
+
 	public function getMessage(): string
 	{
-		return $this->message;
+		return vsprintf($this->message, $this->messageParam);
 	}
-	
+
 	public function message(): string
 	{
 		return $this->getMessage();
