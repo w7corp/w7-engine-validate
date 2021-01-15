@@ -22,19 +22,19 @@ class ValidateConfig
 	 * 自定义规则命名空间前缀
 	 * @var array
 	 */
-	protected $rulesPath = [];
+	protected array $rulesPath = [];
 
 	/**
 	 * 自动加载验证器规则
 	 * @var array
 	 */
-	protected $autoValidatePath = [];
+	protected array $autoValidatePath = [];
 
 	/**
 	 * 验证器具体关联
 	 * @var array
 	 */
-	protected $validateLink = [];
+	protected array $validateLink = [];
 
 	/**
 	 * 设置自动加载验证器规则
@@ -103,11 +103,11 @@ class ValidateConfig
 		return $this->validateLink[md5($controller)] ?? [];
 	}
 
-/**
- * 设置自定义规则命名空间前缀,<b>如设置多个则全部生效</b>
- * @param string $rulesPath 自定义规则命名空间前缀
- * @return $this
- */
+	/**
+	 * 设置自定义规则命名空间前缀,<b>如设置多个则全部生效</b>
+	 * @param string $rulesPath 自定义规则命名空间前缀
+	 * @return $this
+	 */
 	public function setRulesPath(string $rulesPath): ValidateConfig
 	{
 		$this->rulesPath[] = $rulesPath;

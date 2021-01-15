@@ -19,9 +19,9 @@ abstract class ValidateEventAbstract implements ValidateEventInterface
 {
 	/**
 	 * 当前验证场景
-	 * @var string
+	 * @var ?string
 	 */
-	protected $sceneName;
+	protected ?string $sceneName;
 
 	/**
 	 * 场景验证前

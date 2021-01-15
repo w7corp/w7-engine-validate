@@ -16,11 +16,9 @@ use Psr\Http\Message\RequestInterface;
 
 class ValidateResult
 {
-	/** @var array */
-	protected $data;
-	
-	/** @var RequestInterface */
-	protected $request;
+	protected array $data;
+
+	protected RequestInterface $request;
 	
 	public function __construct(array $data, RequestInterface $request)
 	{
@@ -29,12 +27,12 @@ class ValidateResult
 	}
 	
 	public function getData(): array
-    {
+	{
 		return $this->data;
 	}
 	
 	public function getRequest(): RequestInterface
-    {
+	{
 		return $this->request;
 	}
 }

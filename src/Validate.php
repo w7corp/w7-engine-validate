@@ -33,73 +33,73 @@ class Validate
 	 * 自定义错误消息
 	 * @var array
 	 */
-	protected $message = [];
+	protected array $message = [];
 
 	/**
 	 * 验证规则
 	 * @var array
 	 */
-	protected $rule = [];
+	protected array $rule = [];
 
 	/**
 	 * 验证场景数据，key为控制器内的方法
 	 * @var array
 	 */
-	protected $scene = [];
+	protected array $scene = [];
 
 	/**
 	 * 全局事件处理器
 	 * @var array
 	 */
-	protected $handler = [];
+	protected array $handler = [];
 
 	/**
 	 * 字段名称
 	 * @var array
 	 */
-	protected $customAttributes = [];
+	protected array $customAttributes = [];
 
 	/**
 	 * 是否首次验证失败后停止运行
 	 * @var bool
 	 */
-	protected $bail = true;
+	protected bool $bail = true;
 
 	/**
 	 * 当前验证场景
-	 * @var string
+	 * @var ?string
 	 */
-	private $currentScene = null;
+	private ?string $currentScene = null;
 
 	/**
 	 * 验证的规则
 	 * @var Collection
 	 */
-	private $checkRule;
+	private Collection $checkRule;
 
 	/**
 	 * 扩展方法名
 	 * @var array
 	 */
-	private static $extendName = [];
+	private static array $extendName = [];
 
 	/**
 	 * 验证器事件处理类
 	 * @var array
 	 */
-	private $handlers = [];
+	private array $handlers = [];
 
 	/**
 	 * Request请求实例
 	 * @var RequestInterface|null
 	 */
-	protected $request = null;
+	protected ?RequestInterface $request = null;
 
 	/**
 	 * 当前进行验证的数据
 	 * @var array
 	 */
-	protected $checkData = [];
+	protected array $checkData = [];
 
 	public function __construct(?RequestInterface $request = null)
 	{
@@ -146,12 +146,12 @@ class Validate
 	 */
 	private function handleEvent(array $data, string $method): array
 	{
-		if (empty($this->handlers)){
+		if (empty($this->handlers)) {
 			return $data;
 		}
 		$request = $this->request ?: Context::getRequest();
-		$request = $request ?: new Request('', null);
-		$result  = (new ValidateHandler($data, $this->handlers, $request, $this->currentScene))->handle($method);
+		$request ??= new Request('', null);
+		$result = (new ValidateHandler($data, $this->handlers, $request, $this->currentScene))->handle($method);
 		if (is_string($result)) {
 			throw new ValidateException($result, 403);
 		} elseif ($result instanceof ValidateResult) {
@@ -176,13 +176,14 @@ class Validate
 	 */
 	private function init()
 	{
-		$this->checkRule = [];
+		$this->checkRule = collect([]);
 		$this->handlers  = [];
 	}
 
 	/**
 	 * 获取当前场景下需要验证的规则
 	 * @return array
+	 * @throws ValidateException
 	 */
 	private function getSceneRules(): array
 	{

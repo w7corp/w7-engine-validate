@@ -13,7 +13,7 @@
         "validate"
     ],
     "require": {
-        "php": "^7.2|^8.0",
+        "php": "^7.4|^8.0",
         "w7/rangine": "^2.4.7"
     },
     "require-dev": {
