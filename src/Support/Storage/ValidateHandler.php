@@ -20,17 +20,13 @@ use W7\Validate\Support\Event\ValidateResult;
 
 class ValidateHandler
 {
-	/** @var array  */
-	protected $handlers = [];
-	
-	/** @var array */
-	protected $data = [];
-	
-	/** @var RequestInterface */
-	protected $request;
+	protected array $handlers = [];
 
-	/** @var string */
-	protected $sceneName = null;
+	protected array $data = [];
+
+	protected RequestInterface $request;
+
+	protected ?string $sceneName = null;
 
 	public function __construct(array $data, array $handlers, RequestInterface $request, string $sceneName = null)
 	{
