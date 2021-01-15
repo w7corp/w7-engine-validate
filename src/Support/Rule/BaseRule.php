@@ -12,9 +12,7 @@
 
 namespace W7\Validate\Support\Rule;
 
-use Illuminate\Contracts\Validation\Rule;
-
-abstract class BaseRule implements Rule
+abstract class BaseRule implements RuleInterface
 {
 	/**
 	 * 错误消息，支持format字符串
