@@ -46,9 +46,15 @@ $fixers = [
 	],
 	//	'braces'                                     => ['position_after_functions_and_oop_constructs' => 'same'], //设置大括号换行，暂时根本Psr
 	'binary_operator_spaces'  => ['default' => 'align_single_space_minimal'], //等号对齐、数字箭头符号对齐
+	'whitespace_after_comma_in_array' => true,
 	'array_syntax'            => ['syntax' => 'short'],
 	'ternary_operator_spaces' => true,
 	'yoda_style'              => true,
+	'normalize_index_brace'   => true,
+	'short_scalar_cast'       => true,
+	'function_typehint_space' => true,
+	'function_declaration'    => true,
+	'return_type_declaration' => true
 
 ];
 return PhpCsFixer\Config::create()

@@ -18,8 +18,8 @@ use W7\Validate\Exception\ValidateException;
 
 class TestValidateScene extends TestBaseValidate
 {
-	/** @var array */
-	protected $userInput;
+	protected array $userInput;
+
 	public function __construct($name = null, array $data = [], $dataName = '')
 	{
 		parent::__construct($name, $data, $dataName);

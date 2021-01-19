@@ -56,7 +56,7 @@ class ValidateConfig
 	 *                                    如需指定场景，请传数组，第二个元素为场景名
 	 * @return $this
 	 */
-	public function setValidateLink($controller, $validate):ValidateConfig
+	public function setValidateLink($controller, $validate): ValidateConfig
 	{
 		if (is_array($controller)) {
 			$controllers = $controller;
