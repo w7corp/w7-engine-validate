@@ -16,14 +16,14 @@ use W7\Validate\Validate;
 
 class TestArticleValidate extends Validate
 {
-	protected $rule = [
+	protected array $rule = [
 		'id'      => 'required|numeric',
 		'content' => 'required|between:1,2000',
 		'title'   => 'required|between:4,50|alpha',
 		'type'    => 'required|numeric',
 	];
 
-	protected $message = [
+	protected array $message = [
 		'id.required'            => '缺少参数：文章Id',
 		'id.numeric'             => '参数错误：文章Id',
 		'content.required'       => '文章内容必须填写',
@@ -35,15 +35,15 @@ class TestArticleValidate extends Validate
 		'type.numeric'           => '文章分类错误',
 	];
 	
-	protected $scene = [
-		'add'  => ['content','title'],
+	protected array $scene = [
+		'add'  => ['content', 'title'],
 		'save' => ['use' => 'edit'],
 		'del'  => ['id'],
 	];
 	
 	public function sceneEdit()
 	{
-		return $this->only(['id','content','title'])
+		return $this->only(['id', 'content', 'title'])
 			->append('id', 'max:10000')
 			->remove('content', 'between')
 			->remove('title', null)
@@ -52,7 +52,7 @@ class TestArticleValidate extends Validate
 	
 	public function sceneDynamic()
 	{
-		return $this->only(['title','content'])
+		return $this->only(['title', 'content'])
 			->remove('content', 'between');
 	}
 }

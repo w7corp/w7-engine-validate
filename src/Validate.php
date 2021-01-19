@@ -224,7 +224,7 @@ class Validate
 	 * @param string|null $field  字段
 	 * @return string
 	 */
-	private function getExtendsName(string $rule, string $field = null):string
+	private function getExtendsName(string $rule, string $field = null): string
 	{
 		list($rule, $param) = $this->getKeyAndParam($rule, false);
 
@@ -267,7 +267,7 @@ class Validate
 		if ($parsing) {
 			$param = explode(',', $param);
 		}
-		return [$key,$param];
+		return [$key, $param];
 	}
 
 	/**
@@ -291,11 +291,11 @@ class Validate
 	private function addHandler($handlers)
 	{
 		if (is_string($handlers)) {
-			$this->handlers[] = [$handlers,[]];
+			$this->handlers[] = [$handlers, []];
 		} else {
 			foreach ($handlers as $handlerClass => $param) {
 				if (is_int($handlerClass)) {
-					$this->handlers[] = [$param,[]];
+					$this->handlers[] = [$param, []];
 				} elseif (is_string($handlerClass)) {
 					if (is_array($param)) {
 						$this->handler($handlerClass, ...$param);
@@ -312,7 +312,7 @@ class Validate
 	 * @param array $rules 原规则
 	 * @return array
 	 */
-	private function addBailRule(array $rules):array
+	private function addBailRule(array $rules): array
 	{
 		foreach ($rules as $key => $rule) {
 			if (!in_array('bail', $rule)) {
@@ -367,7 +367,7 @@ class Validate
 						)->scene($randScene)->check($this->checkData);
 					}
 
-					$use = call_user_func([$this,'use' . ucfirst($use)], $data);
+					$use = call_user_func([$this, 'use' . ucfirst($use)], $data);
 					if (is_array($use)) {
 						$this->checkRule = collect($this->rule)->only($use);
 						return $this;
@@ -444,7 +444,7 @@ class Validate
 	 */
 	public function handler(string $handler, ...$params): Validate
 	{
-		$this->handlers[] = [$handler,$params];
+		$this->handlers[] = [$handler, $params];
 		return $this;
 	}
 

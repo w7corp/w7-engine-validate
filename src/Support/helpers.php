@@ -21,7 +21,7 @@ if (!function_exists('validate_collect')) {
 	 * @return ValidateCollection
 	 */
 	function validate_collect($value = null): ValidateCollection
-    {
+	{
 		return new ValidateCollection($value);
 	}
 }
@@ -33,7 +33,7 @@ if (!function_exists('get_validate_data')) {
 	 * @return ValidateCollection 返回验证器集合ValidateCollection类型
 	 */
 	function get_validate_data(ServerRequestInterface $request = null): ValidateCollection
-    {
+	{
 		if (null === $request) {
 			$request = Context::getRequest();
 		}
