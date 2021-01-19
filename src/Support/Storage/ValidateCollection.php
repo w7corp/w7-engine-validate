@@ -26,6 +26,12 @@ class ValidateCollection extends Collection
 	/**
 	 * 将下一次取出的值强制转为int类型
 	 *
+	 * @see get 获取指定字段的值
+	 * @see pop 移除并返回集合的最后一个集合项
+	 * @see pull 移除并返回集合的第一个集合项
+	 * @see shift 移除并返回集合的第一个集合项
+	 *
+	 * <p>此类型转换对上诉方法有效</p>
 	 * <b>请注意，如果你的值不支持强制转换，会抛出CollectionException异常</b>
 	 * @return $this
 	 */
@@ -38,6 +44,12 @@ class ValidateCollection extends Collection
 	/**
 	 * 将下一次取出的值强制转为float类型
 	 *
+	 * @see get 获取指定字段的值
+	 * @see pop 移除并返回集合的最后一个集合项
+	 * @see pull 移除并返回集合的第一个集合项
+	 * @see shift 移除并返回集合的第一个集合项
+	 *
+	 * <p>此类型转换对上诉方法有效</p>
 	 * <b>请注意，如果你的值不支持强制转换，会抛出CollectionException异常</b>
 	 * @return $this
 	 */
@@ -50,6 +62,12 @@ class ValidateCollection extends Collection
 	/**
 	 * 将下一次取出的值强制转为string类型
 	 *
+	 * @see get 获取指定字段的值
+	 * @see pop 移除并返回集合的最后一个集合项
+	 * @see pull 移除并返回集合的第一个集合项
+	 * @see shift 移除并返回集合的第一个集合项
+	 *
+	 * <p>此类型转换对上诉方法有效</p>
 	 * <b>请注意，如果你的值不支持强制转换，会抛出CollectionException异常</b>
 	 * @return $this
 	 */
@@ -62,6 +80,12 @@ class ValidateCollection extends Collection
 	/**
 	 * 将下一次取出的值强制转为array类型
 	 *
+	 * @see get 获取指定字段的值
+	 * @see pop 移除并返回集合的最后一个集合项
+	 * @see pull 移除并返回集合的第一个集合项
+	 * @see shift 移除并返回集合的第一个集合项
+	 *
+	 * <p>此类型转换对上诉方法有效</p>
 	 * <b>请注意，如果你的值不支持强制转换，会抛出CollectionException异常</b>
 	 * @return $this
 	 */
@@ -74,6 +98,12 @@ class ValidateCollection extends Collection
 	/**
 	 * 将下一次取出的值强制转为object类型
 	 *
+	 * @see get 获取指定字段的值
+	 * @see pop 移除并返回集合的最后一个集合项
+	 * @see pull 移除并返回集合的第一个集合项
+	 * @see shift 移除并返回集合的第一个集合项
+	 *
+	 * <p>此类型转换对上诉方法有效</p>
 	 * <b>请注意，如果你的值不支持强制转换，会抛出CollectionException异常</b>
 	 * @return $this
 	 */
@@ -86,6 +116,12 @@ class ValidateCollection extends Collection
 	/**
 	 * 将下一次取出的值强制转为bool类型
 	 *
+	 * @see get 获取指定字段的值
+	 * @see pop 移除并返回集合的最后一个集合项
+	 * @see pull 移除并返回集合的第一个集合项
+	 * @see shift 移除并返回集合的第一个集合项
+	 *
+	 * <p>此类型转换对上诉方法有效</p>
 	 * <b>请注意，如果你的值不支持强制转换，会抛出CollectionException异常</b>
 	 * @return $this
 	 */
@@ -152,6 +188,50 @@ class ValidateCollection extends Collection
 			$value = parent::get($key, $default);
 		}
 
+		return $this->typeConversion($value);
+	}
+
+	/**
+	 * 移除并返回集合的最后一个集合项
+	 * @return mixed
+	 * @throws CollectionException
+	 */
+	public function pop()
+	{
+		return $this->typeConversion(parent::pop());
+	}
+
+	/**
+	 * 移除并返回集合的第一个集合项
+	 * @return mixed
+	 * @throws CollectionException
+	 */
+	public function shift()
+	{
+		return $this->typeConversion(parent::shift());
+	}
+
+	/**
+	 * 将指定键对应的值从集合中移除并返回
+	 * @param mixed $key     字段名称
+	 * @param null $default  默认值
+	 * @return mixed
+	 * @throws CollectionException
+	 */
+	public function pull($key, $default = null)
+	{
+		$value = parent::pull($key, $default);
+		return $this->typeConversion($value);
+	}
+
+	/**
+	 * 将值转为指定类型
+	 * @param $value
+	 * @return mixed
+	 * @throws CollectionException
+	 */
+	private function typeConversion($value)
+	{
 		if (!empty($this->paramType)) {
 			$error = null;
 			set_error_handler(function ($type, $msg) use (&$error) {
@@ -164,7 +244,7 @@ class ValidateCollection extends Collection
 				throw new CollectionException($error);
 			}
 		}
-		
+
 		return $value;
 	}
 
