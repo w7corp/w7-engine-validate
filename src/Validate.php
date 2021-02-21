@@ -66,6 +66,12 @@ class Validate
 	protected bool $bail = true;
 
 	/**
+	 * 所有验证的字段在存在时不能为空，规则中带nullable除外
+	 * @var bool
+	 */
+	protected bool $filled = true;
+
+	/**
 	 * 当前验证场景
 	 * @var ?string
 	 */
@@ -119,6 +125,9 @@ class Validate
 			$rule            = $this->getSceneRules();
 			if ($this->bail) {
 				$rule = $this->addBailRule($rule);
+			}
+			if ($this->filled){
+				$rule = $this->addFilledRule($rule);
 			}
 			$data = $this->handleEvent($data, 'beforeValidate');
 			/** @var \Illuminate\Validation\Validator $v */
@@ -317,6 +326,23 @@ class Validate
 		foreach ($rules as $key => $rule) {
 			if (!in_array('bail', $rule)) {
 				array_unshift($rule, 'bail');
+				$rules[$key] = $rule;
+			}
+		}
+
+		return $rules;
+	}
+
+	/**
+	 * 添加filled规则
+	 * @param array $rules 原规则
+	 * @return array
+	 */
+	public function addFilledRule(array $rules): array
+	{
+		foreach ($rules as $key => $rule) {
+			if (!in_array('filled', $rule) && !in_array('nullable', $rule)) {
+				array_unshift($rule, 'filled');
 				$rules[$key] = $rule;
 			}
 		}
