@@ -3,7 +3,7 @@
 /**
  * WeEngine System
  *
- * (c) We7Team 2019 <https://www.w7.cc>
+ * (c) We7Team 2021 <https://www.w7.cc>
  *
  * This is not a free software
  * Using it under the license terms
@@ -17,16 +17,16 @@ use Throwable;
 
 class ValidateException extends Exception
 {
-	protected array $data = [];
+    protected array $data = [];
 
-	public function __construct($message = '', $code = 0, array $data = [], Throwable $previous = null)
-	{
-		$this->data = $data;
-		parent::__construct($message, $code, $previous);
-	}
+    public function __construct($message = '', $code = 0, array $data = [], Throwable $previous = null)
+    {
+        $this->data = $data;
+        parent::__construct($message, $code, $previous);
+    }
 
-	public function getData(): array
-	{
-		return $this->data;
-	}
+    public function getData(): array
+    {
+        return $this->data;
+    }
 }

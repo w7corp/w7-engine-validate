@@ -42,9 +42,8 @@ $fixers = [
 	],
 	'header_comment' => [
 		'comment_type' => 'PHPDoc',
-		'header'       => SOFT_NAME . " \r\n\r\n(c) We7Team 2019 <https://www.w7.cc> \r\n\r\nThis is not a free software \r\nUsing it under the license terms\r\nvisited https://www.w7.cc for more details",
+		'header'       => SOFT_NAME . " \r\n\r\n(c) We7Team 2021 <https://www.w7.cc> \r\n\r\nThis is not a free software \r\nUsing it under the license terms\r\nvisited https://www.w7.cc for more details",
 	],
-	//	'braces'                                     => ['position_after_functions_and_oop_constructs' => 'same'], //设置大括号换行，暂时根本Psr
 	'binary_operator_spaces'  => ['default' => 'align_single_space_minimal'], //等号对齐、数字箭头符号对齐
 	'whitespace_after_comma_in_array' => true,
 	'array_syntax'            => ['syntax' => 'short'],
@@ -60,5 +59,4 @@ $fixers = [
 return PhpCsFixer\Config::create()
 	->setRules($fixers)
 	->setFinder($finder)
-	->setIndent("\t")
 	->setUsingCache(false);
