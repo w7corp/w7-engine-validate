@@ -3,7 +3,7 @@
 /**
  * WeEngine System
  *
- * (c) We7Team 2019 <https://www.w7.cc>
+ * (c) We7Team 2021 <https://www.w7.cc>
  *
  * This is not a free software
  * Using it under the license terms
@@ -16,10 +16,10 @@ use W7\Validate\Support\Rule\BaseRule;
 
 class ChsAlphaNum extends BaseRule
 {
-	protected string $message = ':attribute的值只能具有中文，字母，数字';
-	
-	public function passes($attribute, $value): bool
-	{
-		return is_scalar($value) && 1 === preg_match('/^[\x{4e00}-\x{9fa5}a-zA-Z0-9]+$/u', (string)$value);
-	}
+    protected string $message = ':attribute的值只能具有中文，字母，数字';
+    
+    public function passes($attribute, $value): bool
+    {
+        return is_scalar($value) && 1 === preg_match('/^[\x{4e00}-\x{9fa5}a-zA-Z0-9]+$/u', (string)$value);
+    }
 }

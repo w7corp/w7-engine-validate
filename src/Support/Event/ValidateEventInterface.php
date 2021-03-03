@@ -3,7 +3,7 @@
 /**
  * WeEngine System
  *
- * (c) We7Team 2019 <https://www.w7.cc>
+ * (c) We7Team 2021 <https://www.w7.cc>
  *
  * This is not a free software
  * Using it under the license terms
@@ -17,6 +17,6 @@ use Psr\Http\Message\ServerRequestInterface;
 
 interface ValidateEventInterface
 {
-	public function beforeValidate(array $data, ServerRequestInterface $request, Closure $next);
-	public function afterValidate(array $data, ServerRequestInterface $request, Closure $next);
+    public function beforeValidate(array $data, ServerRequestInterface $request, Closure $next);
+    public function afterValidate(array $data, ServerRequestInterface $request, Closure $next);
 }
