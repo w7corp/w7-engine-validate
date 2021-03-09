@@ -13,6 +13,7 @@
 namespace W7\Validate;
 
 use Closure;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Fluent;
 use Illuminate\Validation\ValidationException;
@@ -135,7 +136,7 @@ class Validate
             $data = $this->handleEvent($v->validate(), 'afterValidate');
             return $data;
         } catch (ValidationException $e) {
-            $errors       = $e->errors();
+            $errors       = $this->handlingError($e->errors());
             $errorMessage = '';
             foreach ($errors as $field => $message) {
                 $errorMessage = $message[0];
@@ -144,6 +145,38 @@ class Validate
 
             throw new ValidateException($errorMessage, 403, $errors);
         }
+    }
+
+    /**
+     * 处理错误消息
+     * @param array $errors
+     * @return array
+     */
+    private function handlingError(array $errors): array
+    {
+        foreach ($errors as $field => &$errorMessages) {
+            if (is_array($errorMessages)) {
+                $errorMessages = array_map([$this, 'replacingFieldsInMessage'], $errorMessages);
+            } else {
+                $errorMessages = $this->replacingFieldsInMessage($errorMessages);
+            }
+        }
+        return $errors;
+    }
+
+    /**
+     * 替换错误消息中的字段
+     * @param string $message
+     * @return string|string[]
+     */
+    private function replacingFieldsInMessage(string $message)
+    {
+        if (preg_match_all('/\{:(.*?)}/', $message, $matches) > 0) {
+            foreach ($matches[0] as $index => $pregString) {
+                $message = str_replace($pregString, Arr::get($this->checkData, $matches[1][$index], ''), $message);
+            }
+        }
+        return $message;
     }
 
     /**
