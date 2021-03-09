@@ -271,7 +271,8 @@ class Validate
         list($rule, $param) = $this->getKeyAndParam($rule, false);
 
         # 取回真实的自定义规则方法名称，以及修改对应的错误消息
-        if (in_array($rule, self::$extendName)) {
+        
+        if (array_key_exists($rule, self::$extendName)) {
             $ruleName = md5(get_called_class() . $rule);
             # 判断是否为自定义规则方法定义了错误消息
             if (null !== $field && isset($this->message[$field . '.' . $rule])) {
@@ -468,18 +469,39 @@ class Validate
      * 注册自定义验证方法
      *
      * @param string $rule 规则名称
-     * @param Closure|string $extension 闭包规则，回调四个值 $attribute, $value, $parameters, $validator
+     * @param Closure|string|array $extension 闭包规则，回调四个值 $attribute, $value, $parameters, $validator
      * @param string|null $message 错误消息
      */
     public static function extend(string $rule, $extension, ?string $message = null)
     {
-        array_push(self::$extendName, $rule);
-        self::$extendName = array_unique(self::$extendName);
+        $ruleName = md5(get_called_class() . $rule);
+
+        if (array_key_exists($rule, self::$extendName)) {
+            array_push(self::$extendName[$rule], $ruleName);
+        } else {
+            self::$extendName[$rule] = [$ruleName];
+        }
 
         # 多个验证器使用了同样的rule会导致后面的方法无法生效
         # 故这里根据命名空间生成一个独一无二的rule名称
         $ruleName = md5(get_called_class() . $rule);
         Validator::extend($ruleName, $extension, $message);
+    }
+
+    /**
+     * 注册自定义验证方法错误消息
+     * @param string $rule 规则名称
+     * @param string|Closure $replacer 闭包规则，回调四个值  $message,$attribute,$rule,$parameters
+     */
+    public static function replacer(string $rule, $replacer)
+    {
+        if (array_key_exists($rule, self::$extendName)) {
+            $ruleName = md5(get_called_class() . $rule);
+            if (in_array($ruleName, self::$extendName[$rule])) {
+                $rule = $ruleName;
+            }
+        }
+        Validator::replacer($rule, $replacer);
     }
 
     /**
