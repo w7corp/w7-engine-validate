@@ -602,7 +602,7 @@ class Validate
     public function sometimes($attribute, $rules, callable $callback): Validate
     {
         $data   = new Fluent($this->checkData);
-        $result = $callback($data);
+        $result = call_user_func($callback, $data);
         if (false === $result) {
             return $this;
         } elseif (true === $result) {
