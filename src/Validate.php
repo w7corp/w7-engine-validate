@@ -374,8 +374,12 @@ class Validate
      */
     public function addFilledRule(array $rules): array
     {
+        $conflictRules = [
+            'filled', 'nullable', 'required', 'required_if', 'required_unless', 'required_with', 'required_with_all',
+            'required_without', 'required_without_all', 'present'
+        ];
         foreach ($rules as $key => $rule) {
-            if (!in_array('filled', $rule) && !in_array('nullable', $rule)) {
+            if (empty(array_intersect($conflictRules, $rule))) {
                 array_unshift($rule, 'filled');
                 $rules[$key] = $rule;
             }
@@ -468,9 +472,9 @@ class Validate
     /**
      * 注册自定义验证方法
      *
-     * @param string $rule 规则名称
+     * @param string               $rule      规则名称
      * @param Closure|string|array $extension 闭包规则，回调四个值 $attribute, $value, $parameters, $validator
-     * @param string|null $message 错误消息
+     * @param string|null          $message   错误消息
      */
     public static function extend(string $rule, $extension, ?string $message = null)
     {
@@ -490,7 +494,7 @@ class Validate
 
     /**
      * 注册自定义验证方法错误消息
-     * @param string $rule 规则名称
+     * @param string         $rule     规则名称
      * @param string|Closure $replacer 闭包规则，回调四个值  $message,$attribute,$rule,$parameters
      */
     public static function replacer(string $rule, $replacer)
@@ -569,8 +573,8 @@ class Validate
     /**
      * 移除某个字段的验证规则
      *
-     * @param string $field 字段名
-     * @param string|null $rule 验证规则 null 移除所有规则
+     * @param string      $field 字段名
+     * @param string|null $rule  验证规则 null 移除所有规则
      * @return $this
      */
     public function remove(string $field, ?string $rule = null): Validate
@@ -616,9 +620,9 @@ class Validate
     /**
      * 复杂条件验证
      *
-     * @param string|string[] $attribute 字段
-     * @param string|array|BaseRule $rules 规则
-     * @param callable $callback 回调方法,返回true获取具体规则生效
+     * @param string|string[]       $attribute 字段
+     * @param string|array|BaseRule $rules     规则
+     * @param callable              $callback  回调方法,返回true获取具体规则生效
      * @return $this
      */
     public function sometimes($attribute, $rules, callable $callback): Validate
@@ -682,8 +686,8 @@ class Validate
     /**
      * 获取验证消息
      *
-     * @param null|string|string[] $key 完整消息Key值
-     * @param string|null $rule 如果第一个值为字段名，则第二个值则为规则，否则请留空
+     * @param null|string|string[] $key  完整消息Key值
+     * @param string|null          $rule 如果第一个值为字段名，则第二个值则为规则，否则请留空
      * @return array|mixed|null
      */
     public function getMessages($key = null, ?string $rule = null)
