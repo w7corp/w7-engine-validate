@@ -378,7 +378,7 @@ class Validate
      * @param array $rules 原规则
      * @return array
      */
-    public function addFilledRule(array $rules): array
+    private function addFilledRule(array $rules): array
     {
         $conflictRules = [
             'filled', 'nullable', 'accepted', 'present', 'required', 'required_if', 'required_unless', 'required_with',
