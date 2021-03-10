@@ -68,7 +68,7 @@ class Validate
     protected bool $bail = true;
 
     /**
-     * 所有验证的字段在存在时不能为空，规则中带nullable除外
+     * 所有验证的字段在存在时不能为空
      * @var bool
      */
     protected bool $filled = true;
@@ -107,13 +107,13 @@ class Validate
      * Request请求实例
      * @var RequestInterface|null
      */
-    protected ?RequestInterface $request = null;
+    private ?RequestInterface $request = null;
 
     /**
      * 当前进行验证的数据
      * @var array
      */
-    protected array $checkData = [];
+    private array $checkData = [];
 
     public function __construct(?RequestInterface $request = null)
     {
@@ -152,6 +152,15 @@ class Validate
 
             throw new ValidateException($errorMessage, 403, $errors);
         }
+    }
+
+    /**
+     * 获取当前的验证数据
+     * @return array
+     */
+    public function getData(): array
+    {
+        return $this->checkData;
     }
 
     /**
