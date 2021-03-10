@@ -124,11 +124,11 @@ class Validate
         try {
             $this->checkData = $data;
             $rule            = $this->getSceneRules();
-            if ($this->bail) {
-                $rule = $this->addBailRule($rule);
-            }
             if ($this->filled) {
                 $rule = $this->addFilledRule($rule);
+            }
+            if ($this->bail) {
+                $rule = $this->addBailRule($rule);
             }
             $data = $this->handleEvent($data, 'beforeValidate');
             /** @var \Illuminate\Validation\Validator $v */
@@ -357,10 +357,9 @@ class Validate
      */
     private function addBailRule(array $rules): array
     {
-        foreach ($rules as $key => $rule) {
+        foreach ($rules as $key => &$rule) {
             if (!in_array('bail', $rule)) {
                 array_unshift($rule, 'bail');
-                $rules[$key] = $rule;
             }
         }
 
@@ -378,10 +377,9 @@ class Validate
             'filled', 'nullable', 'required', 'required_if', 'required_unless', 'required_with', 'required_with_all',
             'required_without', 'required_without_all', 'present'
         ];
-        foreach ($rules as $key => $rule) {
+        foreach ($rules as $key => &$rule) {
             if (empty(array_intersect($conflictRules, $rule))) {
                 array_unshift($rule, 'filled');
-                $rules[$key] = $rule;
             }
         }
 
@@ -683,6 +681,7 @@ class Validate
         $this->rule = array_merge($this->rule, $rules);
         return $this;
     }
+
     /**
      * 获取验证消息
      *
@@ -726,7 +725,7 @@ class Validate
     }
 
     /**
-     * 设置验证场景(叠加)
+     * 设置验证场景数据(叠加)
      *
      * @param array|null $scene [场景 => [字段]] 如果$scene为null，则清空全部验证场景
      * @return $this
