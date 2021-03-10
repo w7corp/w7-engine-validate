@@ -13,6 +13,7 @@
 namespace W7\Validate;
 
 use Closure;
+use Illuminate\Contracts\Validation\ImplicitRule;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Fluent;
@@ -89,6 +90,12 @@ class Validate
      * @var array
      */
     private static array $extendName = [];
+
+    /**
+     * 隐形扩展方法名
+     * @var array
+     */
+    private static array $implicitRules = [];
 
     /**
      * 验证器事件处理类
@@ -371,14 +378,35 @@ class Validate
      * @param array $rules 原规则
      * @return array
      */
-    public function addFilledRule(array $rules): array
+    private function addFilledRule(array $rules): array
     {
         $conflictRules = [
-            'filled', 'nullable', 'required', 'required_if', 'required_unless', 'required_with', 'required_with_all',
-            'required_without', 'required_without_all', 'present'
+            'filled', 'nullable', 'accepted', 'present', 'required', 'required_if', 'required_unless', 'required_with',
+            'required_with_all', 'required_without', 'required_without_all',
         ];
+
         foreach ($rules as $key => &$rule) {
-            if (empty(array_intersect($conflictRules, $rule))) {
+            $rulesName = array_map(function ($value) {
+                $ruleClass = $this->getRuleClass($value, true);
+                // 如果继承了ImplicitRule标记接口
+                // 代表此自定义规则想要在属性为空时执行规则对象
+                // 所以也不需要添加filled规则，那么就让数组对象里存在一个filled
+                // 下面的判断就会自动跳过，实际上规则中没有被添加filled规则
+                if (is_string($ruleClass) && is_subclass_of($ruleClass, ImplicitRule::class)) {
+                    return 'filled';
+                }
+
+                $ruleName = $this->getKeyAndParam($value)[0];
+
+                // 此处操作同上
+                if (in_array($ruleName, self::$implicitRules)) {
+                    return 'filled';
+                }
+
+                return $ruleName;
+            }, $rule);
+
+            if (empty(array_intersect($conflictRules, $rulesName))) {
                 array_unshift($rule, 'filled');
             }
         }
@@ -450,17 +478,22 @@ class Validate
     /**
      * 获取自定义规则的实例类
      *
-     * @param string $ruleName 自定义规则名称
+     * @param string $ruleName      自定义规则名称
+     * @param bool   $ruleClassName 是否只获取Class完整命名空间 默认为false
      * @return false|mixed|Closure
      */
-    private function getRuleClass(string $ruleName)
+    private function getRuleClass(string $ruleName, bool $ruleClassName = false)
     {
         list($ruleName, $param) = $this->getKeyAndParam($ruleName, true);
 
         foreach (ValidateConfig::instance()->getRulePath() as $rulesPath) {
             $ruleNameSpace = $rulesPath . ucfirst($ruleName);
             if (class_exists($ruleNameSpace)) {
-                return new $ruleNameSpace(...$param);
+                if ($ruleClassName) {
+                    return $ruleNameSpace;
+                } else {
+                    return new $ruleNameSpace(...$param);
+                }
             }
         }
 
@@ -476,6 +509,42 @@ class Validate
      */
     public static function extend(string $rule, $extension, ?string $message = null)
     {
+        self::validatorExtend('', $rule, $extension, $message);
+    }
+
+    /**
+     * 注册一个自定义的隐式验证器扩展
+     *
+     * @param string               $rule      规则名称
+     * @param Closure|string|array $extension 闭包规则，回调四个值 $attribute, $value, $parameters, $validator
+     * @param string|null          $message   错误消息
+     */
+    public static function extendImplicit(string $rule, $extension, ?string $message = null)
+    {
+        self::validatorExtend('Implicit', $rule, $extension, $message);
+    }
+
+    /**
+     * 注册一个自定义依赖性验证器扩展
+     *
+     * @param string               $rule      规则名称
+     * @param Closure|string|array $extension 闭包规则，回调四个值 $attribute, $value, $parameters, $validator
+     * @param string|null          $message   错误消息
+     */
+    public static function extendDependent(string $rule, $extension, ?string $message = null)
+    {
+        self::validatorExtend('Dependent', $rule, $extension, $message);
+    }
+
+    /**
+     * 注册自定义验证器扩展
+     * @param string               $type      类型
+     * @param string               $rule      规则名称
+     * @param Closure|string|array $extension 闭包规则，回调四个值 $attribute, $value, $parameters, $validator
+     * @param string|null          $message   错误消息
+     */
+    private static function validatorExtend(string $type, string $rule, $extension, ?string $message = null)
+    {
         $ruleName = md5(get_called_class() . $rule);
 
         if (array_key_exists($rule, self::$extendName)) {
@@ -487,7 +556,18 @@ class Validate
         # 多个验证器使用了同样的rule会导致后面的方法无法生效
         # 故这里根据命名空间生成一个独一无二的rule名称
         $ruleName = md5(get_called_class() . $rule);
-        Validator::extend($ruleName, $extension, $message);
+
+        if (!empty($type)) {
+            $method = 'extend' . $type;
+        } else {
+            $method = 'extend';
+        }
+
+        if ('Implicit' === $type) {
+            self::$implicitRules[] = $ruleName;
+        }
+
+        Validator::$method($ruleName, $extension, $message);
     }
 
     /**
