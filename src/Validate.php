@@ -396,13 +396,17 @@ class Validate
 
         foreach ($rules as $key => &$rule) {
             $rulesName = array_map(function ($value) {
-                $ruleClass = $this->getRuleClass($value, true);
-                // 如果继承了ImplicitRule标记接口
-                // 代表此自定义规则想要在属性为空时执行规则对象
-                // 所以也不需要添加filled规则，那么就让数组对象里存在一个filled
-                // 下面的判断就会自动跳过，实际上规则中没有被添加filled规则
-                if (is_string($ruleClass) && is_subclass_of($ruleClass, ImplicitRule::class)) {
-                    return 'filled';
+                if (is_object($value)) {
+                    $className = get_class($value);
+                    // 如果继承了ImplicitRule标记接口
+                    // 代表此自定义规则想要在属性为空时执行规则对象
+                    // 所以也不需要添加filled规则，那么就让数组对象里存在一个filled
+                    // 下面的判断就会自动跳过，实际上规则中没有被添加filled规则
+                    if (is_subclass_of($className, ImplicitRule::class)) {
+                        return 'filled';
+                    } else {
+                        return $className;
+                    }
                 }
 
                 $ruleName = $this->getKeyAndParam($value)[0];
