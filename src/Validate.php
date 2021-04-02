@@ -266,6 +266,11 @@ class Validate
                         }
                         return $ruleClass;
                     }
+
+                    if (method_exists($this, 'rule' . ucfirst($value))) {
+                        self::extend($value, Closure::fromCallable([$this, 'rule' . ucfirst($value)]));
+                    }
+
                     return $this->getExtendsName($value, $field);
                 }
                 return $value;
@@ -287,7 +292,6 @@ class Validate
         list($rule, $param) = $this->getKeyAndParam($rule, false);
 
         # 取回真实的自定义规则方法名称，以及修改对应的错误消息
-        
         if (array_key_exists($rule, self::$extendName)) {
             $ruleName = md5(get_called_class() . $rule);
             # 判断是否为自定义规则方法定义了错误消息
@@ -500,7 +504,7 @@ class Validate
 
         foreach (ValidateConfig::instance()->getRulePath() as $rulesPath) {
             $ruleNameSpace = $rulesPath . ucfirst($ruleName);
-            if (class_exists($ruleNameSpace)) {
+            if (class_exists($ruleNameSpace) && is_subclass_of($ruleNameSpace, BaseRule::class)) {
                 if ($ruleClassName) {
                     return $ruleNameSpace;
                 } else {
