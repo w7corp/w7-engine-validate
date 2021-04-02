@@ -565,6 +565,7 @@ class Validate
 
         if (array_key_exists($rule, self::$extendName)) {
             array_push(self::$extendName[$rule], $ruleName);
+            self::$extendName[$rule] = array_unique(self::$extendName[$rule]);
         } else {
             self::$extendName[$rule] = [$ruleName];
         }
