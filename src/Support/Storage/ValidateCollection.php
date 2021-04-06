@@ -184,6 +184,28 @@ class ValidateCollection extends Collection
     {
         if (false !== strpos($key, '.')) {
             $value = Arr::get($this->items, $key, $default instanceof Closure ? $default() : $default);
+        } elseif (false !== strpos($key, '*')) {
+            $_value = explode('.', $key);
+            $_data  = $this->items;
+
+            while (false !== ($index = array_search('*', $_value))) {
+                $_key      = array_slice($_value, 0, $index);
+                $_pluckKey = array_slice($_value, $index + 1, 1);
+                $_value    = array_slice($_value, $index + 2);
+
+                if (empty($_key)) {
+                    $_data = Arr::pluck($_data, $_pluckKey);
+                } else {
+                    $_data = Arr::pluck(Arr::get($_data, implode('.', $_key)), $_pluckKey);
+                }
+            }
+
+            if (!empty($_value)) {
+                $_value = implode(',', $_value);
+                $_data  = Arr::get($_data, $_value);
+            }
+
+            $value = $_data ?: ($default instanceof Closure ? $default() : $default);
         } else {
             $value = parent::get($key, $default);
         }
