@@ -14,7 +14,7 @@ namespace W7\Tests\Material;
 
 use W7\Validate\Validate;
 
-class TestArticleValidate extends Validate
+class ArticleValidate extends Validate
 {
     protected array $rule = [
         'id'      => 'required|numeric',

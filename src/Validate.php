@@ -104,6 +104,18 @@ class Validate
     private array $handlers = [];
 
     /**
+     * 验证前需要执行的方法
+     * @var array
+     */
+    private array $befores = [];
+
+    /**
+     * 验证后需要执行的方法
+     * @var array
+     */
+    private array $afters = [];
+
+    /**
      * Request请求实例
      * @var RequestInterface|null
      */
@@ -138,14 +150,15 @@ class Validate
                 $rule = $this->addBailRule($rule);
             }
             $data = $this->handleEvent($data, 'beforeValidate');
+            $data = $this->handleCallback($data, 1);
             /** @var \Illuminate\Validation\Validator $v */
             $v    = Validator::make($data, $rule, $this->message, $this->customAttributes);
-            $data = $this->handleEvent($v->validate(), 'afterValidate');
-            return $data;
+            $data = $this->handleCallback($v->validate(), 2);
+            return $this->handleEvent($data, 'afterValidate');
         } catch (ValidationException $e) {
             $errors       = $this->handlingError($e->errors());
             $errorMessage = '';
-            foreach ($errors as $field => $message) {
+            foreach ($errors as $message) {
                 $errorMessage = $message[0];
                 break;
             }
@@ -170,7 +183,7 @@ class Validate
      */
     private function handlingError(array $errors): array
     {
-        foreach ($errors as $field => &$errorMessages) {
+        foreach ($errors as &$errorMessages) {
             if (is_array($errorMessages)) {
                 $errorMessages = array_map([$this, 'replacingFieldsInMessage'], $errorMessages);
             } else {
@@ -187,12 +200,71 @@ class Validate
      */
     private function replacingFieldsInMessage(string $message)
     {
-        if (preg_match_all('/\{:(.*?)}/', $message, $matches) > 0) {
+        if (preg_match_all('/{:(.*?)}/', $message, $matches) > 0) {
             foreach ($matches[0] as $index => $pregString) {
                 $message = str_replace($pregString, Arr::get($this->checkData, $matches[1][$index], ''), $message);
             }
         }
         return $message;
+    }
+
+    /**
+     * 处理方法
+     * @param array $data
+     * @param int $type 类型，1 验证前方法 2 验证后方法
+     * @return array
+     * @throws ValidateException
+     */
+    private function handleCallback(array $data, int $type): array
+    {
+        switch ($type) {
+            case 1:
+                $callbacks = $this->befores;
+                $typeName  = 'before';
+                break;
+            case 2:
+                $callbacks = $this->afters;
+                $typeName  = 'after';
+                break;
+            default:
+                throw new LogicException('Type Error');
+        }
+
+        if (empty($callbacks)) {
+            return $data;
+        }
+
+        $callback = array_map(function ($callback) use ($typeName) {
+            return function ($data, $next) use ($callback, $typeName) {
+                list($callback, $param) = $callback;
+                $callback = $typeName . ucfirst($callback);
+                if (method_exists($this, $callback)) {
+                    return call_user_func([$this, $callback], $data, $next, ...$param);
+                }
+                throw new LogicException('Method Not Found');
+            };
+        }, $callbacks);
+
+        $pipeline = array_reduce(
+            array_reverse($callback),
+            function ($stack, $pipe) {
+                return function ($data) use ($stack, $pipe) {
+                    return $pipe($data, $stack);
+                };
+            },
+            function ($data) {
+                return $data;
+            }
+        );
+        $data = $pipeline($data);
+
+        if (is_string($data)) {
+            throw new ValidateException($data, 403);
+        } elseif (is_array($data)) {
+            return $data;
+        }
+        
+        throw new LogicException('Validate event return type error');
     }
 
     /**
@@ -236,6 +308,8 @@ class Validate
     {
         $this->checkRule = collect([]);
         $this->handlers  = [];
+        $this->afters    = [];
+        $this->befores   = [];
     }
 
     /**
@@ -353,17 +427,60 @@ class Validate
      */
     private function addHandler($handlers)
     {
-        if (is_string($handlers)) {
-            $this->handlers[] = [$handlers, []];
+        $this->addCallback(0, $handlers);
+    }
+
+    /**
+     * 添加验证前方法
+     * @param $callback
+     */
+    private function addBefore($callback)
+    {
+        $this->addCallback(1, $callback);
+    }
+
+    /**
+     * 添加验证后方法
+     * @param $callback
+     */
+    private function addAfter($callback)
+    {
+        $this->addCallback(2, $callback);
+    }
+
+    /**
+     * 添加方法
+     * @param int $intType 0为事件 1为验证前方法 2为验证后方法
+     * @param $callback
+     */
+    private function addCallback(int $intType, $callback)
+    {
+        switch ($intType) {
+            case 0:
+                $type = 'handlers';
+                break;
+            case 1:
+                $type = 'befores';
+                break;
+            case 2:
+                $type = 'afters';
+                break;
+            default:
+                throw new LogicException('Type Error');
+        }
+
+        if (is_string($callback)) {
+            $this->$type[] = [$callback, []];
         } else {
-            foreach ($handlers as $handlerClass => $param) {
-                if (is_int($handlerClass)) {
-                    $this->handlers[] = [$param, []];
-                } elseif (is_string($handlerClass)) {
+            foreach ($callback as $classOrMethod => $param) {
+                if (is_int($classOrMethod)) {
+                    $this->$type[] = [$param, []];
+                } elseif (is_string($classOrMethod)) {
+                    $callbackName = str_replace('s', '', $type);
                     if (is_array($param)) {
-                        $this->handler($handlerClass, ...$param);
+                        $this->$callbackName($classOrMethod, ...$param);
                     } else {
-                        $this->handler($handlerClass, $param);
+                        $this->$callbackName($classOrMethod, $param);
                     }
                 }
             }
@@ -377,7 +494,7 @@ class Validate
      */
     private function addBailRule(array $rules): array
     {
-        foreach ($rules as $key => &$rule) {
+        foreach ($rules as &$rule) {
             if (!in_array('bail', $rule)) {
                 array_unshift($rule, 'bail');
             }
@@ -398,7 +515,7 @@ class Validate
             'required_with_all', 'required_without', 'required_without_all',
         ];
 
-        foreach ($rules as $key => &$rule) {
+        foreach ($rules as &$rule) {
             $rulesName = array_map(function ($value) {
                 if (is_object($value)) {
                     // 如果继承了ImplicitRule标记接口
@@ -433,14 +550,14 @@ class Validate
     /**
      * 进入场景
      * @param string|null $name 场景名称
-     * @return Validate
+     * @return void
      * @throws ValidateException
      */
-    private function getScene(?string $name = null): Validate
+    private function getScene(?string $name = null): void
     {
         if (empty($name)) {
             $this->checkRule = collect($this->rule);
-            return $this;
+            return;
         }
         # 判断自定义验证场景是否存在
         if (method_exists($this, 'scene' . ucfirst($name))) {
@@ -455,6 +572,22 @@ class Validate
                 $this->addHandler($handlers);
                 unset($sceneRule['handler']);
                 unset($this->scene[$name]['handler']);
+            }
+
+            # 判断是否定义了验证前需要执行的方法
+            if (isset($sceneRule['before'])) {
+                $callback = $sceneRule['before'];
+                $this->addBefore($callback);
+                unset($sceneRule['before']);
+                unset($this->scene[$name]['before']);
+            }
+
+            # 判断是否定义了验证后需要执行的方法
+            if (isset($sceneRule['after'])) {
+                $callback = $sceneRule['after'];
+                $this->addAfter($callback);
+                unset($sceneRule['after']);
+                unset($this->scene[$name]['after']);
             }
 
             # 判断验证场景是否指定了其他验证场景
@@ -476,7 +609,7 @@ class Validate
                     $use = call_user_func([$this, 'use' . ucfirst($use)], $data);
                     if (is_array($use)) {
                         $this->checkRule = collect($this->rule)->only($use);
-                        return $this;
+                        return;
                     }
                 }
                 $this->getScene($use);
@@ -487,8 +620,6 @@ class Validate
             # 如果验证场景找不到，则默认验证全部规则
             $this->checkRule = collect($this->rule);
         }
-
-        return $this;
     }
 
     /**
@@ -617,7 +748,6 @@ class Validate
 
     /**
      * 加入事件
-     *
      * @param string $handler  事件的完整类名，完整命名空间字符串或者加::class
      * @param mixed ...$params 要传递给事件的参数
      * @return $this
@@ -625,6 +755,30 @@ class Validate
     public function handler(string $handler, ...$params): Validate
     {
         $this->handlers[] = [$handler, $params];
+        return $this;
+    }
+
+    /**
+     * 加入验证器验证前的方法
+     * @param string $callbackName 本类的方法名
+     * @param mixed  ...$params    要传递给方法的参数
+     * @return $this
+     */
+    public function before(string $callbackName, ...$params): Validate
+    {
+        $this->befores[] = [$callbackName, $params];
+        return $this;
+    }
+
+    /**
+     * 加入验证器验证后的方法
+     * @param string $callbackName 本类的方法名
+     * @param mixed  ...$params    要传递给方法的参数
+     * @return $this
+     */
+    public function after(string $callbackName, ...$params): Validate
+    {
+        $this->afters[] = [$callbackName, $params];
         return $this;
     }
 
@@ -772,10 +926,12 @@ class Validate
      */
     public function setRules(?array $rules = null): Validate
     {
-        if (null === $rules) {
+        if (is_null($rules)) {
             $this->rule = [];
+        } else {
+            $this->rule = array_merge($this->rule, $rules);
         }
-        $this->rule = array_merge($this->rule, $rules);
+
         return $this;
     }
 
@@ -813,11 +969,12 @@ class Validate
      */
     public function setMessages(?array $message = null): Validate
     {
-        if (null === $message) {
+        if (is_null($message)) {
             $this->message = [];
+        } else {
+            $this->message = array_merge($this->message, $message);
         }
-
-        $this->message = array_merge($this->message, $message);
+        
         return $this;
     }
 
@@ -829,11 +986,12 @@ class Validate
      */
     public function setScene(?array $scene = null): Validate
     {
-        if (null === $scene) {
+        if (is_null($scene)) {
             $this->scene = [];
+        } else {
+            $this->scene = array_merge($this->scene, $scene);
         }
 
-        $this->scene = array_merge($this->scene, $scene);
         return $this;
     }
 }

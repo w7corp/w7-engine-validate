@@ -12,7 +12,7 @@
 
 namespace W7\Tests;
 
-use W7\Tests\Material\TestArticleValidate;
+use W7\Tests\Material\ArticleValidate;
 use W7\Tests\Material\TestBaseValidate;
 use W7\Validate\Exception\ValidateException;
 
@@ -35,7 +35,7 @@ class TestValidateScene extends TestBaseValidate
      */
     public function testNotScene()
     {
-        $v = new TestArticleValidate();
+        $v = new ArticleValidate();
         $this->expectException(ValidateException::class);
         $v->check($this->userInput);
     }
@@ -46,7 +46,7 @@ class TestValidateScene extends TestBaseValidate
      */
     public function testScene()
     {
-        $v    = new TestArticleValidate();
+        $v    = new ArticleValidate();
         $data = $v->scene('add')->check($this->userInput);
         $this->assertEquals('内容', $data['content']);
     }
@@ -57,7 +57,7 @@ class TestValidateScene extends TestBaseValidate
      */
     public function testCustomScene()
     {
-        $validate = new TestArticleValidate();
+        $validate = new ArticleValidate();
         $this->expectException(ValidateException::class);
         $validate->scene('edit')->check($this->userInput);
     }
@@ -68,14 +68,14 @@ class TestValidateScene extends TestBaseValidate
      */
     public function testUseScene()
     {
-        $validate = new TestArticleValidate();
+        $validate = new ArticleValidate();
         $this->expectExceptionMessage('缺少参数：文章Id');
         $validate->scene('save')->check($this->userInput);
     }
     
     public function testDynamicScene()
     {
-        $validate = new TestArticleValidate();
+        $validate = new ArticleValidate();
         $data     = $validate->scene('dynamic')->check([
             'title'   => '标题标题标题标题',
             'content' => '1'

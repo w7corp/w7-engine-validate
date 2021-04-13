@@ -175,8 +175,8 @@ class ValidateCollection extends Collection
 
     /**
      * 获取指定字段的值
-     * @param mixed $key    字段名称
-     * @param null $default 默认值
+     * @param mixed              $key     字段名称
+     * @param mixed|Closure|null $default 默认值
      * @return array|ArrayAccess|mixed
      * @throws CollectionException
      */
