@@ -13,10 +13,8 @@
 namespace W7\Validate\Support\Storage;
 
 use Closure;
-use Psr\Http\Message\RequestInterface;
 use W7\Validate\Exception\ValidateException;
 use W7\Validate\Support\Event\ValidateEventAbstract;
-use W7\Validate\Support\Event\ValidateResult;
 
 class ValidateHandler
 {
@@ -24,14 +22,11 @@ class ValidateHandler
 
     protected array $data = [];
 
-    protected RequestInterface $request;
-
     protected ?string $sceneName = null;
 
-    public function __construct(array $data, array $handlers, RequestInterface $request, string $sceneName = null)
+    public function __construct(array $data, array $handlers, string $sceneName = null)
     {
         $this->data      = $data;
-        $this->request   = $request;
         $this->handlers  = $handlers;
         $this->sceneName = $sceneName;
     }
@@ -39,8 +34,8 @@ class ValidateHandler
     protected function carry(): Closure
     {
         return function ($stack, $pipe) {
-            return function ($data, $request) use ($stack, $pipe) {
-                return $pipe($data, $request, $stack);
+            return function ($data) use ($stack, $pipe) {
+                return $pipe($data, $stack);
             };
         };
     }
@@ -48,13 +43,13 @@ class ValidateHandler
     protected function pipes(string $method): array
     {
         return array_map(function ($middleware) use ($method) {
-            return function ($data, $request, $next) use ($middleware, $method) {
+            return function ($data, $next) use ($middleware, $method) {
                 list($callback, $param) = $middleware;
                 if (class_exists($callback) && is_subclass_of($callback, ValidateEventAbstract::class)) {
                     /** @var ValidateEventAbstract $handler */
                     $handler = new $callback(...$param);
                     $handler->setSceneName($this->sceneName);
-                    return call_user_func([$handler, $method], $data, $request, $next);
+                    return call_user_func([$handler, $method], $data, $next);
                 } else {
                     throw new ValidateException('Event error or nonexistence');
                 }
@@ -64,8 +59,8 @@ class ValidateHandler
     
     protected function destination(): Closure
     {
-        return function ($data, $request) {
-            return new ValidateResult($data, $request);
+        return function ($data) {
+            return $data;
         };
     }
     
@@ -75,11 +70,11 @@ class ValidateHandler
         $pipeline    = array_reduce(
             array_reverse($this->pipes($method)),
             $this->carry(),
-            function ($data, $request) use ($destination) {
-                return $destination($data, $request);
+            function ($data) use ($destination) {
+                return $destination($data);
             }
         );
         
-        return $pipeline($this->data, $this->request);
+        return $pipeline($this->data);
     }
 }

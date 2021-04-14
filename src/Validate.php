@@ -19,12 +19,8 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Fluent;
 use Illuminate\Validation\ValidationException;
 use LogicException;
-use Psr\Http\Message\RequestInterface;
-use W7\Facade\Context;
 use W7\Facade\Validator;
-use W7\Http\Message\Server\Request;
 use W7\Validate\Exception\ValidateException;
-use W7\Validate\Support\Event\ValidateResult;
 use W7\Validate\Support\Rule\BaseRule;
 use W7\Validate\Support\Storage\ValidateConfig;
 use W7\Validate\Support\Storage\ValidateHandler;
@@ -116,21 +112,10 @@ class Validate
     private array $afters = [];
 
     /**
-     * Request请求实例
-     * @var RequestInterface|null
-     */
-    private ?RequestInterface $request = null;
-
-    /**
      * 当前进行验证的数据
      * @var array
      */
     private array $checkData = [];
-
-    public function __construct(?RequestInterface $request = null)
-    {
-        $this->request = $request;
-    }
 
     /**
      * 自动验证
@@ -278,26 +263,14 @@ class Validate
         if (empty($this->handlers)) {
             return $data;
         }
-        $request = $this->request ?: Context::getRequest();
-        $request ??= new Request('', null);
-        $result = (new ValidateHandler($data, $this->handlers, $request, $this->currentScene))->handle($method);
+        $result = (new ValidateHandler($data, $this->handlers, $this->currentScene))->handle($method);
         if (is_string($result)) {
             throw new ValidateException($result, 403);
-        } elseif ($result instanceof ValidateResult) {
-            $this->request = $result->getRequest();
-            return $result->getData();
+        } elseif (is_array($result)) {
+            return $result;
         }
 
         throw new LogicException('Validate event return type error');
-    }
-
-    /**
-     * 获取请求类
-     * @return RequestInterface|null
-     */
-    public function getRequest(): ?RequestInterface
-    {
-        return $this->request;
     }
 
     /**

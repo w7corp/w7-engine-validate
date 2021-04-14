@@ -27,14 +27,12 @@ class ValidateMiddleware extends MiddlewareAbstract
 {
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $scene     = null;
         $validator = $this->getValidate($request);
         if (false === $validator) {
             $data = [];
         } else {
-            $data    = array_merge([], $request->getQueryParams(), $request->getParsedBody(), $request->getUploadedFiles());
-            $data    = $validator->check($data);
-            $request = $validator->getRequest();
+            $data = array_merge([], $request->getQueryParams(), $request->getParsedBody(), $request->getUploadedFiles());
+            $data = $validator->check($data);
         }
 
         /** @var Request $request */
@@ -104,7 +102,7 @@ class ValidateMiddleware extends MiddlewareAbstract
         if (class_exists($validate)) {
             if (is_subclass_of($validate, Validate::class)) {
                 /** @var Validate $validator */
-                $validator = new $validate($request);
+                $validator = new $validate();
                 $validator->scene($scene);
                 return $validator;
             }
