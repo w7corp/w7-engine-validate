@@ -10,7 +10,7 @@
  * visited https://www.w7.cc for more details
  */
 
-namespace W7\Tests;
+namespace W7\Tests\Test;
 
 use W7\Tests\Material\TestBaseValidate;
 

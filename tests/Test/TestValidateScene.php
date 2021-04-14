@@ -10,7 +10,7 @@
  * visited https://www.w7.cc for more details
  */
 
-namespace W7\Tests;
+namespace W7\Tests\Test;
 
 use W7\Tests\Material\ArticleValidate;
 use W7\Tests\Material\TestBaseValidate;
@@ -72,7 +72,11 @@ class TestValidateScene extends TestBaseValidate
         $this->expectExceptionMessage('缺少参数：文章Id');
         $validate->scene('save')->check($this->userInput);
     }
-    
+
+    /**
+     * @test 测试移除规则
+     * @throws ValidateException
+     */
     public function testDynamicScene()
     {
         $validate = new ArticleValidate();

@@ -18,22 +18,49 @@ class HandlerDataValidate extends Validate
 {
     protected array $rule = [
         'user'   => 'required|array',
-        'user.*' => 'chsAlphaNum'
+        'user.*' => 'chsAlphaNum',
+        'name'   => 'required|Chs'
     ];
 
     protected array $scene = [
-        'test' => ['user', 'user.*', 'after' => 'checkUserNotRepeat']
+        'afterRule'                   => ['user', 'user.*', 'after' => 'checkUserNotRepeat'],
+        'addData'                     => ['user', 'user.*', 'after' => 'addData'],
+        'beforeHandlerData'           => ['name',  'before' => 'setDefaultName'],
+        'beforeSetDefaultNameIsError' => ['name',  'before' => 'setDefaultNameIsError']
     ];
+
+    public function afterAddData(array $data, $next)
+    {
+        $data['user'][] = 'c';
+        return $next($data);
+    }
 
     public function afterCheckUserNotRepeat(array $data, $next)
     {
         $uniqueData = array_unique($data['user']);
 
         if (count($data['user']) === count($uniqueData)) {
-            $data['user'][] = 'c';
             return $next($data);
         }
 
         return '用户信息重复';
+    }
+
+    public function beforeSetDefaultName(array $data, $next)
+    {
+        if (isset($data['name']) || empty($data['name'])) {
+            $data['name'] = '张三';
+        }
+
+        return $next($data);
+    }
+
+    public function beforeSetDefaultNameIsError(array $data, $next)
+    {
+        if (isset($data['name']) || empty($data['name'])) {
+            $data['name'] = 'test';
+        }
+
+        return $next($data);
     }
 }

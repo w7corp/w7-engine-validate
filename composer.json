@@ -8,6 +8,9 @@
             "email": "995645888@qq.com"
         }
     ],
+    "scripts": {
+        "test" : "phpunit --configuration phpunit.xml"
+    },
     "keywords": [
         "w7",
         "validate"
