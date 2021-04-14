@@ -252,10 +252,9 @@ class Validate
                     return $pipe($data, $stack);
                 };
             },
-            function ($data) {
-                return $data;
-            }
+            fn ($data) => $data
         );
+
         $data = $pipeline($data);
 
         if (is_string($data)) {

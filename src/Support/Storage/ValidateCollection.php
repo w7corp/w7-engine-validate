@@ -182,9 +182,7 @@ class ValidateCollection extends Collection
      */
     public function get($key, $default = null)
     {
-        if (false !== strpos($key, '.')) {
-            $value = Arr::get($this->items, $key, $default instanceof Closure ? $default() : $default);
-        } elseif (false !== strpos($key, '*')) {
+        if (false !== strpos($key, '*')) {
             $_value = explode('.', $key);
             $_data  = $this->items;
 
@@ -206,6 +204,8 @@ class ValidateCollection extends Collection
             }
 
             $value = $_data ?: ($default instanceof Closure ? $default() : $default);
+        } elseif (false !== strpos($key, '.')) {
+            $value = Arr::get($this->items, $key, $default instanceof Closure ? $default() : $default);
         } else {
             $value = parent::get($key, $default);
         }
