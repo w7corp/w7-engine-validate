@@ -29,6 +29,18 @@ class HandlerDataValidate extends Validate
         'beforeSetDefaultNameIsError' => ['name',  'before' => 'setDefaultNameIsError']
     ];
 
+    public function sceneBeforeHandlerDataScene()
+    {
+        $this->only(['name'])
+            ->before('setDefaultName');
+    }
+
+    public function sceneBeforeSetDefaultNameIsErrorScene()
+    {
+        $this->only(['name'])
+            ->before('setDefaultNameIsError');
+    }
+
     public function afterAddData(array $data, $next)
     {
         $data['user'][] = 'c';
@@ -48,7 +60,7 @@ class HandlerDataValidate extends Validate
 
     public function beforeSetDefaultName(array $data, $next)
     {
-        if (isset($data['name']) || empty($data['name'])) {
+        if (!isset($data['name']) || empty($data['name'])) {
             $data['name'] = '张三';
         }
 

@@ -76,4 +76,34 @@ class TestHandlerFunction extends TestBaseValidate
 
         $v->scene('beforeSetDefaultNameIsError')->check([]);
     }
+
+    /**
+     * @test 测试在before方法中对值设定一个默认值 - 自定义验证场景
+     * @throws \W7\Validate\Exception\ValidateException
+     */
+    public function testBeforeHandlerData2()
+    {
+        $v = new HandlerDataValidate();
+
+        $data = $v->scene('beforeHandlerDataScene')->check([]);
+
+        $this->assertEquals('张三', $data['name']);
+
+        $data = $v->scene('beforeHandlerDataScene')->check(['name' => '李四']);
+
+        $this->assertEquals('李四', $data['name']);
+    }
+
+    /**
+     * @test 测试在before方法中对值设定一个不符合规则的默认值 - 自定义验证场景
+     * @throws \W7\Validate\Exception\ValidateException
+     */
+    public function testBeforeHandlerToVerifySetDefaultValues2()
+    {
+        $v = new HandlerDataValidate();
+
+        $this->expectExceptionMessage('名称的值只能具有中文');
+
+        $v->scene('beforeSetDefaultNameIsErrorScene')->check([]);
+    }
 }
