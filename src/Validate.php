@@ -731,7 +731,7 @@ class Validate
     }
 
     /**
-     * 加入验证器验证前的方法
+     * 添加一个验证前的需要执行的方法
      * @param string $callbackName 本类的方法名
      * @param mixed  ...$params    要传递给方法的参数
      * @return $this
@@ -743,7 +743,7 @@ class Validate
     }
 
     /**
-     * 加入验证器验证后的方法
+     * 添加一个验证后需要执行的方法
      * @param string $callbackName 本类的方法名
      * @param mixed  ...$params    要传递给方法的参数
      * @return $this
@@ -850,7 +850,8 @@ class Validate
     {
         $data   = new Fluent($this->checkData);
         $result = call_user_func($callback, $data);
-        if (false === $result) {
+
+        if (false === $result || empty($result)) {
             return $this;
         } elseif (true === $result) {
             $result = $rules;
