@@ -773,7 +773,8 @@ class Validate
      */
     public function addCheckField(string $field): Validate
     {
-        $this->checkRule->push($field);
+        $rule            = $this->rule[$field] ?? '';
+        $this->checkRule = $this->checkRule->merge([$field => $rule]);
         return $this;
     }
 
@@ -784,7 +785,7 @@ class Validate
      */
     public function removeCheckField(string $field): Validate
     {
-        $this->checkRule->pull($field);
+        $this->checkRule->forget($field);
         return $this;
     }
 
