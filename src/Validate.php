@@ -767,6 +767,28 @@ class Validate
     }
 
     /**
+     * 添加字段到验证列表中
+     * @param string $field
+     * @return $this
+     */
+    public function addCheckField(string $field): Validate
+    {
+        $this->checkRule->push($field);
+        return $this;
+    }
+
+    /**
+     * 删除验证列表中的字段
+     * @param string $field
+     * @return $this
+     */
+    public function removeCheckField(string $field): Validate
+    {
+        $this->checkRule->pull($field);
+        return $this;
+    }
+
+    /**
      * 追加某个字段的验证规则
      *
      * @param string $field 字段名
