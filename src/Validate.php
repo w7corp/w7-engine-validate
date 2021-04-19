@@ -70,6 +70,12 @@ class Validate
     protected bool $filled = true;
 
     /**
+     * 事件优先
+     * @var bool
+     */
+    private bool $eventPriority = true;
+
+    /**
      * 当前验证场景
      * @var ?string
      */
@@ -128,18 +134,36 @@ class Validate
         try {
             $this->checkData = $data;
             $rule            = $this->getSceneRules();
+
             if ($this->filled) {
                 $rule = $this->addFilledRule($rule);
             }
+
             if ($this->bail) {
                 $rule = $this->addBailRule($rule);
             }
-            $data = $this->handleEvent($data, 'beforeValidate');
-            $data = $this->handleCallback($data, 1);
+
+            if ($this->eventPriority) {
+                $data = $this->handleEvent($data, 'beforeValidate');
+                $data = $this->handleCallback($data, 1);
+            } else {
+                $data = $this->handleCallback($data, 1);
+                $data = $this->handleEvent($data, 'beforeValidate');
+            }
+
             /** @var \Illuminate\Validation\Validator $v */
             $v    = Validator::make($data, $rule, $this->message, $this->customAttributes);
-            $data = $this->handleCallback($v->validate(), 2);
-            return $this->handleEvent($data, 'afterValidate');
+            $data = $v->validate();
+
+            if ($this->eventPriority) {
+                $data = $this->handleCallback($data, 2);
+                $data = $this->handleEvent($data, 'afterValidate');
+            } else {
+                $data = $this->handleEvent($data, 'afterValidate');
+                $data = $this->handleCallback($data, 2);
+            }
+
+            return $data;
         } catch (ValidationException $e) {
             $errors       = $this->handlingError($e->errors());
             $errorMessage = '';
@@ -247,7 +271,7 @@ class Validate
         } elseif (is_array($data)) {
             return $data;
         }
-        
+
         throw new LogicException('Validate event return type error');
     }
 
@@ -278,10 +302,11 @@ class Validate
      */
     private function init()
     {
-        $this->checkRule = collect([]);
-        $this->handlers  = [];
-        $this->afters    = [];
-        $this->befores   = [];
+        $this->checkRule     = collect([]);
+        $this->handlers      = [];
+        $this->afters        = [];
+        $this->befores       = [];
+        $this->eventPriority = true;
     }
 
     /**
@@ -719,6 +744,17 @@ class Validate
     }
 
     /**
+     * 设置事件优先级
+     * @param bool $priority
+     * @return $this
+     */
+    public function setEventPriority(bool $priority): Validate
+    {
+        $this->eventPriority = $priority;
+        return $this;
+    }
+
+    /**
      * 加入事件
      * @param string $handler  事件的完整类名，完整命名空间字符串或者加::class
      * @param mixed ...$params 要传递给事件的参数
@@ -807,7 +843,11 @@ class Validate
                 $appendRule              = explode('|', $rule);
                 $this->checkRule[$field] = $this->checkRule[$field]->concat($appendRule);
             } else {
-                $this->checkRule[$field] = $this->checkRule[$field] . '|' . $rule;
+                if (empty($this->checkRule[$field])) {
+                    $this->checkRule[$field] = $rule;
+                } else {
+                    $this->checkRule[$field] = $this->checkRule[$field] . '|' . $rule;
+                }
             }
         }
 
@@ -970,7 +1010,7 @@ class Validate
         } else {
             $this->message = array_merge($this->message, $message);
         }
-        
+
         return $this;
     }
 
