@@ -281,4 +281,18 @@ class ValidateCollection extends Collection
         Arr::set($this->items, $key, $value);
         return $this;
     }
+
+    public function __get($key)
+    {
+        if (array_key_exists($key, $this->items)) {
+            return $this->offsetGet($key);
+        }
+
+        return parent::get($key);
+    }
+
+    public function __set($key, $value)
+    {
+        $this->offsetSet($key, $value);
+    }
 }
