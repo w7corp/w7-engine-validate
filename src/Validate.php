@@ -16,7 +16,6 @@ use Closure;
 use Illuminate\Contracts\Validation\ImplicitRule;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Fluent;
 use Illuminate\Validation\ValidationException;
 use LogicException;
 use W7\Facade\Validator;
@@ -183,6 +182,15 @@ class Validate
     public function getData(): array
     {
         return $this->checkData;
+    }
+
+    /**
+     * 获取当前的验证数据,返回验证集合类型
+     * @return Support\Storage\ValidateCollection
+     */
+    public function getValidateData(): Support\Storage\ValidateCollection
+    {
+        return validate_collect($this->getData());
     }
 
     /**
@@ -911,7 +919,7 @@ class Validate
      */
     public function sometimes($attribute, $rules, callable $callback): Validate
     {
-        $data   = new Fluent($this->checkData);
+        $data   = $this->getValidateData();
         $result = call_user_func($callback, $data);
 
         if (false === $result || empty($result)) {
