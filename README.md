@@ -1,7 +1,8 @@
 # 软擎验证扩展
 
 ## 说明
-此验证基于Laravel的Validator验证器,做了如下改变
+此验证基于Laravel的Validator验证器,可用于Laravel，软擎等依赖于illuminate/validation的项目中，此验证器做了如下扩展：
+
  - 可通过类的方式定义一个[验证器](https://v.neww7.com/Validate.html)
  - 增加[验证场景](https://v.neww7.com/Scene.html)
  - 增加[场景事件处理](https://v.neww7.com/Event.html)
