@@ -17,6 +17,7 @@ use Closure;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\HigherOrderWhenProxy;
+use Illuminate\Support\Str;
 use W7\Validate\Exception\CollectionException;
 
 class ValidateCollection extends Collection
@@ -183,29 +184,43 @@ class ValidateCollection extends Collection
     public function get($key, $default = null)
     {
         if (false !== strpos($key, '*')) {
-            $_value = explode('.', $key);
-            $_data  = $this->items;
+            $explicitPath = rtrim(explode('*', $key)[0], '.') ?: null;
+            $results      = [];
+            $_default     = rand(1e+5, 1e+10) . time();
+            $_value       = Arr::get($this->items, $explicitPath, $_default);
 
-            while (false !== ($index = array_search('*', $_value))) {
-                $_key      = array_slice($_value, 0, $index);
-                $_pluckKey = array_slice($_value, $index + 1, 1);
-                $_value    = array_slice($_value, $index + 2);
+            if ($_default !== $_value) {
+                Arr::set($results, $explicitPath, $_value);
+            }
 
-                if (empty($_key)) {
-                    $_data = Arr::pluck($_data, $_pluckKey);
-                } else {
-                    $_data = Arr::pluck(Arr::get($_data, implode('.', $_key)), $_pluckKey);
+            if (! Str::contains($key, '*') || Str::endsWith($key, '*')) {
+                $value = Arr::get($this->items, $key);
+            } else {
+                data_set($results, $key, null, true);
+
+                $results = Arr::dot($results);
+
+                $keys = [];
+
+                $pattern = str_replace('\*', '[^\.]+', preg_quote($key));
+
+                foreach ($results as $_key => $_value) {
+                    if (preg_match('/^' . $pattern . '/', $_key, $matches)) {
+                        $keys[] = $matches[0];
+                    }
+                }
+
+                $value = [];
+                $keys  = array_unique($keys);
+
+                foreach ($keys as $key) {
+                    $value[] = Arr::get($this->items, $key);
                 }
             }
 
-            if (!empty($_value)) {
-                $_value = implode(',', $_value);
-                $_data  = Arr::get($_data, $_value);
-            }
-
-            $value = $_data ?: ($default instanceof Closure ? $default() : $default);
+            $value = $value ?: value($default);
         } elseif (false !== strpos($key, '.')) {
-            $value = Arr::get($this->items, $key, $default instanceof Closure ? $default() : $default);
+            $value = Arr::get($this->items, $key, $default);
         } else {
             $value = parent::get($key, $default);
         }
