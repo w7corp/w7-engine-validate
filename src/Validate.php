@@ -21,6 +21,7 @@ use LogicException;
 use W7\Facade\Validator;
 use W7\Validate\Exception\ValidateException;
 use W7\Validate\Support\Rule\BaseRule;
+use W7\Validate\Support\Storage\ValidateCollection;
 use W7\Validate\Support\Storage\ValidateConfig;
 use W7\Validate\Support\Storage\ValidateHandler;
 
@@ -914,7 +915,8 @@ class Validate
      *
      * @param string|string[]       $attribute 字段
      * @param string|array|BaseRule $rules     规则
-     * @param callable              $callback  回调方法,返回true获取具体规则生效
+     * @param callable              $callback  回调方法,方法提供一个{@see ValidateCollection} $data参数,参数为当前验证的数据,
+     *                                         返回true则规则生效
      * @return $this
      */
     public function sometimes($attribute, $rules, callable $callback): Validate
@@ -922,22 +924,20 @@ class Validate
         $data   = $this->getValidateData();
         $result = call_user_func($callback, $data);
 
-        if (false === $result || empty($result)) {
+        if (!$result) {
             return $this;
-        } elseif (true === $result) {
-            $result = $rules;
         }
 
-        if (is_array($result)) {
-            $result = implode('|', $result);
+        if (is_array($rules)) {
+            $rules = implode('|', $rules);
         }
 
         if (is_array($attribute)) {
             foreach ($attribute as $filed) {
-                $this->append($filed, $result);
+                $this->append($filed, $rules);
             }
         } else {
-            $this->append($attribute, $result);
+            $this->append($attribute, $rules);
         }
 
         return $this;

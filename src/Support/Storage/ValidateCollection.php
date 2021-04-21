@@ -288,7 +288,7 @@ class ValidateCollection extends Collection
             return $this->offsetGet($key);
         }
 
-        return parent::get($key);
+        return parent::__get($key);
     }
 
     public function __set($key, $value)
