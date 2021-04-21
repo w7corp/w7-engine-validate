@@ -12,6 +12,9 @@
 
 namespace W7\Tests\Material;
 
+use Illuminate\Filesystem\Filesystem;
+use Illuminate\Translation\FileLoader;
+use Illuminate\Translation\Translator;
 use PHPUnit\Framework\TestCase;
 use W7\Validate\Support\Storage\ValidateConfig;
 
@@ -19,16 +22,12 @@ class TestBaseValidate extends TestCase
 {
     public function __construct($name = null, array $data = [], $dataName = '')
     {
-        $this->rangineInit();
+        $loader     = new FileLoader(new Filesystem(), dirname(__DIR__, 2));
+        $translator = new Translator($loader, 'zh_CN');
+
+        ValidateConfig::instance()->setTranslator($translator);
         ValidateConfig::instance()->setRulesPath('W7\\Tests\\Material\\Rules\\');
         
         parent::__construct($name, $data, $dataName);
-    }
-    
-    private function rangineInit()
-    {
-        !defined('BASE_PATH')    && define('BASE_PATH', dirname(__DIR__, 2));
-        !defined('APP_PATH')     && define('APP_PATH', BASE_PATH . DIRECTORY_SEPARATOR . 'app');
-        !defined('RUNTIME_PATH') && define('RUNTIME_PATH', BASE_PATH . DIRECTORY_SEPARATOR . 'runtime');
     }
 }

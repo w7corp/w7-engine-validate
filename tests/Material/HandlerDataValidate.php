@@ -22,6 +22,10 @@ class HandlerDataValidate extends Validate
         'name'   => 'required|Chs'
     ];
 
+    protected array $customAttributes = [
+        'name' => '名称'
+    ];
+
     protected array $scene = [
         'afterRule'                   => ['user', 'user.*', 'after' => 'checkUserNotRepeat'],
         'addData'                     => ['user', 'user.*', 'after' => 'addData'],

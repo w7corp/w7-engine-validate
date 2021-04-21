@@ -10,7 +10,7 @@
  * visited https://www.w7.cc for more details
  */
 
-namespace W7\Validate\Support\Middleware;
+namespace W7\Validate\Support\Middleware\Rangine;
 
 use Exception;
 use Psr\Http\Message\ResponseInterface;

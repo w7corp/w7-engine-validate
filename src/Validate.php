@@ -16,9 +16,9 @@ use Closure;
 use Illuminate\Contracts\Validation\ImplicitRule;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Validation\Factory;
 use Illuminate\Validation\ValidationException;
 use LogicException;
-use W7\Facade\Validator;
 use W7\Validate\Exception\ValidateException;
 use W7\Validate\Support\Rule\BaseRule;
 use W7\Validate\Support\Storage\ValidateCollection;
@@ -124,6 +124,15 @@ class Validate
     private array $checkData = [];
 
     /**
+     * 获取验证器工厂
+     * @return Factory
+     */
+    private static function getValidationFactory(): Factory
+    {
+        return ValidateConfig::instance()->getFactory();
+    }
+    
+    /**
      * 自动验证
      * @param array $data 待验证的数据
      * @return array
@@ -151,8 +160,7 @@ class Validate
                 $data = $this->handleEvent($data, 'beforeValidate');
             }
 
-            /** @var \Illuminate\Validation\Validator $v */
-            $v    = Validator::make($data, $rule, $this->message, $this->customAttributes);
+            $v    = $this->getValidationFactory()->make($data, $rule, $this->message, $this->customAttributes);
             $data = $v->validate();
 
             if ($this->eventPriority) {
@@ -172,7 +180,7 @@ class Validate
                 break;
             }
 
-            throw new ValidateException($errorMessage, 403, $errors);
+            throw new ValidateException($errorMessage, 403, $errors, $e);
         }
     }
 
@@ -721,7 +729,7 @@ class Validate
             self::$implicitRules[] = $ruleName;
         }
 
-        Validator::$method($ruleName, $extension, $message);
+        self::getValidationFactory()->$method($ruleName, $extension, $message);
     }
 
     /**
@@ -737,7 +745,7 @@ class Validate
                 $rule = $ruleName;
             }
         }
-        Validator::replacer($rule, $replacer);
+        self::getValidationFactory()->replacer($rule, $replacer);
     }
 
     /**

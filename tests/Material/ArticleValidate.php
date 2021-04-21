@@ -19,7 +19,7 @@ class ArticleValidate extends Validate
     protected array $rule = [
         'id'      => 'required|numeric',
         'content' => 'required|between:1,2000',
-        'title'   => 'required|between:4,50|alpha',
+        'title'   => 'required|between:4,50|alpha|checkTitle',
         'type'    => 'required|numeric',
     ];
 
@@ -33,6 +33,7 @@ class ArticleValidate extends Validate
         'title.alpha'            => '文章标题长度为4~50个字符',
         'type.required'          => '文章分类必须填写',
         'type.numeric'           => '文章分类错误',
+        'title.checkTitle'       => '有错误啦'
     ];
     
     protected array $scene = [
@@ -40,7 +41,12 @@ class ArticleValidate extends Validate
         'save' => ['use' => 'edit'],
         'del'  => ['id'],
     ];
-    
+
+    public function ruleCheckTitle()
+    {
+        return true;
+    }
+
     public function sceneEdit()
     {
         return $this->only(['id', 'content', 'title'])
