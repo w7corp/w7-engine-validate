@@ -11,7 +11,7 @@
  */
 
 use Psr\Http\Message\ServerRequestInterface;
-use W7\Facade\Context;
+use Illuminate\Http\Request;
 use W7\Validate\Support\Storage\ValidateCollection;
 
 if (!function_exists('validate_collect')) {
@@ -29,14 +29,19 @@ if (!function_exists('validate_collect')) {
 if (!function_exists('get_validate_data')) {
     /**
      * 获取验证后的结果
-     * @param ServerRequestInterface|null $request 请求示例，如果为null，则自动从上下文中获取
+     * @param ServerRequestInterface|Request $request 请求示例
      * @return ValidateCollection 返回验证器集合ValidateCollection类型
      */
-    function get_validate_data(ServerRequestInterface $request = null): ValidateCollection
+    function get_validate_data($request = null): ValidateCollection
     {
-        if (null === $request) {
-            $request = Context::getRequest();
+        if ($request instanceof ServerRequestInterface) {
+            $data = $request->getAttribute('__validate__data__');
+        } elseif ($request instanceof Request) {
+            $data = $request->offsetGet('__validate__data__');
+        } else {
+            $data = [];
         }
-        return validate_collect($request->getAttribute('validate'));
+
+        return validate_collect($data);
     }
 }

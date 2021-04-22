@@ -20,7 +20,6 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Translation\FileLoader;
 use Illuminate\Validation\Factory;
 use Illuminate\Validation\PresenceVerifierInterface;
-use W7\Contract\Validation\ValidatorFactoryInterface;
 
 final class ValidateConfig
 {
@@ -61,6 +60,13 @@ final class ValidateConfig
     protected PresenceVerifierInterface $verifier;
 
     /**
+     * 框架类型
+     * 1 Laravel 2 Rangine
+     * @var int
+     */
+    protected int $framework = 0;
+
+    /**
      * 验证器具体关联
      * @var array
      */
@@ -83,28 +89,7 @@ final class ValidateConfig
      */
     public function setFramework(int $type): ValidateConfig
     {
-        switch ($type) {
-            case 1:
-                $factory = App::make('validator');
-                break;
-            case 2:
-                $factory = \W7\Facade\Container::singleton(ValidatorFactoryInterface::class);
-                break;
-            default:
-                throw new \RuntimeException('Framework Type Error');
-        }
-        
-        return $this->setFactory($factory);
-    }
-    
-    /**
-     * 提供翻译器
-     * @param Translator $translator
-     * @return $this
-     */
-    public function setTranslator(Translator $translator): ValidateConfig
-    {
-        $this->translator = $translator;
+        $this->framework = $type;
         return $this;
     }
 
@@ -126,9 +111,22 @@ final class ValidateConfig
     public function getFactory(): Factory
     {
         if (empty($this->factory)) {
-            $this->factory = new Factory($this->getTranslator(), $this->getContainer());
-            if ($this->getPresenceVerifier()) {
-                $this->factory->setPresenceVerifier($this->getPresenceVerifier());
+            if ($this->framework > 0) {
+                switch ($this->framework) {
+                    case 1:
+                        $this->factory = App::make('validator');
+                        break;
+                    case 2:
+                        $this->factory = \W7\Facade\Container::singleton(ValidatorFactoryInterface::class);
+                        break;
+                    default:
+                        throw new \RuntimeException('Framework Type Error');
+                }
+            } else {
+                $this->factory = new Factory($this->getTranslator(), $this->getContainer());
+                if ($this->getPresenceVerifier()) {
+                    $this->factory->setPresenceVerifier($this->getPresenceVerifier());
+                }
             }
         }
 
@@ -147,6 +145,15 @@ final class ValidateConfig
     }
 
     /**
+     * 获取存在验证器
+     * @return PresenceVerifierInterface|null
+     */
+    private function getPresenceVerifier(): ?PresenceVerifierInterface
+    {
+        return $this->verifier ?? null;
+    }
+
+    /**
      * 提供容器
      * @param Container $container
      * @return ValidateConfig
@@ -158,21 +165,23 @@ final class ValidateConfig
     }
 
     /**
-     * 获取存在验证器
-     * @return PresenceVerifierInterface|null
-     */
-    private function getPresenceVerifier(): ?PresenceVerifierInterface
-    {
-        return $this->verifier ?? null;
-    }
-
-    /**
      * 获取容器
      * @return Container|null
      */
     private function getContainer(): ?Container
     {
         return $this->container ?? null;
+    }
+
+    /**
+     * 提供翻译器
+     * @param Translator $translator
+     * @return $this
+     */
+    public function setTranslator(Translator $translator): ValidateConfig
+    {
+        $this->translator = $translator;
+        return $this;
     }
 
     /**
@@ -199,6 +208,14 @@ final class ValidateConfig
      */
     public function setAutoValidatePath(string $controllerPath, string $validatePath): ValidateConfig
     {
+        if ('\\' !== substr($controllerPath, -1)) {
+            $controllerPath = $controllerPath . '\\';
+        }
+
+        if ('\\' !== substr($validatePath, -1)) {
+            $validatePath = $validatePath . '\\';
+        }
+
         $this->autoValidatePath[$controllerPath] = $validatePath;
         return $this;
     }
