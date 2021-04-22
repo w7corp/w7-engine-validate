@@ -117,7 +117,7 @@ final class ValidateConfig
                         $this->factory = App::make('validator');
                         break;
                     case 2:
-                        $this->factory = \W7\Facade\Container::singleton(ValidatorFactoryInterface::class);
+                        $this->factory = \W7\Facade\Container::singleton("W7\Contract\Validation\ValidatorFactoryInterface");
                         break;
                     default:
                         throw new \RuntimeException('Framework Type Error');
