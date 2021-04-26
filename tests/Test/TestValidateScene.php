@@ -13,10 +13,10 @@
 namespace W7\Tests\Test;
 
 use W7\Tests\Material\ArticleValidate;
-use W7\Tests\Material\TestBaseValidate;
+use W7\Tests\Material\BaseTestValidate;
 use W7\Validate\Exception\ValidateException;
 
-class TestValidateScene extends TestBaseValidate
+class TestValidateScene extends BaseTestValidate
 {
     protected array $userInput;
 

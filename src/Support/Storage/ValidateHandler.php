@@ -57,22 +57,12 @@ class ValidateHandler
         }, $this->handlers);
     }
     
-    protected function destination(): Closure
-    {
-        return function ($data) {
-            return $data;
-        };
-    }
-    
     public function handle(string $method)
     {
-        $destination = $this->destination();
-        $pipeline    = array_reduce(
+        $pipeline = array_reduce(
             array_reverse($this->pipes($method)),
             $this->carry(),
-            function ($data) use ($destination) {
-                return $destination($data);
-            }
+            fn ($data) => $data
         );
         
         return $pipeline($this->data);

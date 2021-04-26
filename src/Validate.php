@@ -355,11 +355,7 @@ class Validate
                         return $ruleClass;
                     }
 
-                    if (method_exists($this, 'rule' . ucfirst($value))) {
-                        self::extend($value, Closure::fromCallable([$this, 'rule' . ucfirst($value)]));
-                    }
-
-                    return $this->getExtendsName($value, $field);
+                    return $this->getExtendsRule($value, $field);
                 }
                 return $value;
             });
@@ -369,13 +365,13 @@ class Validate
     }
 
     /**
-     * 获取扩展方法的名称
+     * 获取扩展规则
      * 由于为了区分多个验证器的相同自定义方法名，对方法名做了处理，此方法为了使规则和处理后的方法名对应上
      * @param string      $rule   规则名称
      * @param string|null $field  字段
      * @return string
      */
-    private function getExtendsName(string $rule, string $field = null): string
+    private function getExtendsRule(string $rule, string $field = null): string
     {
         list($rule, $param) = $this->getKeyAndParam($rule, false);
 
@@ -388,6 +384,18 @@ class Validate
             }
 
             $rule = $ruleName;
+        } else {
+            # 如果当前自定义规则中不存在，则判断是否为类方法
+            # 如果是类方法，则先注册规则到验证器中，然后再处理对应的错误消息
+            if (method_exists($this, 'rule' . ucfirst($rule))) {
+                self::extend($rule, Closure::fromCallable([$this, 'rule' . ucfirst($rule)]));
+
+                if ('' !== $param) {
+                    $rule = $rule . ':' . $param;
+                }
+
+                return $this->getExtendsRule($rule, $field);
+            }
         }
 
         if ('' !== $param) {
@@ -585,7 +593,6 @@ class Validate
                 $handlers = $sceneRule['handler'];
                 $this->addHandler($handlers);
                 unset($sceneRule['handler']);
-                unset($this->scene[$name]['handler']);
             }
 
             # 判断是否定义了验证前需要执行的方法
@@ -593,7 +600,6 @@ class Validate
                 $callback = $sceneRule['before'];
                 $this->addBefore($callback);
                 unset($sceneRule['before']);
-                unset($this->scene[$name]['before']);
             }
 
             # 判断是否定义了验证后需要执行的方法
@@ -601,14 +607,15 @@ class Validate
                 $callback = $sceneRule['after'];
                 $this->addAfter($callback);
                 unset($sceneRule['after']);
-                unset($this->scene[$name]['after']);
             }
 
             # 判断验证场景是否指定了其他验证场景
             if (isset($sceneRule['use']) && !empty($sceneRule['use'])) {
                 $use = $sceneRule['use'];
+                if ($use === $name || $use === $this->currentScene) {
+                    throw new LogicException('The scene used cannot be the same as the current scene.');
+                }
                 unset($sceneRule['use']);
-                unset($this->scene[$name]['use']);
                 # 如果指定的use是一个方法
                 if (method_exists($this, 'use' . ucfirst($use))) {
                     # 进行预验证，将需要传给闭包的值按指定规则进行验证

@@ -18,7 +18,7 @@ use Illuminate\Translation\Translator;
 use PHPUnit\Framework\TestCase;
 use W7\Validate\Support\Storage\ValidateConfig;
 
-class TestBaseValidate extends TestCase
+class BaseTestValidate extends TestCase
 {
     public function __construct($name = null, array $data = [], $dataName = '')
     {

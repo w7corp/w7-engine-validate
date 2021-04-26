@@ -13,9 +13,9 @@
 namespace W7\Tests\Test;
 
 use W7\Tests\Material\HandlerDataValidate;
-use W7\Tests\Material\TestBaseValidate;
+use W7\Tests\Material\BaseTestValidate;
 
-class TestHandlerFunction extends TestBaseValidate
+class TestHandlerFunction extends BaseTestValidate
 {
     /**
      * @test 测试在after中进行最后的验证

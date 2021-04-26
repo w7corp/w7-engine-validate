@@ -12,9 +12,9 @@
 
 namespace W7\Tests\Test;
 
-use W7\Tests\Material\TestBaseValidate;
+use W7\Tests\Material\BaseTestValidate;
 
-class TestValidateCollection extends TestBaseValidate
+class TestValidateCollection extends BaseTestValidate
 {
     public function testGetMultiDimensionalArrays()
     {
