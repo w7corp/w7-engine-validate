@@ -283,16 +283,7 @@ class Validate
 
         $data = $pipeline($data);
 
-        if (is_string($data)) {
-            if (isset($this->message[$data])) {
-                $data = $this->replacingFieldsInMessage($this->message[$data]);
-            }
-            throw new ValidateException($data, 403);
-        } elseif (is_array($data)) {
-            return $data;
-        }
-
-        throw new LogicException('Validate event return type error');
+        return $this->handleEventResult($data);
     }
 
     /**
@@ -308,6 +299,17 @@ class Validate
             return $data;
         }
         $result = (new ValidateHandler($data, $this->handlers, $this->currentScene))->handle($method);
+        return $this->handleEventResult($result);
+    }
+
+    /**
+     * 处理事件结果
+     * @param $result
+     * @return array
+     * @throws ValidateException
+     */
+    private function handleEventResult($result): array
+    {
         if (is_string($result)) {
             if (isset($this->message[$result])) {
                 $result = $this->replacingFieldsInMessage($this->message[$result]);
