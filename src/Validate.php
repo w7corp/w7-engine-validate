@@ -188,9 +188,9 @@ class Validate
      * 获取当前的验证数据
      * @param string $key
      * @param null $default
-     * @return array
+     * @return array|mixed
      */
-    public function getData(string $key = '', $default = null): array
+    public function getData(string $key = '', $default = null)
     {
         if (!empty($key)) {
             return Arr::get($this->checkData, $key, $default);
