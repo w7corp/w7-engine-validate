@@ -130,8 +130,11 @@ class Validate
      * @param array $customAttributes    字段名称
      * @return Validate
      */
-    public static function make(array $rules, array $messages = [], array $customAttributes = []): Validate
+    public static function make(array $rules = [], array $messages = [], array $customAttributes = []): Validate
     {
+        if (empty($rules)) {
+            return new static();
+        }
         return (new static())->setRules($rules)->setMessages($messages)->setCustomAttributes($customAttributes);
     }
 
