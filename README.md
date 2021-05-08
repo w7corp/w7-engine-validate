@@ -17,7 +17,7 @@
 ## 安装
 使用composer命令
 ``` shell
-composer require w7/rangine-validate
+composer require w7/engine-validate
 ```
 
 完整文档查看[完整文档](https://v.neww7.com)
