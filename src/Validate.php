@@ -124,6 +124,18 @@ class Validate
     private array $checkData = [];
 
     /**
+     * 创建一个验证器
+     * @param array $rules               验证规则
+     * @param array $messages            错误消息
+     * @param array $customAttributes    字段名称
+     * @return Validate
+     */
+    public static function make(array $rules, array $messages = [], array $customAttributes = []): Validate
+    {
+        return (new static())->setRules($rules)->setMessages($messages)->setCustomAttributes($customAttributes);
+    }
+
+    /**
      * 获取验证器工厂
      * @return Factory
      */
@@ -1045,6 +1057,23 @@ class Validate
             $this->message = [];
         } else {
             $this->message = array_merge($this->message, $message);
+        }
+
+        return $this;
+    }
+
+    /**
+     * 设置字段名称(叠加)
+     *
+     * @param array|null $customAttributes [字段 => 名称] 如果$customAttributes为null，则清空全部字段名称
+     * @return $this
+     */
+    public function setCustomAttributes(?array $customAttributes = null): Validate
+    {
+        if (is_null($customAttributes)) {
+            $this->customAttributes = [];
+        } else {
+            $this->customAttributes = array_merge($this->customAttributes, $customAttributes);
         }
 
         return $this;
