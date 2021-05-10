@@ -16,7 +16,7 @@
         "validate"
     ],
     "require": {
-        "php": "^7.4|^8.0",
+        "php": "^7.2.5|^8.0",
         "illuminate/validation": "^6.0|^7.0|^8.0"
     },
     "require-dev": {

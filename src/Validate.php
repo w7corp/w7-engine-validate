@@ -31,97 +31,97 @@ class Validate
      * 自定义错误消息
      * @var array
      */
-    protected array $message = [];
+    protected $message = [];
 
     /**
      * 验证规则
      * @var array
      */
-    protected array $rule = [];
+    protected $rule = [];
 
     /**
      * 验证场景数据，key为控制器内的方法
      * @var array
      */
-    protected array $scene = [];
+    protected $scene = [];
 
     /**
      * 全局事件处理器
      * @var array
      */
-    protected array $handler = [];
+    protected $handler = [];
 
     /**
      * 字段名称
      * @var array
      */
-    protected array $customAttributes = [];
+    protected $customAttributes = [];
 
     /**
      * 是否首次验证失败后停止运行
      * @var bool
      */
-    protected bool $bail = true;
+    protected $bail = true;
 
     /**
      * 所有验证的字段在存在时不能为空
      * @var bool
      */
-    protected bool $filled = true;
+    protected $filled = true;
 
     /**
      * 事件优先
      * @var bool
      */
-    private bool $eventPriority = true;
+    private $eventPriority = true;
 
     /**
      * 当前验证场景
      * @var ?string
      */
-    private ?string $currentScene = null;
+    private $currentScene = null;
 
     /**
      * 验证的规则
      * @var Collection
      */
-    private Collection $checkRule;
+    private $checkRule;
 
     /**
      * 扩展方法名
      * @var array
      */
-    private static array $extendName = [];
+    private static $extendName = [];
 
     /**
      * 隐形扩展方法名
      * @var array
      */
-    private static array $implicitRules = [];
+    private static $implicitRules = [];
 
     /**
      * 验证器事件处理类
      * @var array
      */
-    private array $handlers = [];
+    private $handlers = [];
 
     /**
      * 验证前需要执行的方法
      * @var array
      */
-    private array $befores = [];
+    private $befores = [];
 
     /**
      * 验证后需要执行的方法
      * @var array
      */
-    private array $afters = [];
+    private $afters = [];
 
     /**
      * 当前进行验证的数据
      * @var array
      */
-    private array $checkData = [];
+    private $checkData = [];
 
     /**
      * 创建一个验证器
@@ -298,7 +298,9 @@ class Validate
                     return $pipe($data, $stack);
                 };
             },
-            fn ($data) => $data
+            function ($data) {
+                return $data;
+            }
         );
 
         $data = $pipeline($data);

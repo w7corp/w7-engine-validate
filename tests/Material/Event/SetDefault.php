@@ -17,7 +17,7 @@ use W7\Validate\Support\Event\ValidateEventAbstract;
 
 class SetDefault extends ValidateEventAbstract
 {
-    protected array $default;
+    protected $default;
 
     public function __construct(array $default)
     {

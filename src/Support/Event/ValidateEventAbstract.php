@@ -20,7 +20,7 @@ abstract class ValidateEventAbstract implements ValidateEventInterface
      * 当前验证场景
      * @var ?string
      */
-    protected ?string $sceneName;
+    protected $sceneName;
 
     /**
      * 场景验证前

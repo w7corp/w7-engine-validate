@@ -16,7 +16,7 @@ use W7\Validate\Support\Rule\BaseRule;
 
 class AlphaNum extends BaseRule
 {
-    protected string $message = ':attribute的值只能具有英文字母，数字';
+    protected $message = ':attribute的值只能具有英文字母，数字';
     
     public function passes($attribute, $value): bool
     {

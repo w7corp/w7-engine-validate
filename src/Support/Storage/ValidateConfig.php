@@ -27,52 +27,52 @@ final class ValidateConfig
      * 自定义规则命名空间前缀
      * @var array
      */
-    protected array $rulesPath = [];
+    protected $rulesPath = [];
 
     /**
      * 自动加载验证器规则
      * @var array
      */
-    protected array $autoValidatePath = [];
+    protected $autoValidatePath = [];
 
     /**
      * 翻译器
      * @var Translator
      */
-    protected Translator $translator;
+    protected $translator;
 
     /**
      * 容器
      * @var Container
      */
-    protected Container $container;
+    protected $container;
 
     /**
      * 验证器工厂
      * @var Factory
      */
-    protected Factory $factory;
+    protected $factory;
 
     /**
      * 存在验证器
      * @var PresenceVerifierInterface
      */
-    protected PresenceVerifierInterface $verifier;
+    protected $verifier;
 
     /**
      * 框架类型
      * 1 Laravel 2 Rangine
      * @var int
      */
-    protected int $framework = 0;
+    protected $framework = 0;
 
     /**
      * 验证器具体关联
      * @var array
      */
-    protected array $validateLink = [];
+    protected $validateLink = [];
 
-    protected static ValidateConfig $instance;
+    protected static $instance;
 
     public static function instance(): ValidateConfig
     {

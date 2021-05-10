@@ -20,7 +20,7 @@ class Chs extends BaseRule
      * 默认错误消息
      * @var string
      */
-    protected string $message = ':attribute的值只能具有中文';
+    protected $message = ':attribute的值只能具有中文';
     
     /**
      * 确定验证规则是否通过。

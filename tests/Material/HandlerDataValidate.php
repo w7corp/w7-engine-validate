@@ -16,17 +16,17 @@ use W7\Validate\Validate;
 
 class HandlerDataValidate extends Validate
 {
-    protected array $rule = [
+    protected $rule = [
         'user'   => 'required|array',
         'user.*' => 'chsAlphaNum',
         'name'   => 'required|Chs'
     ];
 
-    protected array $customAttributes = [
+    protected $customAttributes = [
         'name' => '名称'
     ];
 
-    protected array $scene = [
+    protected $scene = [
         'afterRule'                   => ['user', 'user.*', 'after' => 'checkUserNotRepeat'],
         'addData'                     => ['user', 'user.*', 'after' => 'addData'],
         'beforeHandlerData'           => ['name',  'before' => 'setDefaultName'],

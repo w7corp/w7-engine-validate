@@ -16,7 +16,7 @@ use W7\Validate\Support\Rule\BaseRule;
 
 class ChsAlphaNum extends BaseRule
 {
-    protected string $message = ':attribute的值只能具有中文，字母，数字';
+    protected $message = ':attribute的值只能具有中文，字母，数字';
     
     public function passes($attribute, $value): bool
     {

@@ -18,11 +18,13 @@ use W7\Validate\Support\Event\ValidateEventAbstract;
 
 class ValidateHandler
 {
-    protected array $handlers = [];
+    protected $handlers = [];
 
-    protected array $data = [];
-
-    protected ?string $sceneName = null;
+    protected $data = [];
+    /**
+     * @var string|null
+     */
+    protected $sceneName = null;
 
     public function __construct(array $data, array $handlers, string $sceneName = null)
     {
@@ -62,7 +64,9 @@ class ValidateHandler
         $pipeline = array_reduce(
             array_reverse($this->pipes($method)),
             $this->carry(),
-            fn ($data) => $data
+            function ($data) {
+                return $data;
+            }
         );
         
         return $pipeline($this->data);

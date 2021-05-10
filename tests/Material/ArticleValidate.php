@@ -16,14 +16,14 @@ use W7\Validate\Validate;
 
 class ArticleValidate extends Validate
 {
-    protected array $rule = [
+    protected $rule = [
         'id'      => 'required|numeric',
         'content' => 'required|between:1,2000',
         'title'   => 'required|between:4,50|alpha|checkTitle',
         'type'    => 'required|numeric',
     ];
 
-    protected array $message = [
+    protected $message = [
         'id.required'            => '缺少参数：文章Id',
         'id.numeric'             => '参数错误：文章Id',
         'content.required'       => '文章内容必须填写',
@@ -36,7 +36,7 @@ class ArticleValidate extends Validate
         'title.checkTitle'       => '有错误啦'
     ];
     
-    protected array $scene = [
+    protected $scene = [
         'add'  => ['content', 'title'],
         'save' => ['use' => 'edit'],
         'del'  => ['id'],

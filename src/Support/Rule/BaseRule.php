@@ -18,13 +18,13 @@ abstract class BaseRule implements RuleInterface
      * 错误消息，支持format字符串
      * @var string
      */
-    protected string $message = '';
+    protected $message = '';
 
     /**
      * 用于format错误消息的参数
      * @var array
      */
-    protected array $messageParam = [];
+    protected $messageParam = [];
 
     public function setMessage(string $message): BaseRule
     {

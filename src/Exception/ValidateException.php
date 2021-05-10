@@ -17,7 +17,7 @@ use Throwable;
 
 class ValidateException extends Exception
 {
-    protected array $data = [];
+    protected $data = [];
 
     public function __construct($message = '', $code = 0, array $data = [], Throwable $previous = null)
     {

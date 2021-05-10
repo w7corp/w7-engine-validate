@@ -17,7 +17,7 @@ use W7\Validate\Support\Event\ValidateEventAbstract;
 
 class Increasing extends ValidateEventAbstract
 {
-    protected string $field;
+    protected $field;
 
     public function __construct(string $field)
     {

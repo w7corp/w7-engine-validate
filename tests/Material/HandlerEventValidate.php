@@ -18,13 +18,13 @@ use W7\Validate\Validate;
 
 class HandlerEventValidate extends Validate
 {
-    protected array $rule = [
+    protected $rule = [
         'a' => 'required',
         'b' => 'required',
         'i' => 'required|numeric'
     ];
 
-    protected array $scene = [
+    protected $scene = [
         'setDefault' => ['a', 'b', 'handler' => [
             SetDefault::class => [[
                 'a' => 1,

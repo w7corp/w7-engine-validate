@@ -22,7 +22,10 @@ use W7\Validate\Exception\CollectionException;
 
 class ValidateCollection extends Collection
 {
-    private ?string $paramType;
+    /**
+     * @var string|null
+     */
+    private $paramType;
 
     /**
      * 将下一次取出的值强制转为int类型
