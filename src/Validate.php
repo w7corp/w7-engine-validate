@@ -408,7 +408,7 @@ class Validate
             $ruleName = md5(get_called_class() . $rule);
             # 判断是否为自定义规则方法定义了错误消息
             if (null !== $field && isset($this->message[$field . '.' . $rule])) {
-                $this->message[$ruleName] = $this->message[$field . '.' . $rule];
+                $this->message[$field . '.' . $ruleName] = $this->message[$field . '.' . $rule];
             }
 
             $rule = $ruleName;
@@ -741,6 +741,8 @@ class Validate
      */
     private static function validatorExtend(string $type, string $rule, $extension, ?string $message = null)
     {
+        # 多个验证器使用了同样的rule会导致后面的方法无法生效
+        # 故这里根据命名空间生成一个独一无二的rule名称
         $ruleName = md5(get_called_class() . $rule);
 
         if (array_key_exists($rule, self::$extendName)) {
@@ -749,10 +751,6 @@ class Validate
         } else {
             self::$extendName[$rule] = [$ruleName];
         }
-
-        # 多个验证器使用了同样的rule会导致后面的方法无法生效
-        # 故这里根据命名空间生成一个独一无二的rule名称
-        $ruleName = md5(get_called_class() . $rule);
 
         if (!empty($type)) {
             $method = 'extend' . $type;

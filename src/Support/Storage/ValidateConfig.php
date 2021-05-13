@@ -193,7 +193,13 @@ final class ValidateConfig
         if (empty($this->translator)) {
             $reflection = new \ReflectionClass(ClassLoader::class);
             $vendorDir  = dirname($reflection->getFileName(), 2);
-            $loader     = new FileLoader(new Filesystem(), $vendorDir);
+            $langPath   = $vendorDir . DIRECTORY_SEPARATOR . 'laravel-lang' . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR;
+            if (file_exists($langPath . 'locales')) {
+                $langPath .= 'locales';
+            } else {
+                $langPath .= 'src';
+            }
+            $loader = new FileLoader(new Filesystem(), $langPath);
             return new \Illuminate\Translation\Translator($loader, 'zh_CN');
         }
 
