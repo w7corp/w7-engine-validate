@@ -278,7 +278,7 @@ class RuleManager
             $ruleName = md5(get_called_class() . $rule);
             # Determine if an error message is defined for a custom rule method
             if (null !== $field && isset($this->message[$field . '.' . $rule])) {
-                $this->message[$ruleName] = $this->message[$field . '.' . $rule];
+                $this->message[$field . '.' . $ruleName] = $this->message[$field . '.' . $rule];
             }
 
             $rule = $ruleName;

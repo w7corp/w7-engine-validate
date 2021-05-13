@@ -131,7 +131,7 @@ class TestValidateScene extends BaseTestValidate
 
         $messages = $userRule->getMessages();
 
-        $this->assertEquals('验证码错误', $messages[$extendRuleName]);
+        $this->assertEquals('验证码错误', $messages['captcha.' . $extendRuleName]);
     }
 
     /**
