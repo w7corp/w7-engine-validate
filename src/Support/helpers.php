@@ -16,7 +16,7 @@ use W7\Validate\Support\Storage\ValidateCollection;
 
 if (!function_exists('validate_collect')) {
     /**
-     * 数值转为验证器集合ValidateCollection类型
+     * Create a ValidateCollection from the given value.
      * @param null $value
      * @return ValidateCollection
      */
@@ -28,9 +28,10 @@ if (!function_exists('validate_collect')) {
 
 if (!function_exists('get_validate_data')) {
     /**
-     * 获取验证后的结果
-     * @param ServerRequestInterface|Request $request 请求示例
-     * @return ValidateCollection 返回验证器集合ValidateCollection类型
+     * Get the result after verification
+     *
+     * @param ServerRequestInterface|Request $request Request Example
+     * @return ValidateCollection
      */
     function get_validate_data($request = null): ValidateCollection
     {

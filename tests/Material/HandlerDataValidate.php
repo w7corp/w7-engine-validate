@@ -12,6 +12,7 @@
 
 namespace W7\Tests\Material;
 
+use W7\Validate\Support\ValidateScene;
 use W7\Validate\Validate;
 
 class HandlerDataValidate extends Validate
@@ -33,15 +34,15 @@ class HandlerDataValidate extends Validate
         'beforeSetDefaultNameIsError' => ['name',  'before' => 'setDefaultNameIsError']
     ];
 
-    public function sceneBeforeHandlerDataScene()
+    public function sceneBeforeHandlerDataScene(ValidateScene $scene)
     {
-        $this->only(['name'])
+        $scene->only(['name'])
             ->before('setDefaultName');
     }
 
-    public function sceneBeforeSetDefaultNameIsErrorScene()
+    public function sceneBeforeSetDefaultNameIsErrorScene(ValidateScene $scene)
     {
-        $this->only(['name'])
+        $scene->only(['name'])
             ->before('setDefaultNameIsError');
     }
 

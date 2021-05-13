@@ -20,6 +20,8 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Translation\FileLoader;
 use Illuminate\Validation\Factory;
 use Illuminate\Validation\PresenceVerifierInterface;
+use ReflectionClass;
+use RuntimeException;
 
 final class ValidateConfig
 {
@@ -120,7 +122,7 @@ final class ValidateConfig
                         $this->factory = \W7\Facade\Container::singleton("W7\Contract\Validation\ValidatorFactoryInterface");
                         break;
                     default:
-                        throw new \RuntimeException('Framework Type Error');
+                        throw new RuntimeException('Framework Type Error');
                 }
             } else {
                 $this->factory = new Factory($this->getTranslator(), $this->getContainer());
@@ -191,9 +193,15 @@ final class ValidateConfig
     private function getTranslator(): Translator
     {
         if (empty($this->translator)) {
-            $reflection = new \ReflectionClass(ClassLoader::class);
+            $reflection = new ReflectionClass(ClassLoader::class);
             $vendorDir  = dirname($reflection->getFileName(), 2);
-            $loader     = new FileLoader(new Filesystem(), $vendorDir);
+            $langPath   = $vendorDir . DIRECTORY_SEPARATOR . 'laravel-lang' . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR;
+            if (file_exists($langPath . 'locales')) {
+                $langPath .= 'locales';
+            } else {
+                $langPath .= 'src';
+            }
+            $loader = new FileLoader(new Filesystem(), $langPath);
             return new \Illuminate\Translation\Translator($loader, 'zh_CN');
         }
 

@@ -12,6 +12,7 @@
 
 namespace W7\Tests\Material;
 
+use W7\Validate\Support\ValidateScene;
 use W7\Validate\Validate;
 
 class ArticleValidate extends Validate
@@ -47,18 +48,18 @@ class ArticleValidate extends Validate
         return true;
     }
 
-    public function sceneEdit()
+    public function sceneEdit(ValidateScene $scene)
     {
-        return $this->only(['id', 'content', 'title'])
+        return $scene->only(['id', 'content', 'title'])
             ->append('id', 'max:10000')
             ->remove('content', 'between')
             ->remove('title', null)
             ->append('title', 'required|between:4,50|alpha');
     }
     
-    public function sceneDynamic()
+    public function sceneDynamic(ValidateScene $scene)
     {
-        return $this->only(['title', 'content'])
+        return $scene->only(['title', 'content'])
             ->remove('content', 'between');
     }
 }

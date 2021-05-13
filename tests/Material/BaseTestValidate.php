@@ -23,7 +23,9 @@ class BaseTestValidate extends TestCase
     public function __construct($name = null, array $data = [], $dataName = '')
     {
         $langPath = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'laravel-lang' . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR;
-        if (!file_exists($langPath . 'locales')) {
+        if (file_exists($langPath . 'locales')) {
+            $langPath .= 'locales';
+        } else {
             $langPath .= 'src';
         }
 
