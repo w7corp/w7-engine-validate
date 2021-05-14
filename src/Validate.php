@@ -794,6 +794,16 @@ class Validate
     }
 
     /**
+     * 获取当前验证场景名称
+     *
+     * @return string|null
+     */
+    public function getCurrentSceneName(): ?string
+    {
+        return $this->currentScene;
+    }
+
+    /**
      * 设置事件优先级
      * @param bool $priority
      * @return $this
