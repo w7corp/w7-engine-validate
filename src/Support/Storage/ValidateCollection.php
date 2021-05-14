@@ -18,120 +18,9 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\HigherOrderWhenProxy;
 use Illuminate\Support\Str;
-use W7\Validate\Exception\CollectionException;
 
 class ValidateCollection extends Collection
 {
-    private ?string $paramType;
-
-    /**
-     * 将下一次取出的值强制转为int类型
-     *
-     * @see get 获取指定字段的值
-     * @see pop 移除并返回集合的最后一个集合项
-     * @see pull 移除并返回集合的第一个集合项
-     * @see shift 移除并返回集合的第一个集合项
-     *
-     * <p>此类型转换对上诉方法有效</p>
-     * <b>请注意，如果你的值不支持强制转换，会抛出CollectionException异常</b>
-     * @return $this
-     */
-    public function int(): ValidateCollection
-    {
-        $this->paramType = 'int';
-        return $this;
-    }
-
-    /**
-     * 将下一次取出的值强制转为float类型
-     *
-     * @see get 获取指定字段的值
-     * @see pop 移除并返回集合的最后一个集合项
-     * @see pull 移除并返回集合的第一个集合项
-     * @see shift 移除并返回集合的第一个集合项
-     *
-     * <p>此类型转换对上诉方法有效</p>
-     * <b>请注意，如果你的值不支持强制转换，会抛出CollectionException异常</b>
-     * @return $this
-     */
-    public function float(): ValidateCollection
-    {
-        $this->paramType = 'float';
-        return $this;
-    }
-
-    /**
-     * 将下一次取出的值强制转为string类型
-     *
-     * @see get 获取指定字段的值
-     * @see pop 移除并返回集合的最后一个集合项
-     * @see pull 移除并返回集合的第一个集合项
-     * @see shift 移除并返回集合的第一个集合项
-     *
-     * <p>此类型转换对上诉方法有效</p>
-     * <b>请注意，如果你的值不支持强制转换，会抛出CollectionException异常</b>
-     * @return $this
-     */
-    public function string(): ValidateCollection
-    {
-        $this->paramType = 'string';
-        return $this;
-    }
-
-    /**
-     * 将下一次取出的值强制转为array类型
-     *
-     * @see get 获取指定字段的值
-     * @see pop 移除并返回集合的最后一个集合项
-     * @see pull 移除并返回集合的第一个集合项
-     * @see shift 移除并返回集合的第一个集合项
-     *
-     * <p>此类型转换对上诉方法有效</p>
-     * <b>请注意，如果你的值不支持强制转换，会抛出CollectionException异常</b>
-     * @return $this
-     */
-    public function array(): ValidateCollection
-    {
-        $this->paramType = 'array';
-        return $this;
-    }
-
-    /**
-     * 将下一次取出的值强制转为object类型
-     *
-     * @see get 获取指定字段的值
-     * @see pop 移除并返回集合的最后一个集合项
-     * @see pull 移除并返回集合的第一个集合项
-     * @see shift 移除并返回集合的第一个集合项
-     *
-     * <p>此类型转换对上诉方法有效</p>
-     * <b>请注意，如果你的值不支持强制转换，会抛出CollectionException异常</b>
-     * @return $this
-     */
-    public function object(): ValidateCollection
-    {
-        $this->paramType = 'object';
-        return $this;
-    }
-
-    /**
-     * 将下一次取出的值强制转为bool类型
-     *
-     * @see get 获取指定字段的值
-     * @see pop 移除并返回集合的最后一个集合项
-     * @see pull 移除并返回集合的第一个集合项
-     * @see shift 移除并返回集合的第一个集合项
-     *
-     * <p>此类型转换对上诉方法有效</p>
-     * <b>请注意，如果你的值不支持强制转换，会抛出CollectionException异常</b>
-     * @return $this
-     */
-    public function bool(): ValidateCollection
-    {
-        $this->paramType = 'bool';
-        return $this;
-    }
-
     /**
      * 判断集合中是否存在指定的字段
      * @param mixed $key 要验证的字段
@@ -179,7 +68,6 @@ class ValidateCollection extends Collection
      * @param mixed              $key     字段名称
      * @param mixed|Closure|null $default 默认值
      * @return array|ArrayAccess|mixed
-     * @throws CollectionException
      */
     public function get($key, $default = null)
     {
@@ -225,66 +113,9 @@ class ValidateCollection extends Collection
             $value = parent::get($key, $default);
         }
 
-        return $this->typeConversion($value);
-    }
-
-    /**
-     * 移除并返回集合的最后一个集合项
-     * @return mixed
-     * @throws CollectionException
-     */
-    public function pop()
-    {
-        return $this->typeConversion(parent::pop());
-    }
-
-    /**
-     * 移除并返回集合的第一个集合项
-     * @return mixed
-     * @throws CollectionException
-     */
-    public function shift()
-    {
-        return $this->typeConversion(parent::shift());
-    }
-
-    /**
-     * 将指定键对应的值从集合中移除并返回
-     * @param mixed $key     字段名称
-     * @param null $default  默认值
-     * @return mixed
-     * @throws CollectionException
-     */
-    public function pull($key, $default = null)
-    {
-        $value = parent::pull($key, $default);
-        return $this->typeConversion($value);
-    }
-
-    /**
-     * 将值转为指定类型
-     * @param $value
-     * @return mixed
-     * @throws CollectionException
-     */
-    private function typeConversion($value)
-    {
-        if (!empty($this->paramType)) {
-            $error = null;
-            set_error_handler(function ($type, $msg) use (&$error) {
-                $error = $msg;
-            });
-            settype($value, $this->paramType);
-            restore_error_handler();
-            $this->paramType = null;
-            if (!empty($error)) {
-                throw new CollectionException($error);
-            }
-        }
-
         return $value;
     }
-
+    
     /**
      * 在集合中写入指定的值
      * @param mixed $key   要写入的字段
