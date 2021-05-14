@@ -24,7 +24,7 @@ class ValidateFactory
 
         $validateLink = ValidateConfig::instance()->getValidateLink($controller);
         if (!empty($validateLink)) {
-            # 为指定的控制器方法指定了验证器
+            # Specified validator for the specified controller method
             if (isset($validateLink[$scene]) || isset($validateLink['!__other__'])) {
                 if (isset($validateLink['!__other__'])) {
                     $method = '!__other__';
@@ -32,7 +32,7 @@ class ValidateFactory
                     $method = $scene;
                 }
 
-                # 为指定的验证器指定了验证场景
+                # Specifies the validation scenario for the specified validator
                 if (is_array($validateLink[$method])) {
                     if (count($validateLink[$method]) >= 2) {
                         $validate = $validateLink[$method][0];
@@ -47,7 +47,7 @@ class ValidateFactory
         }
 
         if (false === $haveLink) {
-            # 处理指定了路径的控制器
+            # Handles controllers with specified paths
             $controllerPath = '';
             $validatePath   = '';
             foreach (ValidateConfig::instance()->getAutoValidatePath() as $_controllerPath => $_validatePath) {

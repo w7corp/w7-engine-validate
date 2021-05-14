@@ -54,30 +54,6 @@ class TestValidateCollection extends BaseTestValidate
         ], validate_collect($data)->get('*.vendor'));
     }
 
-    public function testTypeConversion()
-    {
-        $data = [
-            'age' => '20'
-        ];
-
-        $this->assertEquals(20, validate_collect($data)->int()->get('age'));
-        $this->assertEquals([20], validate_collect($data)->array()->get('age'));
-        $this->assertEquals(true, validate_collect($data)->bool()->get('age'));
-        $this->assertEquals('20', validate_collect($data)->string()->get('age'));
-
-        $data = [
-            'age' => '20.05'
-        ];
-
-        $this->assertEquals(20, validate_collect($data)->int()->get('age'));
-        $this->assertEquals(20.05, validate_collect($data)->float()->get('age'));
-        $data = [
-            'age' => 20
-        ];
-
-        $this->assertEquals('20', validate_collect($data)->string()->get('age'));
-    }
-
     public function testShift()
     {
         $data = validate_collect([1, 2, 3, 4]);

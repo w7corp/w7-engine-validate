@@ -26,50 +26,50 @@ use RuntimeException;
 final class ValidateConfig
 {
     /**
-     * 自定义规则命名空间前缀
+     * Custom rules namespace prefixes
      * @var array
      */
     protected $rulesPath = [];
 
     /**
-     * 自动加载验证器规则
+     * Automatic loading of validator rules
      * @var array
      */
     protected $autoValidatePath = [];
 
     /**
-     * 翻译器
+     * Translator
      * @var Translator
      */
     protected $translator;
 
     /**
-     * 容器
+     * Containers
      * @var Container
      */
     protected $container;
 
     /**
-     * 验证器工厂
+     * Validator Factory
      * @var Factory
      */
     protected $factory;
 
     /**
-     * 存在验证器
+     * Presence Validator
      * @var PresenceVerifierInterface
      */
     protected $verifier;
 
     /**
-     * 框架类型
+     * Frame Type
      * 1 Laravel 2 Rangine
      * @var int
      */
     protected $framework = 0;
 
     /**
-     * 验证器具体关联
+     * Validator specific association
      * @var array
      */
     protected $validateLink = [];
@@ -86,7 +86,8 @@ final class ValidateConfig
     }
 
     /**
-     * 设置框架类型
+     * Set the frame type
+     *
      * @param int $type 1 Laravel 2 Rangine
      */
     public function setFramework(int $type): ValidateConfig
@@ -96,7 +97,8 @@ final class ValidateConfig
     }
 
     /**
-     * 设置验证器工厂
+     * Provide validator factory
+     *
      * @param Factory $factory
      * @return ValidateConfig
      */
@@ -107,7 +109,8 @@ final class ValidateConfig
     }
 
     /**
-     * 获取验证器工厂
+     * Get Validator Factory
+     *
      * @return Factory
      */
     public function getFactory(): Factory
@@ -136,7 +139,8 @@ final class ValidateConfig
     }
 
     /**
-     * 设置存在验证器的实现。
+     * Set the presence verifier implementation.
+     *
      * @param PresenceVerifierInterface $presenceVerifier
      * @return $this
      */
@@ -147,7 +151,8 @@ final class ValidateConfig
     }
 
     /**
-     * 获取存在验证器
+     * Get presence verifier
+     *
      * @return PresenceVerifierInterface|null
      */
     private function getPresenceVerifier(): ?PresenceVerifierInterface
@@ -156,7 +161,8 @@ final class ValidateConfig
     }
 
     /**
-     * 提供容器
+     * Provide containers
+     *
      * @param Container $container
      * @return ValidateConfig
      */
@@ -167,7 +173,8 @@ final class ValidateConfig
     }
 
     /**
-     * 获取容器
+     * Get container
+     *
      * @return Container|null
      */
     private function getContainer(): ?Container
@@ -176,7 +183,8 @@ final class ValidateConfig
     }
 
     /**
-     * 提供翻译器
+     * Provide translator
+     *
      * @param Translator $translator
      * @return $this
      */
@@ -187,7 +195,8 @@ final class ValidateConfig
     }
 
     /**
-     * 获取翻译器
+     * Get Translator
+     *
      * @return Translator
      */
     private function getTranslator(): Translator
@@ -209,9 +218,10 @@ final class ValidateConfig
     }
 
     /**
-     * 设置自动加载验证器规则
-     * @param string $controllerPath 控制器路径
-     * @param string $validatePath   验证器路径
+     * Set up auto-load validator rules
+     *
+     * @param string $controllerPath Controller path
+     * @param string $validatePath   Validator path
      * @return $this
      */
     public function setAutoValidatePath(string $controllerPath, string $validatePath): ValidateConfig
@@ -229,11 +239,12 @@ final class ValidateConfig
     }
 
     /**
-     * 设置验证器关联
-     * @param string|string[] $controller <p>控制器完整命名空间</p>
-     *                                    如需指定方法，请传数组，第二个元素为方法名
-     * @param string|string[] $validate   <p>验证器完整命名空间</p>
-     *                                    如需指定场景，请传数组，第二个元素为场景名
+     * Set Validator Association
+     *
+     * @param string|string[] $controller Controller namespace
+     *                                    To specify a method, pass an array with the second element being the method name
+     * @param string|string[] $validate   Validator namespace
+     *                                    To specify a scene, pass an array with the second element being the scene name
      * @return $this
      */
     public function setValidateLink($controller, $validate): ValidateConfig
@@ -242,7 +253,7 @@ final class ValidateConfig
             $controllers = $controller;
             $controller  = $controllers[0];
             $method      = $controllers[1];
-            # 数组中不可以存在 “\” 符号
+            # The "\" symbol must not be present in the array
             $controller = md5($controller);
             if (count($controllers) >= 2) {
                 if (isset($this->validateLink[$controller])) {
@@ -271,8 +282,9 @@ final class ValidateConfig
     }
 
     /**
-     * 获取验证器具体关联
-     * @param string|null $controller 验证器完整命名空间
+     * Get validator specific associations
+     *
+     * @param string|null $controller Validator full namespace
      * @return array
      */
     public function getValidateLink(?string $controller = null): array
@@ -284,8 +296,9 @@ final class ValidateConfig
     }
 
     /**
-     * 设置自定义规则命名空间前缀,<b>如设置多个则全部生效</b>
-     * @param string $rulesPath 自定义规则命名空间前缀
+     * Set the custom rules namespace prefix, If more than one exists, they all take effect
+     *
+     * @param string $rulesPath Custom rules namespace prefixes
      * @return $this
      */
     public function setRulesPath(string $rulesPath): ValidateConfig
@@ -296,7 +309,8 @@ final class ValidateConfig
     }
 
     /**
-     * 获取自定义规则命名空间前缀
+     * Get custom rules namespace prefixes
+     *
      * @return array
      */
     public function getRulePath(): array
@@ -305,7 +319,8 @@ final class ValidateConfig
     }
 
     /**
-     * 获取自动加载验证器规则
+     * Get auto-load validator rules
+     *
      * @return array
      */
     public function getAutoValidatePath(): array

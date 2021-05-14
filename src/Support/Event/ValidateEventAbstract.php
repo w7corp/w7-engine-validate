@@ -17,35 +17,26 @@ use Closure;
 abstract class ValidateEventAbstract implements ValidateEventInterface
 {
     /**
-     * 当前验证场景
+     * Current validation scenarios
      * @var ?string
      */
     protected $sceneName;
 
-    /**
-     * 场景验证前
-     * @param array $data 用户输入的数据
-     * @param Closure $next
-     * @return mixed
-     */
+    /** @inheritDoc */
     public function beforeValidate(array $data, Closure $next)
     {
         return $next($data);
     }
-    
-    /**
-     * 场景验证后
-     * @param array $data 验证后的数据
-     * @param Closure $next
-     * @return mixed
-     */
+
+    /** @inheritDoc */
     public function afterValidate(array $data, Closure $next)
     {
         return $next($data);
     }
 
     /**
-     * 写入当前的验证场景名称
+     * Write the name of the current validation scenario
+     *
      * @param string|null $sceneName
      * @return $this
      */

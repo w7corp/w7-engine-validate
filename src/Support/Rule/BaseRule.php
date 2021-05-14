@@ -15,13 +15,13 @@ namespace W7\Validate\Support\Rule;
 abstract class BaseRule implements RuleInterface
 {
     /**
-     * 错误消息，支持format字符串
+     * Error messages, support for format strings
      * @var string
      */
     protected $message = '';
 
     /**
-     * 用于format错误消息的参数
+     * Parameters for format error messages
      * @var array
      */
     protected $messageParam = [];
