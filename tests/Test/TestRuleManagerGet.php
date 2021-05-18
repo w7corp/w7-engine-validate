@@ -33,7 +33,7 @@ class TestRuleManagerGet extends BaseTestValidate
         $_customAttributes->setAccessible(true);
         $_customAttributes = $_customAttributes->getValue($userRules);
 
-        list($rule, $message, $customAttributes) = UserRulesManager::get();
+        list($rule, $message, $customAttributes) = UserRulesManager::get(null, true);
 
         $this->assertEquals($_rule, $rule);
         $this->assertEquals($_message, $message);
@@ -43,7 +43,7 @@ class TestRuleManagerGet extends BaseTestValidate
     public function testGetStaticMethodForGetOnly()
     {
         $fields                                  = ['user', 'pass'];
-        list($rule, $message, $customAttributes) = UserRulesManager::get($fields);
+        list($rule, $message, $customAttributes) = UserRulesManager::get($fields, true);
         $this->assertCount(2, $rule);
         $this->assertCount(2, $customAttributes);
 
@@ -56,7 +56,6 @@ class TestRuleManagerGet extends BaseTestValidate
         $userRules = new UserRulesManager();
 
         $this->assertCount(2, $userRules->scene('login')->getRules());
-        $this->assertCount(2, $userRules->login()[0]);
         $this->assertCount(2, $userRules::login()[0]);
     }
 }

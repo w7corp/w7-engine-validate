@@ -547,10 +547,10 @@ class RuleManager
      * <b color="#e7c000">Note: This method is not affected by the validate {@see scene}</b>
      *
      * @param null|string|array $fields  Field name or array of fields, or if null, return all
-     * @param bool              $initial Whether to get the original rule, default is true
+     * @param bool              $initial Whether to get the original rule, default is false
      * @return array Returns three arrays of rules, error messages, and custom attribute
      */
-    public static function get($fields = null, bool $initial = true): array
+    public static function get($fields = null, bool $initial = false): array
     {
         $validate         = new static();
         $rules            = $validate->getRules($fields);
@@ -568,10 +568,10 @@ class RuleManager
      * Get rules, error messages and custom attribute by scene name
      *
      * @param string $sceneName
-     * @param bool   $initial   Whether to get the original rule, default is true
+     * @param bool   $initial   Whether to get the original rule, default is false
      * @return array
      */
-    protected static function getBySceneName(string $sceneName, bool $initial = true): array
+    public static function getBySceneName(string $sceneName, bool $initial = false): array
     {
         $validate         = new static();
         $rules            = $validate->getInitialRules($sceneName);
@@ -582,12 +582,6 @@ class RuleManager
             $rules = $validate->getCheckRules($rules);
         }
         return [$rules, $message, $customAttributes];
-    }
-
-    public function __call($name, $arguments)
-    {
-        $initial = !(count($arguments) > 0 && false === $arguments[0]);
-        return $this->getBySceneName($name, $initial);
     }
 
     public static function __callStatic($name, $arguments)
