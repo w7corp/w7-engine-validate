@@ -93,7 +93,7 @@ class RuleManager
      * @param string|null $sceneName The scene name, or the current scene name if not provided.
      * @return array
      */
-    public function getRules(?string $sceneName = ''): array
+    public function getInitialRules(?string $sceneName = ''): array
     {
         if ('' === $sceneName) {
             $sceneName = $this->currentScene;
@@ -125,7 +125,7 @@ class RuleManager
     public function getCheckRules(?array $rules = null): array
     {
         if (is_null($rules)) {
-            $rules = $this->getRules();
+            $rules = $this->getInitialRules();
         }
         $rulesFields = array_keys($rules);
         $rule        = array_map(function ($rules, $field) {
@@ -137,7 +137,7 @@ class RuleManager
                 if (is_string($ruleName)) {
                     $ruleClass = $this->getRuleClass($ruleName);
                     if (false !== $ruleClass) {
-                        if (!empty($message = $this->getMessages($field, $ruleName))) {
+                        if (!empty($message = $this->getMessage($field, $ruleName))) {
                             $ruleClass->setMessage($message);
                         }
                         return $ruleClass;
@@ -273,19 +273,19 @@ class RuleManager
     {
         list($rule, $param) = Common::getKeyAndParam($ruleName, false);
 
-        # Retrieve the real custom rule method name, and modify the corresponding error message
+        // Retrieve the real custom rule method name, and modify the corresponding error message
         if (array_key_exists($rule, self::$extendName)) {
             $ruleName = md5(get_called_class() . $rule);
-            # Determine if an error message is defined for a custom rule method
+            // Determine if an error message is defined for a custom rule method
             if (null !== $field && isset($this->message[$field . '.' . $rule])) {
                 $this->message[$field . '.' . $ruleName] = $this->message[$field . '.' . $rule];
             }
 
             $rule = $ruleName;
         } else {
-            # If it does not exist in the current custom rule, determine if it is a class method
-            # If it is a class method, register the rule to the rule manager first,
-            # and then process the corresponding error message
+            // If it does not exist in the current custom rule, determine if it is a class method
+            // If it is a class method, register the rule to the rule manager first,
+            // and then process the corresponding error message
             if (method_exists($this, 'rule' . ucfirst($rule))) {
                 self::extend($rule, Closure::fromCallable([$this, 'rule' . ucfirst($rule)]));
 
@@ -401,6 +401,27 @@ class RuleManager
     }
 
     /**
+     * Get the specified rule
+     *
+     * @param string|string[]|null $field     Field name or array of field names.If $field is null, then return all rules
+     *                                        If a scene value is set, the specified rule is retrieved from the current scene.
+     *
+     * @param string               $sceneName Scene name, If this value is not provided, the current scene will be the default.
+     *                                        If you want to ignore the scene, please provide the value null
+     * @return array
+     */
+    public function getRules($field = null, string $sceneName = ''): array
+    {
+        $rules = $this->getInitialRules($sceneName);
+        if (null === $field) {
+            return $rules;
+        }
+
+        $field = is_array($field) ? $field : [$field];
+        return array_intersect_key($rules, array_flip($field));
+    }
+
+    /**
      * Set the Message(overlay)
      *
      * @param array|null $message [Field. Rule => validation message] If $message is null,clear all validation messages
@@ -426,16 +447,13 @@ class RuleManager
      * <p color="yellow">If you have defined an extension rule using the {@see RuleManager},
      * you need to call the `getCheckRules` method first before calling this method.
      * Otherwise the error message may not match the extension rule name.</p>
-     * @param string|null $key  Full message key,if $keys is null,then get all messages
+     *
+     * @param string      $key  Full message key
      * @param string|null $rule If the first value is a field name, the second value is a rule, otherwise leave it blank
      * @return array|string|null
      */
-    public function getMessages(?string $key = null, ?string $rule = null)
+    protected function getMessage(string $key, ?string $rule = null)
     {
-        if (null === $key) {
-            return $this->message;
-        }
-
         if (null !== $rule) {
             $messageName = Common::makeMessageName($key, $rule);
         } else {
@@ -443,6 +461,50 @@ class RuleManager
         }
 
         return $this->message[$messageName] ?? '';
+    }
+
+    /**
+     * Get the defined error message
+     *
+     * @param string|string[]|null $key       Full message key or field name or array of fields
+     *
+     * @param string|null         $rule       If $key is a field name string and this parameter is filled in with the
+     *                                        corresponding rule under that field, then this method returns the message corresponding to $key$.rule.
+     *
+     *                                        When this parameter is provided and $key is a string, the $subMessage parameter fails
+     *
+     * @param bool                $subMessage Whether to retrieve all error messages under the specified field, default is false
+     *
+     *                                        When this parameter is true, the $rule parameter is disabled
+     * @return array|mixed|string
+     */
+    public function getMessages($key = null, ?string $rule = null, bool $subMessage = false)
+    {
+        if (null === $key) {
+            return $this->message;
+        }
+        if (null !== $rule && is_string($key)) {
+            $key = Common::makeMessageName($key, $rule);
+            return $this->message[$key] ?? '';
+        }
+
+        if ($subMessage) {
+            $fields = is_array($key) ? $key : [$key];
+            return array_filter($this->message, function ($value, $key) use ($fields) {
+                foreach ($fields as $field) {
+                    if (0 === strrpos($key, $field)) {
+                        return true;
+                    }
+                }
+                return false;
+            }, ARRAY_FILTER_USE_BOTH);
+        }
+
+        if (is_array($key)) {
+            return array_intersect_key($this->message, array_flip($key));
+        }
+
+        return $this->message[$key] ?? '';
     }
 
     /**
@@ -463,46 +525,74 @@ class RuleManager
     }
 
     /**
-     * Get array of custom attribute names.
+     * Get array of custom attribute.
+     *
+     * @param null|string|array $fields  Field name or array of fields, or if null, return all custom attribute
      * @return array
      */
-    public function getCustomAttributes(): array
+    public function getCustomAttributes($fields = null): array
     {
-        return $this->customAttributes;
+        if (null === $fields) {
+            return $this->customAttributes;
+        }
+
+        $fields = is_array($fields) ? $fields : [$fields];
+
+        return array_intersect_key($this->customAttributes, array_flip($fields));
     }
 
-    public static function get($fields = null, $initial = true): array
+    /**
+     * Get rules, error messages and custom attribute
+     *
+     * <b color="#e7c000">Note: This method is not affected by the validate {@see scene}</b>
+     *
+     * @param null|string|array $fields  Field name or array of fields, or if null, return all
+     * @param bool              $initial Whether to get the original rule, default is true
+     * @return array Returns three arrays of rules, error messages, and custom attribute
+     */
+    public static function get($fields = null, bool $initial = true): array
     {
-        $validate = new static();
-        if (null === $fields) {
-            $rules = $validate->getRules(null);
-            if (!$initial) {
-                $rules = $validate->getCheckRules($rules);
-            }
-            $message          = $validate->getMessages();
-            $customAttributes = $validate->getCustomAttributes();
-        } else {
-            if (!is_array($fields)) {
-                $fields = [$fields];
-            }
+        $validate         = new static();
+        $rules            = $validate->getRules($fields);
+        $message          = $validate->getMessages($fields, null, true);
+        $customAttributes = $validate->getCustomAttributes($fields);
 
-            $rules = array_intersect_key($validate->getRules(null), array_flip($fields));
-            if (!$initial) {
-                $rules = $validate->getCheckRules($rules);
-            }
-
-            $message = array_filter($validate->getMessages(), function ($value, $key) use ($fields) {
-                foreach ($fields as $field) {
-                    if (0 === strrpos($key, $field)) {
-                        return true;
-                    }
-                }
-                return false;
-            }, ARRAY_FILTER_USE_BOTH);
-
-            $customAttributes = array_intersect_key($validate->getCustomAttributes(), array_flip($fields));
+        if (!$initial) {
+            $rules = $validate->getCheckRules($rules);
         }
 
         return [$rules, $message, $customAttributes];
+    }
+
+    /**
+     * Get rules, error messages and custom attribute by scene name
+     *
+     * @param string $sceneName
+     * @param bool   $initial   Whether to get the original rule, default is true
+     * @return array
+     */
+    protected static function getBySceneName(string $sceneName, bool $initial = true): array
+    {
+        $validate         = new static();
+        $rules            = $validate->getInitialRules($sceneName);
+        $fields           = array_keys($rules);
+        $message          = $validate->getMessages($fields, null, true);
+        $customAttributes = $validate->getCustomAttributes($fields);
+        if (false === $initial) {
+            $rules = $validate->getCheckRules($rules);
+        }
+        return [$rules, $message, $customAttributes];
+    }
+
+    public function __call($name, $arguments)
+    {
+        $initial = !(count($arguments) > 0 && false === $arguments[0]);
+        return $this->getBySceneName($name, $initial);
+    }
+
+    public static function __callStatic($name, $arguments)
+    {
+        $initial = !(count($arguments) > 0 && false === $arguments[0]);
+        return self::getBySceneName($name, $initial);
     }
 }

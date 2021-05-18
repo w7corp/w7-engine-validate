@@ -14,12 +14,13 @@ namespace W7\Tests\Test;
 
 use W7\Tests\Material\HandlerDataValidate;
 use W7\Tests\Material\BaseTestValidate;
+use W7\Validate\Exception\ValidateException;
 
 class TestHandlerFunction extends BaseTestValidate
 {
     /**
      * @test 测试在after中进行最后的验证
-     * @throws \W7\Validate\Exception\ValidateException
+     * @throws ValidateException
      */
     public function testAfterRule()
     {
@@ -34,7 +35,7 @@ class TestHandlerFunction extends BaseTestValidate
 
     /**
      * @test 测试在after方法中对数据进行处理
-     * @throws \W7\Validate\Exception\ValidateException
+     * @throws ValidateException
      */
     public function testAfterAddData()
     {
@@ -49,7 +50,7 @@ class TestHandlerFunction extends BaseTestValidate
 
     /**
      * @test 测试在before方法中对值设定一个默认值
-     * @throws \W7\Validate\Exception\ValidateException
+     * @throws ValidateException
      */
     public function testBeforeHandlerData()
     {
@@ -66,7 +67,7 @@ class TestHandlerFunction extends BaseTestValidate
 
     /**
      * @test 测试在before方法中对值设定一个不符合规则的默认值
-     * @throws \W7\Validate\Exception\ValidateException
+     * @throws ValidateException
      */
     public function testBeforeHandlerToVerifySetDefaultValues()
     {
@@ -79,7 +80,7 @@ class TestHandlerFunction extends BaseTestValidate
 
     /**
      * @test 测试在before方法中对值设定一个默认值 - 自定义验证场景
-     * @throws \W7\Validate\Exception\ValidateException
+     * @throws ValidateException
      */
     public function testBeforeHandlerData2()
     {
@@ -96,7 +97,7 @@ class TestHandlerFunction extends BaseTestValidate
 
     /**
      * @test 测试在before方法中对值设定一个不符合规则的默认值 - 自定义验证场景
-     * @throws \W7\Validate\Exception\ValidateException
+     * @throws ValidateException
      */
     public function testBeforeHandlerToVerifySetDefaultValues2()
     {

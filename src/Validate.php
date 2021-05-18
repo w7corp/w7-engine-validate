@@ -117,7 +117,7 @@ class Validate extends RuleManager
             $this->init();
             $this->checkData = $data;
             $this->addHandler($this->handler);
-            $rule = $this->getCheckRules($this->getRules());
+            $rule = $this->getCheckRules($this->getInitialRules());
 
             if ($this->filled) {
                 $rule = $this->addFilledRule($rule);
@@ -166,7 +166,7 @@ class Validate extends RuleManager
      * @return array
      * @throws ValidateException
      */
-    public function getRules(?string $sceneName = ''): array
+    public function getInitialRules(?string $sceneName = ''): array
     {
         if ('' === $sceneName) {
             $sceneName = $this->getCurrentSceneName();
@@ -189,37 +189,37 @@ class Validate extends RuleManager
         if (isset($this->scene[$sceneName])) {
             $sceneRule = $this->scene[$sceneName];
 
-            # Determine if an event is defined
+            // Determine if an event is defined
             if (isset($sceneRule['handler'])) {
                 $handlers = $sceneRule['handler'];
                 $this->addHandler($handlers);
                 unset($sceneRule['handler']);
             }
 
-            # Methods to be executed before determining the presence or absence of authentication
+            // Methods to be executed before determining the presence or absence of authentication
             if (isset($sceneRule['before'])) {
                 $callback = $sceneRule['before'];
                 $this->addBefore($callback);
                 unset($sceneRule['before']);
             }
 
-            # Methods to be executed after determining the existence of validation
+            // Methods to be executed after determining the existence of validation
             if (isset($sceneRule['after'])) {
                 $callback = $sceneRule['after'];
                 $this->addAfter($callback);
                 unset($sceneRule['after']);
             }
 
-            # Determine if other authentication scenarios are specified for the authentication scenario
+            // Determine if other authentication scenarios are specified for the authentication scenario
             if (isset($sceneRule['use']) && !empty($sceneRule['use'])) {
                 $use = $sceneRule['use'];
                 if ($use === $sceneName) {
                     throw new LogicException('The scene used cannot be the same as the current scene.');
                 }
                 unset($sceneRule['use']);
-                # If the specified `use` is a method
+                // If the specified `use` is a method
                 if (method_exists($this, 'use' . ucfirst($use))) {
-                    # Pre-validation, where the values to be passed to the closure are validated according to the specified rules
+                    // Pre-validation, where the values to be passed to the closure are validated according to the specified rules
                     $data = [];
                     if (!empty($sceneRule)) {
                         $randScene = md5(rand(1, 1000000) . time());
@@ -233,7 +233,7 @@ class Validate extends RuleManager
                         return array_intersect_key($this->rule, array_flip($use));
                     }
                 }
-                return $this->getRules($use);
+                return $this->getInitialRules($use);
             } else {
                 return array_intersect_key($this->rule, array_flip($sceneRule));
             }
