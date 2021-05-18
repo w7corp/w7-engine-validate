@@ -864,10 +864,26 @@ class Validate
 
     /**
      * 添加字段到验证列表中
+     *
+     * @deprecated
+     * @see appendCheckField
      * @param string $field
      * @return $this
      */
     public function addCheckField(string $field): Validate
+    {
+        $rule            = $this->rule[$field] ?? '';
+        $this->checkRule = $this->checkRule->merge([$field => $rule]);
+        return $this;
+    }
+
+    /**
+     * 添加字段到验证列表中
+     *
+     * @param string $field
+     * @return $this
+     */
+    public function appendCheckField(string $field): Validate
     {
         $rule            = $this->rule[$field] ?? '';
         $this->checkRule = $this->checkRule->merge([$field => $rule]);
