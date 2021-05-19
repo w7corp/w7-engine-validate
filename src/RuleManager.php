@@ -403,20 +403,23 @@ class RuleManager
     /**
      * Get the specified rule
      *
-     * @param string|string[]|null $field     Field name or array of field names.If $field is null, then return all rules
-     *                                        If a scene value is set, the specified rule is retrieved from the current scene.
+     * @param string|string[]|null $field  Field name or array of field names.If $field is null, then return all rules
+     *                                     If a scene value is set, the specified rule is retrieved from the current scene.
      *
-     * @param string               $sceneName Scene name, If this value is not provided, the current scene will be the default.
-     *                                        If you want to ignore the scene, please provide the value null
+     * @param bool               $initial  Whether to get the original rule, default is false
      * @return array
      */
-    public function getRules($field = null, string $sceneName = ''): array
+    public function getRules($field = null, bool $initial = false): array
     {
-        $rules = $this->getInitialRules($sceneName);
+        $rules = $this->getInitialRules();
         if (null === $field) {
             return $rules;
         }
 
+        if (false === $initial) {
+            $rules = $this->getCheckRules($rules);
+        }
+        
         $field = is_array($field) ? $field : [$field];
         return array_intersect_key($rules, array_flip($field));
     }
@@ -586,7 +589,7 @@ class RuleManager
 
     public static function __callStatic($name, $arguments)
     {
-        $initial = !(count($arguments) > 0 && false === $arguments[0]);
+        $initial = (count($arguments) > 0 && true === $arguments[0]);
         return self::getBySceneName($name, $initial);
     }
 }
