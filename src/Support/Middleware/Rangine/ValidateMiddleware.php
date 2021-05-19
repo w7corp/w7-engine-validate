@@ -19,7 +19,7 @@ use W7\Core\Route\Route;
 use W7\Facade\Context;
 use W7\Core\Middleware\MiddlewareAbstract;
 use W7\Http\Message\Server\Request;
-use W7\Validate\Support\Storage\ValidateFactory;
+use W7\Validate\Support\Storage\ValidateMiddlewareConfig;
 
 class ValidateMiddleware extends MiddlewareAbstract
 {
@@ -35,7 +35,7 @@ class ValidateMiddleware extends MiddlewareAbstract
 
         list($controller, $scene) = $routeHandler;
 
-        $validator = ValidateFactory::getValidate($controller, $scene);
+        $validator = ValidateMiddlewareConfig::instance()->getValidateFactory()->getValidate($controller, $scene);
 
         if ($validator) {
             $data = array_merge([], $request->getQueryParams(), $request->getParsedBody(), $request->getUploadedFiles());

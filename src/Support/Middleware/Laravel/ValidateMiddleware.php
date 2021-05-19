@@ -14,7 +14,7 @@ namespace W7\Validate\Support\Middleware\Laravel;
 
 use Closure;
 use Illuminate\Http\Request;
-use W7\Validate\Support\Storage\ValidateFactory;
+use W7\Validate\Support\Storage\ValidateMiddlewareConfig;
 
 class ValidateMiddleware
 {
@@ -22,7 +22,7 @@ class ValidateMiddleware
     {
         list($controller, $scene) = explode('@', $request->route()->getActionName());
 
-        $validator = ValidateFactory::getValidate($controller, $scene);
+        $validator = ValidateMiddlewareConfig::instance()->getValidateFactory()->getValidate($controller, $scene);
 
         if ($validator) {
             $data = $validator->check($request->all());
