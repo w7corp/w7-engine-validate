@@ -13,16 +13,17 @@
 namespace W7\Validate\Support\Storage;
 
 use Exception;
+use W7\Validate\Support\Concerns\ValidateFactoryInterface;
 use W7\Validate\Validate;
 
-class ValidateFactory
+class ValidateFactory implements ValidateFactoryInterface
 {
-    public static function getValidate(string $controller, string $scene = '')
+    public function getValidate(string $controller, string $scene = '')
     {
         $haveLink = false;
         $validate = '';
 
-        $validateLink = ValidateConfig::instance()->getValidateLink($controller);
+        $validateLink = ValidateMiddlewareConfig::instance()->getValidateLink($controller);
         if (!empty($validateLink)) {
             # 为指定的控制器方法指定了验证器
             if (isset($validateLink[$scene]) || isset($validateLink['!__other__'])) {
@@ -50,7 +51,7 @@ class ValidateFactory
             # 处理指定了路径的控制器
             $controllerPath = '';
             $validatePath   = '';
-            foreach (ValidateConfig::instance()->getAutoValidatePath() as $_controllerPath => $_validatePath) {
+            foreach (ValidateMiddlewareConfig::instance()->getAutoValidatePath() as $_controllerPath => $_validatePath) {
                 if (false !== strpos($controller, $_controllerPath)) {
                     $controllerPath = $_controllerPath;
                     $validatePath   = $_validatePath;
