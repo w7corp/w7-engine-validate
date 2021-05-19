@@ -65,7 +65,8 @@ class ValidateFactory implements ValidateFactoryInterface
             $validate   = str_replace($controllerPath, '', $controller);
             $_namespace = explode('\\', $validate);
             $fileName   = str_replace('Controller', 'Validate', array_pop($_namespace));
-            $validate   = $validatePath . (!empty($_namespace) ? implode('\\', $_namespace) . '\\' : '') . $fileName;
+            $_namespace = implode('\\', $_namespace);
+            $validate   = $validatePath . $_namespace . (!empty($_namespace) ? '\\' : '') . $fileName;
         }
 
         if (class_exists($validate)) {
