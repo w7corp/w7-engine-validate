@@ -12,24 +12,19 @@
 
 namespace W7\Validate\Support\Event;
 
-use Closure;
-
 interface ValidateEventInterface
 {
     /**
      * Methods implemented prior to validation
      *
-     * @param array $data
-     * @param Closure $next
-     * @return mixed
+     * @return bool
      */
-    public function beforeValidate(array $data, Closure $next);
+    public function beforeValidate(): bool;
 
     /**
      * Methods implemented after validation
-     * @param array $data Validated data
-     * @param Closure $next
-     * @return mixed
+     *
+     * @return bool
      */
-    public function afterValidate(array $data, Closure $next);
+    public function afterValidate(): bool;
 }

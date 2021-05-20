@@ -21,7 +21,7 @@ use W7\Validate\Support\Storage\ValidateCollection;
  * Class ValidateScene
  * @package W7\Validate\Support
  *
- * @property-read array $handlers       Events to be processed
+ * @property-read array $events       Events to be processed
  * @property-read array $afters         Methods to be executed after validation
  * @property-read array $befores        Methods to be executed before validation
  * @property-read bool  $eventPriority  Event Priority
@@ -38,7 +38,7 @@ class ValidateScene extends RuleManagerScene
      * Events to be processed
      * @var array
      */
-    protected $handlers = [];
+    protected $events = [];
 
     /**
      * Methods to be executed after validation
@@ -115,9 +115,9 @@ class ValidateScene extends RuleManagerScene
      * @param mixed ...$params Parameters to be passed to the event
      * @return $this
      */
-    public function handler(string $handler, ...$params): ValidateScene
+    public function event(string $handler, ...$params): ValidateScene
     {
-        $this->handlers[] = [$handler, $params];
+        $this->events[] = [$handler, $params];
         return $this;
     }
 

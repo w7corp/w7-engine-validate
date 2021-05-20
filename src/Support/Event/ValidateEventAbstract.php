@@ -12,37 +12,35 @@
 
 namespace W7\Validate\Support\Event;
 
-use Closure;
-
 abstract class ValidateEventAbstract implements ValidateEventInterface
 {
     /**
-     * Current validation scenarios
+     * Current validation scene name
      * @var ?string
      */
-    protected $sceneName;
-
-    /** @inheritDoc */
-    public function beforeValidate(array $data, Closure $next)
-    {
-        return $next($data);
-    }
-
-    /** @inheritDoc */
-    public function afterValidate(array $data, Closure $next)
-    {
-        return $next($data);
-    }
+    public $sceneName;
 
     /**
-     * Write the name of the current validation scenario
-     *
-     * @param string|null $sceneName
-     * @return $this
+     * Current validated data
+     * @var array
      */
-    final public function setSceneName(?string $sceneName): ValidateEventAbstract
+    public $data;
+
+    /**
+     * Error message
+     * @var string
+     */
+    public $message;
+
+    /** @inheritDoc */
+    public function beforeValidate(): bool
     {
-        $this->sceneName = $sceneName;
-        return $this;
+        return true;
+    }
+
+    /** @inheritDoc */
+    public function afterValidate(): bool
+    {
+        return true;
     }
 }

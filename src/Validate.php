@@ -17,9 +17,9 @@ use Illuminate\Validation\ValidationException;
 use LogicException;
 use W7\Validate\Exception\ValidateException;
 use W7\Validate\Support\Concerns\MessageProviderInterface;
+use W7\Validate\Support\Event\ValidateEventAbstract;
 use W7\Validate\Support\MessageProvider;
 use W7\Validate\Support\Storage\ValidateConfig;
-use W7\Validate\Support\Storage\ValidateHandler;
 use W7\Validate\Support\ValidateScene;
 
 class Validate extends RuleManager
@@ -28,7 +28,7 @@ class Validate extends RuleManager
      * Global Event Handler
      * @var array
      */
-    protected $handler = [];
+    protected $event = [];
 
     /**
      * Whether to stop running after the first verification failure
@@ -42,6 +42,10 @@ class Validate extends RuleManager
      */
     protected $filled = true;
 
+    protected $filter = [];
+
+    protected $default = [];
+
     /**
      * Event Priority
      * @var bool
@@ -52,7 +56,7 @@ class Validate extends RuleManager
      * Validator event handling class
      * @var array
      */
-    private $handlers = [];
+    private $events = [];
 
     /**
      * Methods to be executed before validation
@@ -116,7 +120,7 @@ class Validate extends RuleManager
         try {
             $this->init();
             $this->checkData = $data;
-            $this->addHandler($this->handler);
+            $this->addEvent($this->event);
             $rule = $this->getCheckRules($this->getInitialRules());
 
             if ($this->filled) {
@@ -128,28 +132,28 @@ class Validate extends RuleManager
             }
 
             if ($this->eventPriority) {
-                $data = $this->handleEvent($data, 'beforeValidate');
-                $data = $this->handleCallback($data, 1);
+                $this->handleEvent($data, 'beforeValidate');
+                $this->handleCallback($data, 1);
             } else {
-                $data = $this->handleCallback($data, 1);
-                $data = $this->handleEvent($data, 'beforeValidate');
+                $this->handleCallback($data, 1);
+                $this->handleEvent($data, 'beforeValidate');
             }
 
-            $v    = $this->getValidationFactory()->make($data, $rule, $this->message, $this->customAttributes);
-            $data = $v->validate();
+            $data = $this->getValidationFactory()->make($data, $rule, $this->message, $this->customAttributes)->validate();
 
             if ($this->eventPriority) {
-                $data = $this->handleCallback($data, 2);
-                $data = $this->handleEvent($data, 'afterValidate');
+                $this->handleCallback($data, 2);
+                $this->handleEvent($data, 'afterValidate');
             } else {
-                $data = $this->handleEvent($data, 'afterValidate');
-                $data = $this->handleCallback($data, 2);
+                $this->handleEvent($data, 'afterValidate');
+                $this->handleCallback($data, 2);
             }
 
             return $data;
         } catch (ValidationException $e) {
             $errors       = $this->getMessageProvider()->handleMessage($e->errors());
             $errorMessage = '';
+
             foreach ($errors as $message) {
                 $errorMessage = $message[0];
                 break;
@@ -179,9 +183,9 @@ class Validate extends RuleManager
         if (method_exists($this, 'scene' . ucfirst($sceneName))) {
             $scene = new ValidateScene($this->rule);
             call_user_func([$this, 'scene' . ucfirst($sceneName)], $scene);
-            $this->handlers      = array_merge($this->handlers, $scene->handlers);
-            $this->afters        = array_merge($this->handlers, $scene->afters);
-            $this->befores       = array_merge($this->handlers, $scene->befores);
+            $this->event         = array_merge($this->event, $scene->events);
+            $this->afters        = array_merge($this->afters, $scene->afters);
+            $this->befores       = array_merge($this->befores, $scene->befores);
             $this->eventPriority = $scene->eventPriority;
             return $scene->getRules();
         }
@@ -190,10 +194,10 @@ class Validate extends RuleManager
             $sceneRule = $this->scene[$sceneName];
 
             // Determine if an event is defined
-            if (isset($sceneRule['handler'])) {
-                $handlers = $sceneRule['handler'];
-                $this->addHandler($handlers);
-                unset($sceneRule['handler']);
+            if (isset($sceneRule['event'])) {
+                $events = $sceneRule['event'];
+                $this->addEvent($events);
+                unset($sceneRule['event']);
             }
 
             // Methods to be executed before determining the presence or absence of authentication
@@ -247,10 +251,9 @@ class Validate extends RuleManager
      *
      * @param array $data
      * @param int $type 1 before method 2 after method
-     * @return array
      * @throws ValidateException
      */
-    private function handleCallback(array $data, int $type): array
+    private function handleCallback(array $data, int $type)
     {
         switch ($type) {
             case 1:
@@ -266,35 +269,22 @@ class Validate extends RuleManager
         }
 
         if (empty($callbacks)) {
-            return $data;
+            return;
         }
 
-        $callback = array_map(function ($callback) use ($typeName) {
-            return function ($data, $next) use ($callback, $typeName) {
-                list($callback, $param) = $callback;
-                $callback = $typeName . ucfirst($callback);
-                if (method_exists($this, $callback)) {
-                    return call_user_func([$this, $callback], $data, $next, ...$param);
-                }
+        foreach ($callbacks as $callback) {
+            list($callback, $param) = $callback;
+            $callback               = $typeName . ucfirst($callback);
+            if (!method_exists($this, $callback)) {
                 throw new LogicException('Method Not Found');
-            };
-        }, $callbacks);
-
-        $pipeline = array_reduce(
-            array_reverse($callback),
-            function ($stack, $pipe) {
-                return function ($data) use ($stack, $pipe) {
-                    return $pipe($data, $stack);
-                };
-            },
-            function ($data) {
-                return $data;
             }
-        );
-
-        $data = $pipeline($data);
-
-        return $this->handleEventResult($data);
+            if (($result = call_user_func([$this, $callback], $data, ...$param)) !== true) {
+                if (isset($this->message[$result])) {
+                    $result = $this->getMessageProvider()->handleMessage($this->message[$result]);
+                }
+                throw new ValidateException($result, 403);
+            }
+        }
     }
 
     /**
@@ -302,37 +292,32 @@ class Validate extends RuleManager
      *
      * @param array $data    Validated data
      * @param string $method Event Name
-     * @return array
      * @throws ValidateException
      */
-    private function handleEvent(array $data, string $method): array
+    private function handleEvent(array $data, string $method)
     {
-        if (empty($this->handlers)) {
-            return $data;
+        if (empty($this->events)) {
+            return;
         }
-        $result = (new ValidateHandler($data, $this->handlers, $this->getCurrentSceneName()))->handle($method);
-        return $this->handleEventResult($result);
-    }
-
-    /**
-     * Handling of event results
-     *
-     * @param $result
-     * @return array
-     * @throws ValidateException
-     */
-    private function handleEventResult($result): array
-    {
-        if (is_string($result)) {
-            if (isset($this->message[$result])) {
-                $result = $this->getMessageProvider()->handleMessage($this->message[$result]);
+        
+        foreach ($this->events as $events) {
+            list($callback, $param) = $events;
+            if (class_exists($callback) && is_subclass_of($callback, ValidateEventAbstract::class)) {
+                /** @var ValidateEventAbstract $handler */
+                $handler            = new $callback(...$param);
+                $handler->sceneName = $this->getCurrentSceneName();
+                $handler->data      = $data;
+                if (($result = call_user_func([$handler, $method])) !== true) {
+                    $message = $handler->message;
+                    if (isset($this->message[$message])) {
+                        $message = $this->getMessageProvider()->handleMessage($this->message[$message]);
+                    }
+                    throw new ValidateException($message, 403);
+                }
+            } else {
+                throw new ValidateException('Event error or nonexistence');
             }
-            throw new ValidateException($result, 403);
-        } elseif (is_array($result)) {
-            return $result;
         }
-
-        throw new LogicException('Validate event return type error');
     }
 
     /**
@@ -393,7 +378,7 @@ class Validate extends RuleManager
      *
      * @param $handlers
      */
-    private function addHandler($handlers)
+    private function addEvent($handlers)
     {
         $this->addCallback(0, $handlers);
     }
@@ -428,7 +413,7 @@ class Validate extends RuleManager
     {
         switch ($intType) {
             case 0:
-                $type = 'handlers';
+                $type = 'events';
                 break;
             case 1:
                 $type = 'befores';
