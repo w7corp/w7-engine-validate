@@ -412,16 +412,16 @@ class RuleManager
     public function getRules($field = null, bool $initial = false): array
     {
         $rules = $this->getInitialRules();
-        if (null === $field) {
-            return $rules;
+        if (null !== $field) {
+            $field = is_array($field) ? $field : [$field];
+            $rules = array_intersect_key($rules, array_flip($field));
         }
 
         if (false === $initial) {
             $rules = $this->getCheckRules($rules);
         }
         
-        $field = is_array($field) ? $field : [$field];
-        return array_intersect_key($rules, array_flip($field));
+        return $rules;
     }
 
     /**
@@ -589,7 +589,7 @@ class RuleManager
 
     public static function __callStatic($name, $arguments)
     {
-        $initial = (count($arguments) > 0 && true === $arguments[0]);
+        $initial = count($arguments) > 0 ? $arguments[0] : false;
         return self::getBySceneName($name, $initial);
     }
 }
