@@ -556,14 +556,10 @@ class RuleManager
     public static function get($fields = null, bool $initial = false): array
     {
         $validate         = new static();
-        $rules            = $validate->getRules($fields);
+        $rules            = $validate->getRules($fields, $initial);
         $message          = $validate->getMessages($fields, null, true);
         $customAttributes = $validate->getCustomAttributes($fields);
-
-        if (!$initial) {
-            $rules = $validate->getCheckRules($rules);
-        }
-
+        
         return [$rules, $message, $customAttributes];
     }
 
