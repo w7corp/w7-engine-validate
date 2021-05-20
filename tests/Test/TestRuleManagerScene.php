@@ -32,7 +32,7 @@ class TestRuleManagerScene extends BaseTestValidate
             'pass' => 'required|lengthBetween:6,16'
         ];
 
-        $this->assertEquals($needRules, $userRule->scene('login')->getRules());
+        $this->assertEquals($needRules, $userRule->scene('login')->getRules(null,true));
         $this->assertEquals($needRules, $userRule->getRules(null, 'login'));
         $this->assertEquals($needRules, $userRule->getInitialRules('login'));
     }
@@ -40,7 +40,7 @@ class TestRuleManagerScene extends BaseTestValidate
     public function testCustomValidateScene()
     {
         $userRule = new UserRulesManager();
-        $rules    = $userRule->scene('register')->getRules();
+        $rules    = $userRule->scene('register')->getRules(null,true);
 
         $this->assertCount(4, $rules);
         $this->assertArrayHasKey('remark', $rules);
