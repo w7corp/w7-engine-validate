@@ -12,6 +12,7 @@
 
 namespace W7\Validate;
 
+use Closure;
 use Illuminate\Validation\Factory;
 use Illuminate\Validation\ValidationException;
 use LogicException;
@@ -19,6 +20,7 @@ use W7\Validate\Exception\ValidateException;
 use W7\Validate\Support\Concerns\MessageProviderInterface;
 use W7\Validate\Support\Event\ValidateEventAbstract;
 use W7\Validate\Support\MessageProvider;
+use W7\Validate\Support\Storage\ValidateCollection;
 use W7\Validate\Support\Storage\ValidateConfig;
 use W7\Validate\Support\ValidateScene;
 
@@ -42,8 +44,16 @@ class Validate extends RuleManager
      */
     protected $filled = true;
 
+    /**
+     * The filter. This can be a global function name, anonymous function, etc.
+     * @var array
+     */
     protected $filter = [];
 
+    /**
+     * Sets the specified property to the specified default value.
+     * @var array
+     */
     protected $default = [];
 
     /**
@@ -53,22 +63,28 @@ class Validate extends RuleManager
     private $eventPriority = true;
 
     /**
-     * Validator event handling class
+     * Events to be processed for this validate
      * @var array
      */
     private $events = [];
 
     /**
-     * Methods to be executed before validation
+     * Methods to be executed before this validate
      * @var array
      */
     private $befores = [];
 
     /**
-     * Methods to be executed after validation
+     * Methods to be executed after this validate
      * @var array
      */
     private $afters = [];
+
+    /**
+     * This validation requires a default value for the value
+     * @var array
+     */
+    private $defaults = [];
 
     /**
      * Error Message Provider
@@ -121,8 +137,9 @@ class Validate extends RuleManager
             $this->init();
             $this->checkData = $data;
             $this->addEvent($this->event);
-            $rule = $this->getCheckRules($this->getInitialRules());
-
+            $this->defaults = array_merge($this->default, $this->defaults);
+            $rule           = $this->getCheckRules($this->getInitialRules());
+            $data           = $this->handleDefault($data, $rule);
             if ($this->filled) {
                 $rule = $this->addFilledRule($rule);
             }
@@ -186,6 +203,7 @@ class Validate extends RuleManager
             $this->event         = array_merge($this->event, $scene->events);
             $this->afters        = array_merge($this->afters, $scene->afters);
             $this->befores       = array_merge($this->befores, $scene->befores);
+            $this->defaults      = array_merge($this->defaults, $scene->defaults);
             $this->eventPriority = $scene->eventPriority;
             return $scene->getRules();
         }
@@ -307,7 +325,7 @@ class Validate extends RuleManager
                 $handler            = new $callback(...$param);
                 $handler->sceneName = $this->getCurrentSceneName();
                 $handler->data      = $data;
-                if (($result = call_user_func([$handler, $method])) !== true) {
+                if (true !== call_user_func([$handler, $method])) {
                     $message = $handler->message;
                     if (isset($this->message[$message])) {
                         $message = $this->getMessageProvider()->handleMessage($this->message[$message]);
@@ -321,13 +339,85 @@ class Validate extends RuleManager
     }
 
     /**
+     * Processing the set defaults
+     *
+     * @param array $data
+     * @param array $rule
+     * @return array
+     */
+    private function handleDefault(array $data, array $rule): array
+    {
+        if (empty($this->defaults)) {
+            return $data;
+        }
+
+        $newData  = validate_collect($data);
+        $fields   = array_keys($rule);
+        $defaults = array_intersect_key($this->defaults, array_flip($fields));
+        foreach ($defaults as $field => $value) {
+            // Skip array members
+            if (false !== strpos($field, '*')) {
+                continue;
+            }
+
+            if (is_array($value) && isset($value['any']) && isset($value['value'])) {
+                $this->setDefaultData($field, $value['value'], $newData, (bool)$value['any']);
+            } else {
+                $this->setDefaultData($field, $value, $newData);
+            }
+        }
+
+        return $newData->toArray();
+    }
+
+    /**
+     * Applying default settings to data
+     *
+     * @param string                  $field    Name of the data field to be processed
+     * @param callable|Closure|mixed  $callback the default value or an anonymous function that returns the default value which will
+     * be assigned to the attributes being validated if they are empty. The signature of the anonymous function
+     * should be as follows,The anonymous function has two parameters:
+     * <ul>
+     * <li> `$value` the data of the current field </li>
+     * <li> `$originalData` all the original data of the current validation </li>
+     * </ul>
+     *
+     * e.g:
+     * <code>
+     * function($value,$originalData){
+     *     return $value;
+     * }
+     * </code>
+     * @param ValidateCollection      $data      Data to be processed
+     * @param bool                    $any       Whether to handle arbitrary values, default only handle values that are not null
+     */
+    private function setDefaultData(string $field, $callback, ValidateCollection $data, bool $any = false)
+    {
+        $isEmpty = function ($value) {
+            return null === $value || [] === $value || '' === $value;
+        };
+        $value = $data->get($field);
+        if (!$data->has($field) || $isEmpty($value) || true === $any) {
+            if (is_callable($callback)) {
+                $value = call_user_func($callback, $value, $this->checkData);
+            } elseif (is_string($callback) && method_exists($this, 'default' . ucfirst($callback))) {
+                $value = call_user_func([$this, 'default' . ucfirst($callback)], $value, $this->checkData);
+            } else {
+                $value = $callback;
+            }
+        }
+        $data->set($field, $value);
+    }
+
+    /**
      * Initialization validate
      */
     private function init()
     {
-        $this->handlers      = [];
+        $this->events        = [];
         $this->afters        = [];
         $this->befores       = [];
+        $this->defaults      = [];
         $this->eventPriority = true;
     }
 

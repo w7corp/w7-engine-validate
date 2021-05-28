@@ -12,6 +12,7 @@
 
 namespace W7\Validate\Support;
 
+use Closure;
 use Illuminate\Support\Arr;
 use RuntimeException;
 use W7\Validate\Support\Rule\BaseRule;
@@ -21,9 +22,10 @@ use W7\Validate\Support\Storage\ValidateCollection;
  * Class ValidateScene
  * @package W7\Validate\Support
  *
- * @property-read array $events       Events to be processed
- * @property-read array $afters         Methods to be executed after validation
- * @property-read array $befores        Methods to be executed before validation
+ * @property-read array $events         Events to be processed for this validate
+ * @property-read array $befores        Methods to be executed before this validate
+ * @property-read array $afters         Methods to be executed after this validate
+ * @property-read array $defaults       This validation requires a default value for the value
  * @property-read bool  $eventPriority  Event Priority
  */
 class ValidateScene extends RuleManagerScene
@@ -35,23 +37,29 @@ class ValidateScene extends RuleManagerScene
     protected $checkData = [];
 
     /**
-     * Events to be processed
+     * Events to be processed for this validate
      * @var array
      */
-    protected $events = [];
+    private $events = [];
 
     /**
-     * Methods to be executed after validation
+     * Methods to be executed before this validate
      * @var array
      */
-    protected $afters = [];
+    private $befores = [];
 
     /**
-     * Methods to be executed before validation
+     * Methods to be executed after this validate
      * @var array
      */
-    protected $befores = [];
+    private $afters = [];
 
+    /**
+     * This validation requires a default value for the value
+     * @var array
+     */
+    private $defaults = [];
+    
     /**
      * Event Priority
      * @var bool
@@ -144,6 +152,33 @@ class ValidateScene extends RuleManagerScene
     public function after(string $callbackName, ...$params): ValidateScene
     {
         $this->afters[] = [$callbackName, $params];
+        return $this;
+    }
+
+    /**
+     * Set a default value for the specified field
+     *
+     * @param string                  $field    Name of the data field to be processed
+     * @param callable|Closure|mixed  $callback The default value or an anonymous function that returns the default value which will
+     * be assigned to the attributes being validated if they are empty. The signature of the anonymous function
+     * should be as follows,The anonymous function has two parameters:
+     * <ul>
+     * <li> `$value` the data of the current field </li>
+     * <li> `$originalData` all the original data of the current validation </li>
+     * </ul>
+     *
+     * e.g:
+     * <code>
+     * function($value,$originalData){
+     *     return $value;
+     * }
+     * </code>
+     * @param bool                   $any        Whether to handle arbitrary values, default only handle values that are not null
+     * @return $this
+     */
+    public function default(string $field, $callback, bool $any = false): ValidateScene
+    {
+        $this->defaults[$field] = ['value' => $callback, 'any' => $any];
         return $this;
     }
 
