@@ -15,96 +15,52 @@ namespace W7\Tests\Test;
 use W7\Tests\Material\HandlerDataValidate;
 use W7\Tests\Material\BaseTestValidate;
 use W7\Validate\Exception\ValidateException;
+use W7\Validate\Validate;
 
 class TestHandlerFunction extends BaseTestValidate
 {
-    /**
-     * @test 测试在after中进行最后的验证
-     * @throws ValidateException
-     */
-    public function testAfterRule()
-    {
-        $v = new HandlerDataValidate();
+	public function testAfterFunction(){
+		$v = new class extends Validate{
+			protected $rule = [
+				'id' => 'required'
+			];
 
-        $this->expectExceptionMessage('用户信息重复');
+			protected $scene = [
+				'testAfter' => ['id','after' => 'checkId']
+			];
 
-        $v->scene('afterRule')->check(['user' => [
-            'a', 'a'
-        ]]);
-    }
+			protected function afterCheckId($data){
+				if ($data['id'] < 0){
+					return "ID错误";
+				}
+				return true;
+			}
+		};
 
-    /**
-     * @test 测试在after方法中对数据进行处理
-     * @throws ValidateException
-     */
-    public function testAfterAddData()
-    {
-        $v = new HandlerDataValidate();
+		$this->expectException(ValidateException::class);
+		$this->expectExceptionMessage("ID错误");
 
-        $data = $v->scene('addData')->check(['user' => [
-            'a', 'b'
-        ]]);
+		$v->scene("testAfter")->check(['id' => -1]);
+	}
 
-        $this->assertCount(3, $data['user']);
-    }
+	public function testBeforeFunction(){
+		$v = new class extends Validate{
+			protected $rule = [
+				'id' => 'required'
+			];
 
-    /**
-     * @test 测试在before方法中对值设定一个默认值
-     * @throws ValidateException
-     */
-    public function testBeforeHandlerData()
-    {
-        $v = new HandlerDataValidate();
+			protected $scene = [
+				'testBefore' => ['id','before' => 'checkSiteStatus']
+			];
 
-        $data = $v->scene('beforeHandlerData')->check([]);
+			protected function beforeCheckSiteStatus(array $data){
+				return "站点未开启";
+			}
+		};
 
-        $this->assertEquals('张三', $data['name']);
+		$this->expectException(ValidateException::class);
+		$this->expectExceptionMessage("站点未开启");
 
-        $data = $v->scene('beforeHandlerData')->check(['name' => '李四']);
-
-        $this->assertEquals('李四', $data['name']);
-    }
-
-    /**
-     * @test 测试在before方法中对值设定一个不符合规则的默认值
-     * @throws ValidateException
-     */
-    public function testBeforeHandlerToVerifySetDefaultValues()
-    {
-        $v = new HandlerDataValidate();
-
-        $this->expectExceptionMessage('名称的值只能具有中文');
-
-        $v->scene('beforeSetDefaultNameIsError')->check([]);
-    }
-
-    /**
-     * @test 测试在before方法中对值设定一个默认值 - 自定义验证场景
-     * @throws ValidateException
-     */
-    public function testBeforeHandlerData2()
-    {
-        $v = new HandlerDataValidate();
-
-        $data = $v->scene('beforeHandlerDataScene')->check([]);
-
-        $this->assertEquals('张三', $data['name']);
-
-        $data = $v->scene('beforeHandlerDataScene')->check(['name' => '李四']);
-
-        $this->assertEquals('李四', $data['name']);
-    }
-
-    /**
-     * @test 测试在before方法中对值设定一个不符合规则的默认值 - 自定义验证场景
-     * @throws ValidateException
-     */
-    public function testBeforeHandlerToVerifySetDefaultValues2()
-    {
-        $v = new HandlerDataValidate();
-
-        $this->expectExceptionMessage('名称的值只能具有中文');
-
-        $v->scene('beforeSetDefaultNameIsErrorScene')->check([]);
-    }
+		$v->scene("testBefore")->check([]);
+	}
 }
