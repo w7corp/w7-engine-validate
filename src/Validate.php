@@ -13,10 +13,14 @@
 namespace W7\Validate;
 
 use Closure;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Factory;
+use Illuminate\Validation\ValidationData;
 use Illuminate\Validation\ValidationException;
 use LogicException;
 use W7\Validate\Exception\ValidateException;
+use W7\Validate\Exception\ValidateRuntimeException;
+use W7\Validate\Support\Concerns\FilterInterface;
 use W7\Validate\Support\Concerns\MessageProviderInterface;
 use W7\Validate\Support\Event\ValidateEventAbstract;
 use W7\Validate\Support\MessageProvider;
@@ -87,6 +91,12 @@ class Validate extends RuleManager
     private $defaults = [];
 
     /**
+     * Filters to be passed for this validation
+     * @var array
+     */
+    private $filters = [];
+
+    /**
      * Error Message Provider
      * @var MessageProviderInterface
      */
@@ -137,9 +147,12 @@ class Validate extends RuleManager
             $this->init();
             $this->checkData = $data;
             $this->addEvent($this->event);
-            $this->defaults = array_merge($this->default, $this->defaults);
             $rule           = $this->getCheckRules($this->getInitialRules());
-            $data           = $this->handleDefault($data, $rule);
+            $fields         = array_keys($rule);
+            $this->defaults = array_merge($this->default, $this->defaults);
+            $this->filters  = array_merge($this->filter, $this->filters);
+            $data           = $this->handleDefault($data, $fields);
+
             if ($this->filled) {
                 $rule = $this->addFilledRule($rule);
             }
@@ -157,6 +170,7 @@ class Validate extends RuleManager
             }
 
             $data = $this->getValidationFactory()->make($data, $rule, $this->message, $this->customAttributes)->validate();
+            $data = $this->handlerFilter($data, $fields);
 
             if ($this->eventPriority) {
                 $this->handleCallback($data, 2);
@@ -204,6 +218,7 @@ class Validate extends RuleManager
             $this->afters        = array_merge($this->afters, $scene->afters);
             $this->befores       = array_merge($this->befores, $scene->befores);
             $this->defaults      = array_merge($this->defaults, $scene->defaults);
+            $this->filters       = array_merge($this->filters, $scene->filters);
             $this->eventPriority = $scene->eventPriority;
             return $scene->getRules();
         }
@@ -333,26 +348,83 @@ class Validate extends RuleManager
                     throw new ValidateException($message, 403);
                 }
             } else {
-                throw new ValidateException('Event error or nonexistence');
+                throw new ValidateRuntimeException('Event error or nonexistence');
             }
         }
     }
 
     /**
-     * Processing the set defaults
+     * Filters for processing settings
      *
      * @param array $data
-     * @param array $rule
+     * @param array $fields
      * @return array
      */
-    private function handleDefault(array $data, array $rule): array
+    private function handlerFilter(array $data, array $fields): array
+    {
+        if (empty($this->filters)) {
+            return $data;
+        }
+
+        $newData = validate_collect($data);
+        $filters = array_intersect_key($this->filters, array_flip($fields));
+        foreach ($filters as $field => $callback) {
+            if (false !== strpos($field, '*')) {
+                $flatData = ValidationData::initializeAndGatherData($field, $data);
+                $pattern  = str_replace('\*', '[^\.]*', preg_quote($field));
+                foreach ($flatData as $key => $value) {
+                    if (Str::startsWith($key, $field) || preg_match('/^' . $pattern . '\z/', $key)) {
+                        $this->filterValue($key, $callback, $newData);
+                    }
+                }
+            } else {
+                $this->filterValue($field, $callback, $newData);
+            }
+        }
+
+        return $newData->toArray();
+    }
+
+    /**
+     * Filter the given value
+     *
+     * @param string                           $field    Name of the data field to be processed
+     * @param callable|Closure|FilterInterface $callback The filter. This can be a global function name, anonymous function, etc.
+     * @param ValidateCollection $data
+     */
+    private function filterValue(string $field, $callback, ValidateCollection $data)
+    {
+        $value = $data->get($field);
+
+        if (is_callable($callback)) {
+            $value = call_user_func($callback, $value);
+        } elseif (class_exists($callback) && is_subclass_of($callback, FilterInterface::class)) {
+            /** @var FilterInterface $filter */
+            $filter = new $callback;
+            $value  = $filter->handle($value);
+        } elseif (is_string($callback) && method_exists($this, 'filter' . ucfirst($callback))) {
+            $value = call_user_func([$this, 'filter' . ucfirst($callback)], $value);
+        } else {
+            throw new ValidateRuntimeException('The provided filter is wrong');
+        }
+
+        $data->set($field, $value);
+    }
+
+    /**
+     * Defaults for processing settings
+     *
+     * @param array $data
+     * @param array $fields
+     * @return array
+     */
+    private function handleDefault(array $data, array $fields): array
     {
         if (empty($this->defaults)) {
             return $data;
         }
 
         $newData  = validate_collect($data);
-        $fields   = array_keys($rule);
         $defaults = array_intersect_key($this->defaults, array_flip($fields));
         foreach ($defaults as $field => $value) {
             // Skip array members
@@ -374,22 +446,9 @@ class Validate extends RuleManager
      * Applying default settings to data
      *
      * @param string                  $field    Name of the data field to be processed
-     * @param callable|Closure|mixed  $callback the default value or an anonymous function that returns the default value which will
-     * be assigned to the attributes being validated if they are empty. The signature of the anonymous function
-     * should be as follows,The anonymous function has two parameters:
-     * <ul>
-     * <li> `$value` the data of the current field </li>
-     * <li> `$originalData` all the original data of the current validation </li>
-     * </ul>
-     *
-     * e.g:
-     * <code>
-     * function($value,$originalData){
-     *     return $value;
-     * }
-     * </code>
-     * @param ValidateCollection      $data      Data to be processed
-     * @param bool                    $any       Whether to handle arbitrary values, default only handle values that are not null
+     * @param callable|Closure|mixed  $callback The default value or an anonymous function that returns the default value which will
+     * @param ValidateCollection      $data     Data to be processed
+     * @param bool                    $any      Whether to handle arbitrary values, default only handle values that are not null
      */
     private function setDefaultData(string $field, $callback, ValidateCollection $data, bool $any = false)
     {
@@ -418,6 +477,7 @@ class Validate extends RuleManager
         $this->afters        = [];
         $this->befores       = [];
         $this->defaults      = [];
+        $this->filters       = [];
         $this->eventPriority = true;
     }
 
@@ -439,7 +499,7 @@ class Validate extends RuleManager
             $this->setMessageProvider($messageProvider);
             return $this;
         } else {
-            throw new ValidateException('The provided message processor needs to implement the MessageProviderInterface interface');
+            throw new ValidateRuntimeException('The provided message processor needs to implement the MessageProviderInterface interface');
         }
 
         return $this;

@@ -15,6 +15,7 @@ namespace W7\Validate\Support;
 use Closure;
 use Illuminate\Support\Arr;
 use RuntimeException;
+use W7\Validate\Support\Concerns\FilterInterface;
 use W7\Validate\Support\Rule\BaseRule;
 use W7\Validate\Support\Storage\ValidateCollection;
 
@@ -26,6 +27,7 @@ use W7\Validate\Support\Storage\ValidateCollection;
  * @property-read array $befores        Methods to be executed before this validate
  * @property-read array $afters         Methods to be executed after this validate
  * @property-read array $defaults       This validation requires a default value for the value
+ * @property-read array $filters        The filter. This can be a global function name, anonymous function, etc.
  * @property-read bool  $eventPriority  Event Priority
  */
 class ValidateScene extends RuleManagerScene
@@ -59,6 +61,12 @@ class ValidateScene extends RuleManagerScene
      * @var array
      */
     private $defaults = [];
+
+    /**
+     * The filter. This can be a global function name, anonymous function, etc.
+     * @var array
+     */
+    private $filters = [];
     
     /**
      * Event Priority
@@ -179,6 +187,30 @@ class ValidateScene extends RuleManagerScene
     public function default(string $field, $callback, bool $any = false): ValidateScene
     {
         $this->defaults[$field] = ['value' => $callback, 'any' => $any];
+        return $this;
+    }
+
+    /**
+     * Set a filter for the specified field
+     *
+     * Filter is a data processor.
+     * It invokes the specified filter callback to process the attribute value
+     * and save the processed value back to the attribute.
+     * @param string                                  $field    Name of the data field to be processed
+     * @param string|callable|Closure|FilterInterface $callback The filter. This can be a global function name, anonymous function, etc.
+     * The filter must be a valid PHP callback with the following signature:
+     * <code>
+     * function foo($value) {
+     *     // compute $newValue here
+     *     return $newValue;
+     * }
+     * </code>
+     * Many PHP functions qualify this signature (e.g. `trim()`).
+     * @return $this
+     */
+    public function filter(string $field, $callback): ValidateScene
+    {
+        $this->filters[$field] = $callback;
         return $this;
     }
 
