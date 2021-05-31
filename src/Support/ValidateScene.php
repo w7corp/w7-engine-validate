@@ -166,27 +166,33 @@ class ValidateScene extends RuleManagerScene
     /**
      * Set a default value for the specified field
      *
-     * @param string                  $field    Name of the data field to be processed
-     * @param callable|Closure|mixed  $callback The default value or an anonymous function that returns the default value which will
+     * @param string                       $field    Name of the data field to be processed
+     * @param callable|Closure|mixed|null  $callback The default value or an anonymous function that returns the default value which will
      * be assigned to the attributes being validated if they are empty. The signature of the anonymous function
      * should be as follows,The anonymous function has two parameters:
      * <ul>
      * <li> `$value` the data of the current field </li>
+     * <li> `$attribute` current field name </li>
      * <li> `$originalData` all the original data of the current validation </li>
      * </ul>
      *
      * e.g:
      * <code>
-     * function($value,$originalData){
+     * function($value,string $attribute,array $originalData){
      *     return $value;
      * }
      * </code>
-     * @param bool                   $any        Whether to handle arbitrary values, default only handle values that are not null
+     * If this parameter is null, the default value of the field will be removed
+     * @param bool                        $any       Whether to handle arbitrary values, default only handle values that are not null
      * @return $this
      */
     public function default(string $field, $callback, bool $any = false): ValidateScene
     {
-        $this->defaults[$field] = ['value' => $callback, 'any' => $any];
+        if (null === $callback) {
+            $this->defaults[$field] = null;
+        } else {
+            $this->defaults[$field] = ['value' => $callback, 'any' => $any];
+        }
         return $this;
     }
 
@@ -196,8 +202,8 @@ class ValidateScene extends RuleManagerScene
      * Filter is a data processor.
      * It invokes the specified filter callback to process the attribute value
      * and save the processed value back to the attribute.
-     * @param string                                  $field    Name of the data field to be processed
-     * @param string|callable|Closure|FilterInterface $callback The filter. This can be a global function name, anonymous function, etc.
+     * @param string                                       $field    Name of the data field to be processed
+     * @param string|callable|Closure|FilterInterface|null $callback The filter. This can be a global function name, anonymous function, etc.
      * The filter must be a valid PHP callback with the following signature:
      * <code>
      * function foo($value) {
@@ -206,6 +212,8 @@ class ValidateScene extends RuleManagerScene
      * }
      * </code>
      * Many PHP functions qualify this signature (e.g. `trim()`).
+     *
+     * If this parameter is null, the filter for this field will be cancelled.
      * @return $this
      */
     public function filter(string $field, $callback): ValidateScene

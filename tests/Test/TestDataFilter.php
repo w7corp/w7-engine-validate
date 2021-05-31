@@ -14,6 +14,7 @@ namespace W7\Tests\Test;
 
 use W7\Tests\Material\BaseTestValidate;
 use W7\Validate\Support\Concerns\FilterInterface;
+use W7\Validate\Support\ValidateScene;
 use W7\Validate\Validate;
 
 class UniqueFilter implements FilterInterface
@@ -100,5 +101,29 @@ class TestDataFilter extends BaseTestValidate
         foreach ($data['id'] as $id) {
             $this->assertEquals('integer', gettype($id));
         }
+    }
+
+    public function testCancelFilter()
+    {
+        $v                  = new class extends Validate {
+            protected $rule = [
+                'id' => 'required'
+            ];
+
+            protected $filter = [
+                'id' => 'intval'
+            ];
+
+            protected function sceneTest(ValidateScene $scene)
+            {
+                $scene->only(['id'])
+                    ->filter('id', null);
+            }
+        };
+
+        $data = $v->check(['id' => '你好']);
+        $this->assertEquals(0, $data['id']);
+        $data = $v->scene('test')->check(['id' => '你好']);
+        $this->assertEquals('你好', $data['id']);
     }
 }

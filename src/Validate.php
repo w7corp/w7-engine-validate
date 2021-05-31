@@ -369,6 +369,9 @@ class Validate extends RuleManager
         $newData = validate_collect($data);
         $filters = array_intersect_key($this->filters, array_flip($fields));
         foreach ($filters as $field => $callback) {
+            if (null === $callback) {
+                continue;
+            }
             if (false !== strpos($field, '*')) {
                 $flatData = ValidationData::initializeAndGatherData($field, $data);
                 $pattern  = str_replace('\*', '[^\.]*', preg_quote($field));
@@ -428,7 +431,7 @@ class Validate extends RuleManager
         $defaults = array_intersect_key($this->defaults, array_flip($fields));
         foreach ($defaults as $field => $value) {
             // Skip array members
-            if (false !== strpos($field, '*')) {
+            if (null === $value || false !== strpos($field, '*')) {
                 continue;
             }
 
@@ -456,11 +459,11 @@ class Validate extends RuleManager
             return null === $value || [] === $value || '' === $value;
         };
         $value = $data->get($field);
-        if (!$data->has($field) || $isEmpty($value) || true === $any) {
+        if ($isEmpty($value) || true === $any) {
             if (is_callable($callback)) {
-                $value = call_user_func($callback, $value, $this->checkData);
+                $value = call_user_func($callback, $value, $field, $this->checkData);
             } elseif (is_string($callback) && method_exists($this, 'default' . ucfirst($callback))) {
-                $value = call_user_func([$this, 'default' . ucfirst($callback)], $value, $this->checkData);
+                $value = call_user_func([$this, 'default' . ucfirst($callback)], $value, $field, $this->checkData);
             } else {
                 $value = $callback;
             }

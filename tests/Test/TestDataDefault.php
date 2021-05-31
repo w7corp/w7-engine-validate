@@ -149,4 +149,29 @@ class TestDataDefault extends BaseTestValidate
         $data = $v->scene('test')->check([]);
         $this->assertEquals('小张', $data['name']);
     }
+
+    public function testCancelDefaultValue()
+    {
+        $v                  = new class extends Validate {
+            protected $rule = [
+                'name' => ''
+            ];
+
+            protected $default = [
+                'name' => 1
+            ];
+
+            protected function sceneTest(ValidateScene $scene)
+            {
+                $scene->only(['name'])
+                    ->default('name', null);
+            }
+        };
+
+        $data = $v->check([]);
+        $this->assertEquals(1, $data['name']);
+
+        $data = $v->scene('test')->check([]);
+        $this->assertArrayNotHasKey('name', $data);
+    }
 }
