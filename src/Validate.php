@@ -20,6 +20,7 @@ use Illuminate\Validation\ValidationException;
 use LogicException;
 use W7\Validate\Exception\ValidateException;
 use W7\Validate\Exception\ValidateRuntimeException;
+use W7\Validate\Support\Concerns\DefaultInterface;
 use W7\Validate\Support\Concerns\FilterInterface;
 use W7\Validate\Support\Concerns\MessageProviderInterface;
 use W7\Validate\Support\Event\ValidateEventAbstract;
@@ -401,7 +402,7 @@ class Validate extends RuleManager
 
         if (is_callable($callback)) {
             $value = call_user_func($callback, $value);
-        } elseif (class_exists($callback) && is_subclass_of($callback, FilterInterface::class)) {
+        } elseif ((is_string($callback) || is_object($callback)) && class_exists($callback) && is_subclass_of($callback, FilterInterface::class)) {
             /** @var FilterInterface $filter */
             $filter = new $callback;
             $value  = $filter->handle($value);
@@ -448,10 +449,10 @@ class Validate extends RuleManager
     /**
      * Applying default settings to data
      *
-     * @param string                  $field    Name of the data field to be processed
-     * @param callable|Closure|mixed  $callback The default value or an anonymous function that returns the default value which will
-     * @param ValidateCollection      $data     Data to be processed
-     * @param bool                    $any      Whether to handle arbitrary values, default only handle values that are not null
+     * @param string                                   $field    Name of the data field to be processed
+     * @param callable|Closure|DefaultInterface|mixed  $callback The default value or an anonymous function that returns the default value which will
+     * @param ValidateCollection                       $data     Data to be processed
+     * @param bool                                     $any      Whether to handle arbitrary values, default only handle values that are not null
      */
     private function setDefaultData(string $field, $callback, ValidateCollection $data, bool $any = false)
     {
@@ -462,6 +463,10 @@ class Validate extends RuleManager
         if ($isEmpty($value) || true === $any) {
             if (is_callable($callback)) {
                 $value = call_user_func($callback, $value, $field, $this->checkData);
+            } elseif ((is_string($callback) || is_object($callback)) && class_exists($callback) && is_subclass_of($callback, DefaultInterface::class)) {
+                /** @var DefaultInterface $default */
+                $default = new $callback();
+                $value   = $default->handle($value, $field, $this->checkData);
             } elseif (is_string($callback) && method_exists($this, 'default' . ucfirst($callback))) {
                 $value = call_user_func([$this, 'default' . ucfirst($callback)], $value, $field, $this->checkData);
             } else {

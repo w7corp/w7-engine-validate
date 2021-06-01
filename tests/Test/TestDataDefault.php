@@ -14,8 +14,17 @@ namespace W7\Tests\Test;
 
 use W7\Tests\Material\BaseTestValidate;
 use W7\Validate\Exception\ValidateException;
+use W7\Validate\Support\Concerns\DefaultInterface;
 use W7\Validate\Support\ValidateScene;
 use W7\Validate\Validate;
+
+class SetDefaultIsHello implements DefaultInterface
+{
+	public function handle($value, string $attribute, array $originalData)
+	{
+		return "Hello";
+	}
+}
 
 class TestDataDefault extends BaseTestValidate
 {
@@ -174,4 +183,21 @@ class TestDataDefault extends BaseTestValidate
         $data = $v->scene('test')->check([]);
         $this->assertArrayNotHasKey('name', $data);
     }
+
+    public function testDefaultUseDefaultClass()
+	{
+		$v = new class extends Validate
+		{
+			protected $rule = [
+				'name' => ''
+			];
+
+			protected $default = [
+				'name' => SetDefaultIsHello::class
+			];
+		};
+
+		$data = $v->check([]);
+		$this->assertEquals("Hello", $data['name']);
+	}
 }

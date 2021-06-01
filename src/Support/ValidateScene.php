@@ -15,6 +15,7 @@ namespace W7\Validate\Support;
 use Closure;
 use Illuminate\Support\Arr;
 use RuntimeException;
+use W7\Validate\Support\Concerns\DefaultInterface;
 use W7\Validate\Support\Concerns\FilterInterface;
 use W7\Validate\Support\Rule\BaseRule;
 use W7\Validate\Support\Storage\ValidateCollection;
@@ -166,8 +167,8 @@ class ValidateScene extends RuleManagerScene
     /**
      * Set a default value for the specified field
      *
-     * @param string                       $field    Name of the data field to be processed
-     * @param callable|Closure|mixed|null  $callback The default value or an anonymous function that returns the default value which will
+     * @param string                                        $field    Name of the data field to be processed
+     * @param callable|Closure|mixed|DefaultInterface|null  $callback The default value or an anonymous function that returns the default value which will
      * be assigned to the attributes being validated if they are empty. The signature of the anonymous function
      * should be as follows,The anonymous function has two parameters:
      * <ul>
@@ -183,7 +184,7 @@ class ValidateScene extends RuleManagerScene
      * }
      * </code>
      * If this parameter is null, the default value of the field will be removed
-     * @param bool                        $any       Whether to handle arbitrary values, default only handle values that are not null
+     * @param bool                                         $any       Whether to handle arbitrary values, default only handle values that are not null
      * @return $this
      */
     public function default(string $field, $callback, bool $any = false): ValidateScene
