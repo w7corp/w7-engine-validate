@@ -118,6 +118,13 @@ class MessageProvider implements MessageProviderInterface
                 $message = str_replace($pregString, Arr::get($this->data, $matches[1][$index], ''), $message);
             }
         }
+
+        if (preg_match_all('/@{(.*?)}/', $message, $matches) > 0) {
+            foreach ($matches[0] as $index => $pregString) {
+                $message = str_replace($pregString, $this->customAttributes[$matches[1][$index]] ?? '', $message);
+            }
+        }
+
         return $message;
     }
 }
