@@ -65,6 +65,6 @@ class TestValidateMessage extends BaseTestValidate
             'user' => '123456'
         ])->getMessage('user', 'email'));
 
-		$this->assertEquals('你输入的密码与:attribute不一致', $message->getMessage('re_pass','eq'));
+        $this->assertEquals('你输入的密码与:attribute不一致', $message->getMessage('re_pass', 'eq'));
     }
 }
