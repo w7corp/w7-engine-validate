@@ -21,6 +21,7 @@ class TestMessage extends RuleManager
     protected $rule = [
         'user'    => 'required|email',
         'pass'    => 'required|lengthBetween:6,16',
+        're_pass' => 'required|eq:pass',
         'name'    => 'required|chs|lengthBetween:2,4',
         'remark'  => 'required|alpha_dash',
         'captcha' => 'required|length:4|checkCaptcha',
@@ -29,12 +30,14 @@ class TestMessage extends RuleManager
     protected $message = [
         'user.required' => '用户名必须填写',
         'user.email'    => '你输入的:{:user}，不是有效的:attribute',
-        'pass.required' => '密码必须填写'
+        'pass.required' => '密码必须填写',
+        're_pass.eq'    => '你输入的@{pass}与:attribute不一致'
     ];
 
     protected $customAttributes = [
         'user'    => '用户名',
         'pass'    => '密码',
+        're_pass' => '确认密码',
         'name'    => '昵称',
         'remark'  => '备注',
         'captcha' => '验证码',
@@ -61,5 +64,7 @@ class TestValidateMessage extends BaseTestValidate
         $this->assertEquals('你输入的:123456，不是有效的:attribute', $message->setData([
             'user' => '123456'
         ])->getMessage('user', 'email'));
+
+		$this->assertEquals('你输入的密码与:attribute不一致', $message->getMessage('re_pass','eq'));
     }
 }
