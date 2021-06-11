@@ -15,7 +15,6 @@ namespace W7\Validate\Support\Middleware\Rangine;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use W7\Core\Route\Route;
 use W7\Facade\Context;
 use W7\Core\Middleware\MiddlewareAbstract;
 use W7\Http\Message\Server\Request;
@@ -25,15 +24,8 @@ class ValidateMiddleware extends MiddlewareAbstract
 {
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        /** @var Route $route */
-        $route        = $request->getAttribute('route');
-        $routeHandler = $route->handler;
-
-        if (!is_array($routeHandler) || 2 !== count($routeHandler)) {
-            throw new \RuntimeException('Routing information retrieval failed');
-        }
-
-        list($controller, $scene) = $routeHandler;
+        $controller = $request->route->getController();
+        $scene      = $request->route->getAction();
 
         $validator = ValidateMiddlewareConfig::instance()->getValidateFactory()->getValidate($controller, $scene);
 
