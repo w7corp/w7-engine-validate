@@ -103,6 +103,22 @@ class TestDataFilter extends BaseTestValidate
         }
     }
 
+    public function testNotHasDataFilter()
+    {
+        $v                  = new class extends Validate {
+            protected $rule = [
+                'id' => 'numeric'
+            ];
+
+            protected $filter = [
+                'id' => 'intval'
+            ];
+        };
+
+        $data = $v->check([]);
+        $this->assertArrayNotHasKey('id', $data);
+    }
+
     public function testCancelFilter()
     {
         $v                  = new class extends Validate {

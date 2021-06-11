@@ -398,6 +398,9 @@ class Validate extends RuleManager
      */
     private function filterValue(string $field, $callback, ValidateCollection $data)
     {
+        if (!$data->has($field)) {
+            return;
+        }
         $value = $data->get($field);
 
         if (is_callable($callback)) {
