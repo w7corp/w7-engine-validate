@@ -103,7 +103,7 @@ class RuleManagerScene implements SceneInterface
     /** @inheritDoc */
     public function appendCheckField(string $field): SceneInterface
     {
-        $rule             = $this->rule[$field] ?? '';
+        $rule             = $this->checkRules[$field] ?? '';
         $this->checkRules = array_merge($this->checkRules, [$field => $rule]);
         return $this;
     }
