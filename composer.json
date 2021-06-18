@@ -1,6 +1,6 @@
 {
     "name": "w7/engine-validate",
-    "description": "新版微擎表单验证",
+    "description": "增强表单验证",
     "license": "Apache-2.0",
     "authors": [
         {
@@ -13,7 +13,9 @@
     },
     "keywords": [
         "w7",
-        "validate"
+        "validate",
+        "validator",
+        "form validate"
     ],
     "require": {
         "php": "^7.2.5|^8.0",
@@ -35,6 +37,18 @@
     "autoload-dev": {
         "psr-4": {
             "W7\\Tests\\" : "tests/"
+        }
+    },
+    "extra": {
+        "rangine": {
+            "providers": [
+                "W7\\Validate\\Providers\\Rangine\\ValidateProvider"
+            ]
+        },
+        "laravel": {
+            "providers": [
+                "W7\\Validate\\Providers\\Laravel\\ValidateProvider"
+            ]
         }
     }
 }
