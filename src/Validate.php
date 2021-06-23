@@ -213,7 +213,7 @@ class Validate extends RuleManager
         }
 
         if (method_exists($this, 'scene' . ucfirst($sceneName))) {
-            $scene = new ValidateScene($this->rule);
+            $scene = new ValidateScene($this->rule, $this->checkData);
             call_user_func([$this, 'scene' . ucfirst($sceneName)], $scene);
             $this->event         = array_merge($this->event, $scene->events);
             $this->afters        = array_merge($this->afters, $scene->afters);
