@@ -109,8 +109,16 @@ class Validate extends RuleManager
      */
     private $checkData = [];
 
+    /**
+     * Data validated this time
+     * @var array
+     */
     private $validatedData = [];
 
+    /**
+     * Fields validated this time
+     * @var array
+     */
     private $validateFields = [];
 
     /**
@@ -205,7 +213,7 @@ class Validate extends RuleManager
      *
      * @param string|null $sceneName The scene name, or the current scene name if not provided.
      * @return array
-     * @throws ValidateException
+     * @throws ValidationException
      */
     public function getInitialRules(?string $sceneName = ''): array
     {
@@ -263,9 +271,14 @@ class Validate extends RuleManager
                 // Pre-validation
                 if (!empty($sceneRule)) {
                     // Validated fields are not re-validated
-                    $checkFields          = array_diff($sceneRule, $this->validateFields);
-                    $checkRules           = $this->getCheckRules(array_intersect_key($this->rule, array_flip($checkFields)));
-                    $data                 = $this->getValidationFactory()->make($this->checkData, $checkRules, $this->message, $this->customAttributes)->validate();
+                    $checkFields = array_diff($sceneRule, $this->validateFields);
+                    $checkRules  = $this->getCheckRules(array_intersect_key($this->rule, array_flip($checkFields)));
+                    $data        = $this->getValidationFactory()->make(
+                        $this->checkData,
+                        $checkRules,
+                        $this->message,
+                        $this->customAttributes
+                    )->validate();
                     $this->validateFields = array_merge($this->validateFields, $checkFields);
                     $this->validatedData  = array_merge($this->validatedData, $data);
                 }
