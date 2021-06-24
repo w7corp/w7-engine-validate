@@ -146,4 +146,9 @@ class ValidateCollection extends Collection
     {
         $this->offsetSet($key, $value);
     }
+
+    public function __toArray(): array
+    {
+        return $this->toArray();
+    }
 }
