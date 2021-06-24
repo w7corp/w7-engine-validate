@@ -23,7 +23,7 @@ class ValidateProvider extends ProviderAbstract
      *
      * @return void
      */
-    public function register()
+    public function boot()
     {
         ValidateConfig::instance()->setFactory(Container::get("W7\Contract\Validation\ValidatorFactoryInterface"));
     }

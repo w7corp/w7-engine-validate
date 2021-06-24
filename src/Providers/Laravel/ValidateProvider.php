@@ -12,12 +12,13 @@
 
 namespace W7\Validate\Providers\Laravel;
 
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\ServiceProvider;
 use W7\Validate\Support\Storage\ValidateConfig;
 
 class ValidateProvider extends ServiceProvider
 {
-    public function register()
+    public function boot()
     {
         ValidateConfig::instance()->setFactory(App::make('validator'));
     }
