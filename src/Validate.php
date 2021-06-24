@@ -165,36 +165,8 @@ class Validate extends RuleManager
             $this->defaults = array_merge($this->default, $this->defaults);
             $this->filters  = array_merge($this->filter, $this->filters);
             $data           = $this->handleDefault($data, $fields);
-
-            if ($this->filled) {
-                $rule = $this->addFilledRule($rule);
-            }
-
-            if ($this->bail) {
-                $rule = $this->addBailRule($rule);
-            }
-
-            if ($this->eventPriority) {
-                $this->handleEvent($data, 'beforeValidate');
-                $this->handleCallback($data, 1);
-            } else {
-                $this->handleCallback($data, 1);
-                $this->handleEvent($data, 'beforeValidate');
-            }
-
-            $data = $this->getValidationFactory()->make($data, $rule, $this->message, $this->customAttributes)->validate();
-            $data = array_merge($this->validatedData, $data);
-            $data = $this->handlerFilter($data, $fields);
-
-            if ($this->eventPriority) {
-                $this->handleCallback($data, 2);
-                $this->handleEvent($data, 'afterValidate');
-            } else {
-                $this->handleEvent($data, 'afterValidate');
-                $this->handleCallback($data, 2);
-            }
-
-            return $data;
+            $data           = $this->pass($data, $rule);
+            return $this->handlerFilter($data, $fields);
         } catch (ValidationException $e) {
             $errors       = $this->getMessageProvider()->handleMessage($e->errors());
             $errorMessage = '';
@@ -206,6 +178,48 @@ class Validate extends RuleManager
 
             throw new ValidateException($errorMessage, 403, $errors, $e);
         }
+    }
+
+    /**
+     * @param array $data
+     * @param array $rule
+     * @return array
+     * @throws ValidateException
+     * @throws ValidationException
+     */
+    private function pass(array $data, array $rule): array
+    {
+        if ($this->filled) {
+            $rule = $this->addFilledRule($rule);
+        }
+
+        if ($this->bail) {
+            $rule = $this->addBailRule($rule);
+        }
+
+        if ($this->eventPriority) {
+            $this->handleEvent($data, 'beforeValidate');
+            $this->handleCallback($data, 1);
+        } else {
+            $this->handleCallback($data, 1);
+            $this->handleEvent($data, 'beforeValidate');
+        }
+
+        $data = $this->getValidationFactory()->make($data, $rule, $this->message, $this->customAttributes)->validate();
+        $data = array_merge($this->validatedData, $data);
+
+        if ($this->eventPriority) {
+            $this->handleCallback($data, 2);
+            $this->handleEvent($data, 'afterValidate');
+        } else {
+            $this->handleEvent($data, 'afterValidate');
+            $this->handleCallback($data, 2);
+        }
+
+        $this->afters  = [];
+        $this->befores = [];
+        $this->events  = [];
+        return $data;
     }
 
     /**
@@ -271,14 +285,9 @@ class Validate extends RuleManager
                 // Pre-validation
                 if (!empty($sceneRule)) {
                     // Validated fields are not re-validated
-                    $checkFields = array_diff($sceneRule, $this->validateFields);
-                    $checkRules  = $this->getCheckRules(array_intersect_key($this->rule, array_flip($checkFields)));
-                    $data        = $this->getValidationFactory()->make(
-                        $this->checkData,
-                        $checkRules,
-                        $this->message,
-                        $this->customAttributes
-                    )->validate();
+                    $checkFields          = array_diff($sceneRule, $this->validateFields);
+                    $checkRules           = $this->getCheckRules(array_intersect_key($this->rule, array_flip($checkFields)));
+                    $data                 = $this->pass($this->checkData, $checkRules);
                     $this->validateFields = array_merge($this->validateFields, $checkFields);
                     $this->validatedData  = array_merge($this->validatedData, $data);
                 }

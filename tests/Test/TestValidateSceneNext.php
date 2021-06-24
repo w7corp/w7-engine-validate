@@ -16,13 +16,13 @@ use W7\Tests\Material\BaseTestValidate;
 use W7\Validate\Exception\ValidateException;
 use W7\Validate\Validate;
 
-class TestValidateSceneUse extends BaseTestValidate
+class TestValidateSceneNext extends BaseTestValidate
 {
     /**
-     * @test 测试use以及场景选择器的连续使用
+     * @test 测试Next以及场景选择器的连续使用
      * @throws ValidateException
      */
-    public function testUse()
+    public function testNext()
     {
         $testValidate       = new class extends Validate {
             protected $rule = [
