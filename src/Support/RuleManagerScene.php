@@ -23,18 +23,24 @@ class RuleManagerScene implements SceneInterface
     protected $checkRules;
 
     /**
-     * RuleManagerScene constructor.
-     * @param array $checkRules The rules to be applied to the data.
+     * All original validation rules
+     * @var array
      */
-    public function __construct(array $checkRules = [])
+    protected $rules = [];
+
+    /**
+     * RuleManagerScene constructor.
+     * @param array $rules All original validation rules
+     */
+    public function __construct(array $rules = [])
     {
-        $this->checkRules = $checkRules;
+        $this->rules = $rules;
     }
 
     /** @inheritDoc */
     public function only(array $fields): SceneInterface
     {
-        $this->checkRules = array_intersect_key($this->checkRules, array_flip($fields));
+        $this->checkRules = array_intersect_key($this->rules, array_flip($fields));
         return $this;
     }
 
@@ -103,7 +109,7 @@ class RuleManagerScene implements SceneInterface
     /** @inheritDoc */
     public function appendCheckField(string $field): SceneInterface
     {
-        $rule             = $this->checkRules[$field] ?? '';
+        $rule             = $this->rules[$field] ?? '';
         $this->checkRules = array_merge($this->checkRules, [$field => $rule]);
         return $this;
     }

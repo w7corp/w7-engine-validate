@@ -77,12 +77,12 @@ class ValidateScene extends RuleManagerScene
 
     /**
      * ValidateScene constructor.
-     * @param array $checkRules
+     * @param array $rules
      * @param array $checkData
      */
-    public function __construct(array $checkRules = [], array $checkData = [])
+    public function __construct(array $rules = [], array $checkData = [])
     {
-        parent::__construct($checkRules);
+        parent::__construct($rules);
         $this->checkData = $checkData;
     }
 
