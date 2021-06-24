@@ -161,15 +161,25 @@ class RuleManager
      */
     private function getRuleClass(string $ruleName)
     {
+        static $rulesClass = [];
+
         list($ruleName, $param) = Common::getKeyAndParam($ruleName, true);
 
         foreach (ValidateConfig::instance()->getRulePath() as $rulesPath) {
             $ruleNameSpace = $rulesPath . ucfirst($ruleName);
-            if (class_exists($ruleNameSpace) && is_subclass_of($ruleNameSpace, BaseRule::class)) {
+            if (isset($rulesClass[$ruleNameSpace])) {
+                if (0 === $rulesClass[$ruleNameSpace]) {
+                    continue;
+                } else {
+                    return new $ruleNameSpace(...$param);
+                }
+            } elseif (class_exists($ruleNameSpace) && is_subclass_of($ruleNameSpace, BaseRule::class)) {
+                $rulesClass[$ruleNameSpace] = 1;
                 return new $ruleNameSpace(...$param);
             }
         }
 
+        $rulesClass[$ruleName] = 0;
         return false;
     }
 

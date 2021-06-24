@@ -86,15 +86,6 @@ class ValidateScene extends RuleManagerScene
         $this->checkData = $checkData;
     }
 
-    public function __get($name)
-    {
-        if (property_exists($this, $name)) {
-            return $this->$name;
-        }
-
-        throw new RuntimeException('Unknown property:' . $name);
-    }
-
     /**
      * Add conditions to a given field based on a Closure.
      *
@@ -270,5 +261,14 @@ class ValidateScene extends RuleManagerScene
     public function getValidateData(): ValidateCollection
     {
         return validate_collect($this->getData());
+    }
+
+    public function __get($name)
+    {
+        if (property_exists($this, $name)) {
+            return $this->$name;
+        }
+
+        throw new RuntimeException('Unknown property:' . $name);
     }
 }

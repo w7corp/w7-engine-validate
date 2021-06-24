@@ -10,16 +10,20 @@
  * visited https://www.w7.cc for more details
  */
 
-namespace W7\Tests\Test;
+namespace W7\Tests\Test\Fixer;
 
 use W7\Tests\Material\BaseTestValidate;
 use W7\Validate\Exception\ValidateException;
 use W7\Validate\Support\ValidateScene;
 use W7\Validate\Validate;
 
-class TestBug extends BaseTestValidate
+class TestScene extends BaseTestValidate
 {
-    public function testBug5()
+    /**
+     * @see https://gitee.com/we7coreteam/w7-engine-validate/pulls/5
+     * @throws ValidateException
+     */
+    public function testSceneCheckDataIsEmpty()
     {
         $v                    = new class extends Validate {
             public $checkData = [];
@@ -43,7 +47,12 @@ class TestBug extends BaseTestValidate
         $this->assertEquals(123, $v->checkData['name']);
     }
 
-    public function testBug6()
+    /**
+     * @see https://gitee.com/we7coreteam/w7-engine-validate/pulls/3
+     * @see https://gitee.com/we7coreteam/w7-engine-validate/pulls/6
+     * @throws ValidateException
+     */
+    public function testSceneAppendCheckField()
     {
         $v                  = new class extends Validate {
             protected $rule = [

@@ -39,7 +39,7 @@ class ArticleValidate extends Validate
     
     protected $scene = [
         'add'  => ['content', 'title'],
-        'save' => ['use' => 'edit'],
+        'save' => ['next' => 'edit'],
         'del'  => ['id'],
     ];
 

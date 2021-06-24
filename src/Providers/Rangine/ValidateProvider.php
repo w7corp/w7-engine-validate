@@ -13,6 +13,7 @@
 namespace W7\Validate\Providers\Rangine;
 
 use W7\Core\Provider\ProviderAbstract;
+use W7\Facade\Container;
 use W7\Validate\Support\Storage\ValidateConfig;
 
 class ValidateProvider extends ProviderAbstract
@@ -24,6 +25,6 @@ class ValidateProvider extends ProviderAbstract
      */
     public function register()
     {
-        ValidateConfig::instance()->setFramework(2);
+        ValidateConfig::instance()->setFactory(Container::get("W7\Contract\Validation\ValidatorFactoryInterface"));
     }
 }

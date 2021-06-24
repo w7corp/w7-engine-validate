@@ -16,12 +16,10 @@ use Composer\Autoload\ClassLoader;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Filesystem\Filesystem;
-use Illuminate\Support\Facades\App;
 use Illuminate\Translation\FileLoader;
 use Illuminate\Validation\Factory;
 use Illuminate\Validation\PresenceVerifierInterface;
 use ReflectionClass;
-use RuntimeException;
 
 final class ValidateConfig
 {
@@ -55,13 +53,6 @@ final class ValidateConfig
      */
     protected $verifier;
 
-    /**
-     * Frame Type
-     * 1 Laravel 2 Rangine
-     * @var int
-     */
-    protected $framework = 0;
-
     protected static $instance;
 
     public static function instance(): ValidateConfig
@@ -71,17 +62,6 @@ final class ValidateConfig
         }
 
         return self::$instance;
-    }
-
-    /**
-     * Set the frame type
-     *
-     * @param int $type 1 Laravel 2 Rangine
-     */
-    public function setFramework(int $type): ValidateConfig
-    {
-        $this->framework = $type;
-        return $this;
     }
 
     /**
@@ -104,22 +84,9 @@ final class ValidateConfig
     public function getFactory(): Factory
     {
         if (empty($this->factory)) {
-            if ($this->framework > 0) {
-                switch ($this->framework) {
-                    case 1:
-                        $this->factory = App::make('validator');
-                        break;
-                    case 2:
-                        $this->factory = \W7\Facade\Container::get("W7\Contract\Validation\ValidatorFactoryInterface");
-                        break;
-                    default:
-                        throw new RuntimeException('Framework Type Error');
-                }
-            } else {
-                $this->factory = new Factory($this->getTranslator(), $this->getContainer());
-                if ($this->getPresenceVerifier()) {
-                    $this->factory->setPresenceVerifier($this->getPresenceVerifier());
-                }
+            $this->factory = new Factory($this->getTranslator(), $this->getContainer());
+            if ($this->getPresenceVerifier()) {
+                $this->factory->setPresenceVerifier($this->getPresenceVerifier());
             }
         }
 

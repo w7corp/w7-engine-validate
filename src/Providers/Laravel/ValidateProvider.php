@@ -19,6 +19,6 @@ class ValidateProvider extends ServiceProvider
 {
     public function register()
     {
-        ValidateConfig::instance()->setFramework(1);
+        ValidateConfig::instance()->setFactory(App::make('validator'));
     }
 }
