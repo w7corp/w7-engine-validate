@@ -160,7 +160,7 @@ class Validate extends RuleManager
             $this->init();
             $this->checkData = $data;
             $this->addEvent($this->event);
-            $rule           = $this->getCheckRules($this->getInitialRules());
+            $rule           = $this->getCheckRules($this->getSceneRules());
             $fields         = array_merge(array_keys($rule), $this->validateFields);
             $this->defaults = array_merge($this->default, $this->defaults);
             $this->filters  = array_merge($this->filter, $this->filters);
@@ -223,13 +223,13 @@ class Validate extends RuleManager
     }
 
     /**
-     * Get initial rules provided
+     * Get the rules that need to be validation in the scene
      *
      * @param string|null $sceneName The scene name, or the current scene name if not provided.
      * @return array
-     * @throws ValidationException
+     * @throws ValidationException|ValidateException
      */
-    public function getInitialRules(?string $sceneName = ''): array
+    private function getSceneRules(?string $sceneName = ''): array
     {
         if ('' === $sceneName) {
             $sceneName = $this->getCurrentSceneName();
@@ -299,7 +299,7 @@ class Validate extends RuleManager
                         return array_intersect_key($this->rule, array_flip($next));
                     }
                 }
-                return $this->getInitialRules($next);
+                return $this->getSceneRules($next);
             } else {
                 return array_intersect_key($this->rule, array_flip($sceneRule));
             }
