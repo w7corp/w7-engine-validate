@@ -160,13 +160,14 @@ class Validate extends RuleManager
             $this->init();
             $this->checkData = $data;
             $this->addEvent($this->event);
-            $rule           = $this->getCheckRules($this->getSceneRules());
-            $fields         = array_merge(array_keys($rule), $this->validateFields);
-            $this->defaults = array_merge($this->default, $this->defaults);
-            $this->filters  = array_merge($this->filter, $this->filters);
-            $data           = $this->handleDefault($data, $fields);
-            $data           = $this->pass($data, $rule);
-            return $this->handlerFilter($data, $fields);
+            $this->handleEvent($data, 'beforeValidate');
+            $events       = $this->events;
+            $this->events = [];
+            $rule         = $this->getCheckRules($this->getSceneRules());
+            $data         = $this->pass($data, $rule);
+            $this->events = $events;
+            $this->handleEvent($data, 'afterValidate');
+            return $data;
         } catch (ValidationException $e) {
             $errors       = $this->getMessageProvider()->handleMessage($e->errors());
             $errorMessage = '';
@@ -181,14 +182,19 @@ class Validate extends RuleManager
     }
 
     /**
-     * @param array $data
-     * @param array $rule
+     * Perform data validation and processing
+     *
+     * @param array $data Data to be verified
+     * @param array $rule Rules for validation
      * @return array
      * @throws ValidateException
      * @throws ValidationException
      */
     private function pass(array $data, array $rule): array
     {
+        $this->defaults = array_merge($this->default, $this->defaults);
+        $this->filters  = array_merge($this->filter, $this->filters);
+
         if ($this->filled) {
             $rule = $this->addFilledRule($rule);
         }
@@ -196,6 +202,10 @@ class Validate extends RuleManager
         if ($this->bail) {
             $rule = $this->addBailRule($rule);
         }
+
+        // Defaults and filters only handle the fields that are being validated now
+        $fields = array_keys($rule);
+        $data   = $this->handleDefault($data, $fields);
 
         if ($this->eventPriority) {
             $this->handleEvent($data, 'beforeValidate');
@@ -205,7 +215,9 @@ class Validate extends RuleManager
             $this->handleEvent($data, 'beforeValidate');
         }
 
-        $data = $this->getValidationFactory()->make($data, $rule, $this->message, $this->customAttributes)->validate();
+        if (!empty($rule)) {
+            $data = $this->getValidationFactory()->make($data, $rule, $this->message, $this->customAttributes)->validate();
+        }
         $data = array_merge($this->validatedData, $data);
 
         if ($this->eventPriority) {
@@ -216,9 +228,8 @@ class Validate extends RuleManager
             $this->handleCallback($data, 2);
         }
 
-        $this->afters  = [];
-        $this->befores = [];
-        $this->events  = [];
+        $data = $this->handlerFilter($data, $fields);
+        $this->initScene();
         return $data;
     }
 
@@ -242,13 +253,18 @@ class Validate extends RuleManager
         if (method_exists($this, 'scene' . ucfirst($sceneName))) {
             $scene = new ValidateScene($this->rule, $this->checkData);
             call_user_func([$this, 'scene' . ucfirst($sceneName)], $scene);
-            $this->event         = array_merge($this->event, $scene->events);
-            $this->afters        = array_merge($this->afters, $scene->afters);
-            $this->befores       = array_merge($this->befores, $scene->befores);
-            $this->defaults      = array_merge($this->defaults, $scene->defaults);
-            $this->filters       = array_merge($this->filters, $scene->filters);
+            $this->events        = $scene->events;
+            $this->afters        = $scene->afters;
+            $this->befores       = $scene->befores;
+            $this->defaults      = $scene->defaults;
+            $this->filters       = $scene->filters;
             $this->eventPriority = $scene->eventPriority;
-            return $scene->getRules();
+            $next                = $scene->next;
+            $sceneRule           = $scene->getRules();
+            if (!empty($next)) {
+                return $this->next($scene->next, $sceneRule, $sceneName);
+            }
+            return $sceneRule;
         }
 
         if (isset($this->scene[$sceneName])) {
@@ -274,38 +290,51 @@ class Validate extends RuleManager
                 $this->addAfter($callback);
                 unset($sceneRule['after']);
             }
-
             if (isset($sceneRule['next']) && !empty($sceneRule['next'])) {
                 $next = $sceneRule['next'];
-                if ($next === $sceneName) {
-                    throw new LogicException('The scene used cannot be the same as the current scene.');
-                }
                 unset($sceneRule['next']);
-
-                // Pre-validation
-                if (!empty($sceneRule)) {
-                    // Validated fields are not re-validated
-                    $checkFields          = array_diff($sceneRule, $this->validateFields);
-                    $checkRules           = $this->getCheckRules(array_intersect_key($this->rule, array_flip($checkFields)));
-                    $data                 = $this->pass($this->checkData, $checkRules);
-                    $this->validateFields = array_merge($this->validateFields, $checkFields);
-                    $this->validatedData  = array_merge($this->validatedData, $data);
-                }
-
-                // If a scene selector exists
-                if (method_exists($this, lcfirst($next) . 'Selector')) {
-                    $next = call_user_func([$this, lcfirst($next) . 'Selector'], $this->validatedData);
-                    if (is_array($next)) {
-                        return array_intersect_key($this->rule, array_flip($next));
-                    }
-                }
-                return $this->getSceneRules($next);
+                $rules = $this->getCheckRules(array_intersect_key($this->rule, array_flip($sceneRule)));
+                return $this->next($next, $rules, $sceneName);
             } else {
                 return array_intersect_key($this->rule, array_flip($sceneRule));
             }
         }
 
         return $this->rule;
+    }
+
+    /**
+     * Processing the next scene
+     *
+     * @param string $next             Next scene name or scene selector
+     * @param array  $rules            Validation rules
+     * @param string $currentSceneName Current scene name
+     * @return array
+     * @throws ValidateException
+     * @throws ValidationException
+     */
+    private function next(string $next, array $rules, string $currentSceneName = ''): array
+    {
+        if ($next === $currentSceneName) {
+            throw new LogicException('The scene used cannot be the same as the current scene.');
+        }
+
+        // Pre-validation
+        // Validated fields are not re-validated
+        $checkFields          = array_diff(array_keys($rules), $this->validateFields);
+        $checkRules           = array_intersect_key($rules, array_flip($checkFields));
+        $data                 = $this->pass($this->checkData, $checkRules);
+        $this->validateFields = array_merge($this->validateFields, $checkFields);
+        $this->validatedData  = array_merge($this->validatedData, $data);
+
+        // If a scene selector exists
+        if (method_exists($this, lcfirst($next) . 'Selector')) {
+            $next = call_user_func([$this, lcfirst($next) . 'Selector'], $this->validatedData);
+            if (is_array($next)) {
+                return array_intersect_key($this->rule, array_flip($next));
+            }
+        }
+        return $this->getSceneRules($next);
     }
 
     /**
@@ -512,14 +541,22 @@ class Validate extends RuleManager
      */
     private function init()
     {
-        $this->events         = [];
-        $this->afters         = [];
-        $this->befores        = [];
-        $this->defaults       = [];
-        $this->filters        = [];
         $this->validatedData  = [];
         $this->validateFields = [];
-        $this->eventPriority  = true;
+        $this->initScene();
+    }
+
+    /**
+     * Initialization validation scene
+     */
+    private function initScene()
+    {
+        $this->afters        = [];
+        $this->befores       = [];
+        $this->events        = [];
+        $this->defaults      = [];
+        $this->filters       = [];
+        $this->eventPriority = true;
     }
 
     /**

@@ -14,26 +14,23 @@ namespace W7\Tests\Test;
 
 use PHPUnit\Framework\Assert;
 use W7\Tests\Material\BaseTestValidate;
+use W7\Tests\Material\Count;
+use W7\Validate\Exception\ValidateException;
 use W7\Validate\Support\Event\ValidateEventAbstract;
+use W7\Validate\Support\ValidateScene;
 use W7\Validate\Validate;
 
-class Count
-{
-    public static $globalEventCount     = 0;
-    public static $eventInSceneCount    = 0;
-    public static $standaloneEventCount = 0;
-}
 class TestEvent extends ValidateEventAbstract
 {
     public function afterValidate(): bool
     {
-        Count::$globalEventCount++;
+        Count::incremental('globalEventCount');
         return true;
     }
 
     public function beforeValidate(): bool
     {
-        Count::$globalEventCount++;
+        Count::incremental('globalEventCount');
         return true;
     }
 }
@@ -42,13 +39,13 @@ class EventInScene extends ValidateEventAbstract
 {
     public function afterValidate(): bool
     {
-        Count::$eventInSceneCount++;
+        Count::incremental('eventInSceneCount');
         return true;
     }
 
     public function beforeValidate(): bool
     {
-        Count::$eventInSceneCount++;
+        Count::incremental('eventInSceneCount');
         return true;
     }
 }
@@ -57,13 +54,13 @@ class StandaloneEvent extends ValidateEventAbstract
 {
     public function afterValidate(): bool
     {
-        Count::$standaloneEventCount++;
+        Count::incremental('standaloneEventCount');
         return true;
     }
 
     public function beforeValidate(): bool
     {
-        Count::$standaloneEventCount++;
+        Count::incremental('standaloneEventCount');
         return true;
     }
 }
@@ -138,15 +135,15 @@ class TestValidateSceneNextAndEvent extends BaseTestValidate
             }
         };
 
-        $this->assertEquals(0, Count::$globalEventCount);
-        $this->assertEquals(0, Count::$eventInSceneCount);
+        $this->assertEquals(0, Count::globalEventCount());
+        $this->assertEquals(0, Count::eventInSceneCount());
         $data = $v->scene('testA')->check([
             'a' => '1',
             'b' => 2,
             'c' => 3
         ]);
-        $this->assertEquals(2, Count::$globalEventCount);
-        $this->assertEquals(4, Count::$eventInSceneCount);
+        $this->assertEquals(2, Count::globalEventCount());
+        $this->assertEquals(4, Count::eventInSceneCount());
 
         $this->assertArrayHasKey('a', $v->afters);
         $this->assertArrayHasKey('a', $v->befores);
@@ -163,11 +160,11 @@ class TestValidateSceneNextAndEvent extends BaseTestValidate
         $this->assertEquals('integer', gettype($data['a']));
         $this->assertTrue(empty(array_diff_key($data, array_flip(['a', 'b', 'c']))));
 
-        $this->assertEquals(0, Count::$standaloneEventCount);
+        $this->assertEquals(0, Count::standaloneEventCount());
         $data = $v->scene('standalone')->check([
             'a' => '1'
         ]);
-        $this->assertEquals(2, Count::$standaloneEventCount);
+        $this->assertEquals(2, Count::standaloneEventCount());
         
         $this->assertArrayHasKey('standalone', $v->afters);
         $this->assertArrayHasKey('standalone', $v->befores);
@@ -176,5 +173,66 @@ class TestValidateSceneNextAndEvent extends BaseTestValidate
         $this->assertEquals(1, $v->befores['standalone']);
 
         $this->assertEquals(1, $data['a']);
+    }
+
+    /**
+     * @test  测试自定义场景中指定Next，检查默认值，过滤器以及场景验证等功能是否正常
+     */
+    public function testSceneNextForCustomScenes()
+    {
+        $v                  = new class extends Validate {
+            protected $rule = [
+                'a' => 'required',
+                'b' => '',
+                'c' => 'required'
+            ];
+
+            protected $default = [
+                'a' => 1
+            ];
+
+            protected $filter = [
+                'c' => 'intval'
+            ];
+
+            protected $scene = [
+                'testA' => ['a', 'next' => 'testB'],
+                'testC' => ['c']
+            ];
+
+            protected function sceneTestB(ValidateScene $scene)
+            {
+                $scene->only(['b'])
+                    ->append('b', 'required')
+                    ->filter('b', 'intval')
+                    ->next('testC');
+            }
+        };
+
+        try {
+            $v->scene('testA')->check([
+
+            ]);
+        } catch (ValidateException $e) {
+            $this->assertArrayHasKey('b', $e->getData());
+        }
+
+        try {
+            $v->scene('testA')->check([
+                'b' => '123'
+            ]);
+        } catch (ValidateException $e) {
+            $this->assertArrayHasKey('c', $e->getData());
+        }
+
+        $data = $v->scene('testA')->check([
+            'b' => '123',
+            'c' => '256'
+        ]);
+
+        $this->assertCount(3, $data);
+        foreach ($data as $value) {
+            $this->assertEquals('integer', gettype($value));
+        }
     }
 }

@@ -14,7 +14,7 @@ namespace W7\Validate\Support;
 
 use Closure;
 use Illuminate\Support\Arr;
-use RuntimeException;
+use W7\Validate\Exception\ValidateRuntimeException;
 use W7\Validate\Support\Concerns\DefaultInterface;
 use W7\Validate\Support\Concerns\FilterInterface;
 use W7\Validate\Support\Rule\BaseRule;
@@ -24,12 +24,13 @@ use W7\Validate\Support\Storage\ValidateCollection;
  * Class ValidateScene
  * @package W7\Validate\Support
  *
- * @property-read array $events         Events to be processed for this validate
- * @property-read array $befores        Methods to be executed before this validate
- * @property-read array $afters         Methods to be executed after this validate
- * @property-read array $defaults       This validation requires a default value for the value
- * @property-read array $filters        The filter. This can be a global function name, anonymous function, etc.
- * @property-read bool  $eventPriority  Event Priority
+ * @property-read array  $events         Events to be processed for this validate
+ * @property-read array  $befores        Methods to be executed before this validate
+ * @property-read array  $afters         Methods to be executed after this validate
+ * @property-read array  $defaults       This validation requires a default value for the value
+ * @property-read array  $filters        The filter. This can be a global function name, anonymous function, etc.
+ * @property-read bool   $eventPriority  Event Priority
+ * @property-read string $next           Next scene or next scene selector
  */
 class ValidateScene extends RuleManagerScene
 {
@@ -73,7 +74,13 @@ class ValidateScene extends RuleManagerScene
      * Event Priority
      * @var bool
      */
-    private $eventPriority;
+    private $eventPriority = true;
+
+    /**
+     * Next scene or next scene selector
+     * @var string
+     */
+    private $next;
 
     /**
      * ValidateScene constructor.
@@ -227,6 +234,18 @@ class ValidateScene extends RuleManagerScene
     }
 
     /**
+     * Specify the next scene or next scene selector
+     *
+     * @param string $name
+     * @return $this
+     */
+    public function next(string $name): ValidateScene
+    {
+        $this->next = $name;
+        return $this;
+    }
+
+    /**
      * Provide the data to be validated
      *
      * @param array $data
@@ -269,6 +288,6 @@ class ValidateScene extends RuleManagerScene
             return $this->$name;
         }
 
-        throw new RuntimeException('Unknown property:' . $name);
+        throw new ValidateRuntimeException('Unknown property:' . $name);
     }
 }

@@ -71,7 +71,7 @@ class RuleManager
      * @param string|null $name
      * @return $this
      */
-    public function scene(?string $name): RuleManager
+    final public function scene(?string $name): RuleManager
     {
         $this->currentScene = $name;
         return $this;

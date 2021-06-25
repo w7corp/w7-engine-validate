@@ -20,7 +20,7 @@ class RuleManagerScene implements SceneInterface
      * The rules to be applied to the data.
      * @var array
      */
-    protected $checkRules;
+    protected $checkRules = [];
 
     /**
      * All original validation rules
