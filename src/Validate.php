@@ -290,6 +290,7 @@ class Validate extends RuleManager
                 $this->addAfter($callback);
                 unset($sceneRule['after']);
             }
+
             if (isset($sceneRule['next']) && !empty($sceneRule['next'])) {
                 $next = $sceneRule['next'];
                 unset($sceneRule['next']);
@@ -334,6 +335,11 @@ class Validate extends RuleManager
                 return array_intersect_key($this->rule, array_flip($next));
             }
         }
+
+        if (empty($next) || false === $next) {
+            return [];
+        }
+        
         return $this->getSceneRules($next);
     }
 
