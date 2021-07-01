@@ -12,6 +12,8 @@
 
 namespace W7\Tests\Material;
 
+use PHPUnit\Framework\Assert;
+
 class Count
 {
     private static $count;
@@ -44,5 +46,11 @@ class Count
     public static function __callStatic($name, $arguments)
     {
         return self::value($name, ...$arguments);
+    }
+
+    public static function assertEquals($expected, string $name, string $message = '', float $delta = 0.0, int $maxDepth = 10, bool $canonicalize = false, bool $ignoreCase = false)
+    {
+        $actual = static::value($name);
+        Assert::assertEquals($expected, $actual, $message, $delta, $maxDepth, $canonicalize, $ignoreCase);
     }
 }

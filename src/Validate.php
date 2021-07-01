@@ -163,7 +163,7 @@ class Validate extends RuleManager
             $this->handleEvent($data, 'beforeValidate');
             $events       = $this->events;
             $this->events = [];
-            $rule         = $this->getCheckRules($this->getSceneRules());
+            $rule         = $this->getSceneRules();
             $data         = $this->pass($data, $rule);
             $this->events = $events;
             $this->handleEvent($data, 'afterValidate');
@@ -184,27 +184,33 @@ class Validate extends RuleManager
     /**
      * Perform data validation and processing
      *
-     * @param array $data Data to be verified
-     * @param array $rule Rules for validation
+     * @param array $data  Data to be verified
+     * @param array $rules Rules for validation
      * @return array
      * @throws ValidateException
      * @throws ValidationException
      */
-    private function pass(array $data, array $rule): array
+    private function pass(array $data, array $rules): array
     {
         $this->defaults = array_merge($this->default, $this->defaults);
         $this->filters  = array_merge($this->filter, $this->filters);
 
+        // Validated fields are not re-validated
+        $checkFields          = array_diff(array_keys($rules), $this->validateFields);
+        $checkRules           = array_intersect_key($rules, array_flip($checkFields));
+        $checkRules           = $this->getCheckRules($checkRules);
+        $this->validateFields = array_merge($this->validateFields, $checkFields);
+
         if ($this->filled) {
-            $rule = $this->addFilledRule($rule);
+            $checkRules = $this->addFilledRule($checkRules);
         }
 
         if ($this->bail) {
-            $rule = $this->addBailRule($rule);
+            $checkRules = $this->addBailRule($checkRules);
         }
 
         // Defaults and filters only handle the fields that are being validated now
-        $fields = array_keys($rule);
+        $fields = array_keys($checkRules);
         $data   = $this->handleDefault($data, $fields);
 
         if ($this->eventPriority) {
@@ -215,9 +221,10 @@ class Validate extends RuleManager
             $this->handleEvent($data, 'beforeValidate');
         }
 
-        if (!empty($rule)) {
-            $data = $this->getValidationFactory()->make($data, $rule, $this->message, $this->customAttributes)->validate();
+        if (!empty($checkRules)) {
+            $data = $this->getValidationFactory()->make($data, $checkRules, $this->message, $this->customAttributes)->validate();
         }
+
         $data = array_merge($this->validatedData, $data);
 
         if ($this->eventPriority) {
@@ -294,7 +301,7 @@ class Validate extends RuleManager
             if (isset($sceneRule['next']) && !empty($sceneRule['next'])) {
                 $next = $sceneRule['next'];
                 unset($sceneRule['next']);
-                $rules = $this->getCheckRules(array_intersect_key($this->rule, array_flip($sceneRule)));
+                $rules = array_intersect_key($this->rule, array_flip($sceneRule));
                 return $this->next($next, $rules, $sceneName);
             } else {
                 return array_intersect_key($this->rule, array_flip($sceneRule));
@@ -321,13 +328,8 @@ class Validate extends RuleManager
         }
 
         // Pre-validation
-        // Validated fields are not re-validated
-        $checkFields          = array_diff(array_keys($rules), $this->validateFields);
-        $checkRules           = array_intersect_key($rules, array_flip($checkFields));
-        $checkRules           = $this->getCheckRules($checkRules);
-        $data                 = $this->pass($this->checkData, $checkRules);
-        $this->validateFields = array_merge($this->validateFields, $checkFields);
-        $this->validatedData  = array_merge($this->validatedData, $data);
+        $data                = $this->pass($this->checkData, $rules);
+        $this->validatedData = array_merge($this->validatedData, $data);
 
         // If a scene selector exists
         if (method_exists($this, lcfirst($next) . 'Selector')) {

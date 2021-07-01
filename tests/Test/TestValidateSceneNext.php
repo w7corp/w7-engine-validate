@@ -13,6 +13,7 @@
 namespace W7\Tests\Test;
 
 use W7\Tests\Material\BaseTestValidate;
+use W7\Tests\Material\Count;
 use W7\Validate\Exception\ValidateException;
 use W7\Validate\Validate;
 
@@ -49,7 +50,7 @@ class TestValidateSceneNext extends BaseTestValidate
                 'testE' => ['h', 'i'],
             ];
 
-            protected function checkCodeSelector(array $data)
+            protected function checkCodeSelector(): string
             {
                 return 'testD';
             }
@@ -70,5 +71,44 @@ class TestValidateSceneNext extends BaseTestValidate
         ]);
         
         $this->assertCount(9, $data);
+    }
+
+    /**
+     * @test 测试多个场景指定了同一个字段，是否在一个验证链中，只验证一次
+     * @throws ValidateException
+     */
+    public function testNextValidationCountIsOnce()
+    {
+        $v                  = new class extends Validate {
+            protected $rule = [
+                'a' => 'required|tests'
+            ];
+
+            protected $scene = [
+                'testA' => ['a', 'next' => 'testB'],
+                'testB' => ['a', 'next' => 'testC'],
+                'testC' => ['a']
+            ];
+
+            protected function ruleTests()
+            {
+                Count::incremental('ruleTest');
+                return true;
+            }
+        };
+
+        $data = $v->scene('testA')->check(['a' => 1]);
+        $this->assertEquals(1, $data['a']);
+        Count::assertEquals(1, 'ruleTest');
+
+        Count::reset('ruleTest');
+        $data = $v->scene('testB')->check(['a' => 1]);
+        $this->assertEquals(1, $data['a']);
+        Count::assertEquals(1, 'ruleTest');
+
+        Count::reset('ruleTest');
+        $data = $v->scene('testC')->check(['a' => 1]);
+        $this->assertEquals(1, $data['a']);
+        Count::assertEquals(1, 'ruleTest');
     }
 }

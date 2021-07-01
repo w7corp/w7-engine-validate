@@ -13,6 +13,7 @@
 namespace W7\Tests\Test\Fixer;
 
 use W7\Tests\Material\BaseTestValidate;
+use W7\Tests\Material\Count;
 use W7\Validate\Exception\ValidateException;
 use W7\Validate\Support\ValidateScene;
 use W7\Validate\Validate;
@@ -20,6 +21,7 @@ use W7\Validate\Validate;
 class TestScene extends BaseTestValidate
 {
     /**
+     * @test 测试在场景中获取当前验证数据为空的问题
      * @see https://gitee.com/we7coreteam/w7-engine-validate/pulls/5
      * @throws ValidateException
      */
@@ -48,6 +50,7 @@ class TestScene extends BaseTestValidate
     }
 
     /**
+     * @test 测试场景中添加字段
      * @see https://gitee.com/we7coreteam/w7-engine-validate/pulls/3
      * @see https://gitee.com/we7coreteam/w7-engine-validate/pulls/6
      * @throws ValidateException
@@ -99,5 +102,69 @@ class TestScene extends BaseTestValidate
         ]);
 
         $this->assertEmpty(array_diff_key($data, array_flip(['a', 'b', 'c'])));
+    }
+
+    /**
+     * @test 测试在next场景中，如果返回空场景名导致的问题
+     * @see https://gitee.com/we7coreteam/w7-engine-validate/commit/db5ba9de603ac9e167fd46d2b90826595060813b
+     * @throws ValidateException
+     */
+    public function testNextSceneIsEmpty()
+    {
+        $v                  = new class extends Validate {
+            protected $rule = [
+                'a' => 'required'
+            ];
+
+            protected $scene = [
+                'testA' => ['a', 'next' => 'test'],
+            ];
+
+            protected function testSelector(): string
+            {
+                Count::incremental('emptyScene');
+                return '';
+            }
+        };
+        
+        $data = $v->scene('testA')->check(['a' => 1]);
+        $this->assertEquals(1, Count::value('emptyScene'));
+        $this->assertEquals(1, $data['a']);
+    }
+
+    /**
+     * @test 测试在next中规则为原始规则的BUG
+     * @see https://gitee.com/we7coreteam/w7-engine-validate/commit/f0cefc381e3dd90a8faf69514eb6a2d6016ede77
+     * @throws ValidateException
+     */
+    public function testRulesAreNotParsedForNext()
+    {
+        $v                  = new class extends Validate {
+            protected $rule = [
+                'a' => 'required|numeric|min:1|test',
+                'b' => 'required|numeric|min:1',
+            ];
+
+            protected $scene = [
+                'testA'    => ['a', 'next' => 'testNext'],
+                'testNext' => ['a', 'b']
+            ];
+
+            protected function sceneTestB(ValidateScene $scene)
+            {
+                $scene->only(['a'])->next('testNext');
+            }
+
+            protected function ruleTest()
+            {
+                return true;
+            }
+        };
+
+        $data = $v->scene('testA')->check(['a' => 2, 'b' => 3]);
+        $this->assertEquals(2, $data['a']);
+
+        $data = $v->scene('testB')->check(['a' => 2, 'b' => 3]);
+        $this->assertEquals(2, $data['a']);
     }
 }
