@@ -324,6 +324,7 @@ class Validate extends RuleManager
         // Validated fields are not re-validated
         $checkFields          = array_diff(array_keys($rules), $this->validateFields);
         $checkRules           = array_intersect_key($rules, array_flip($checkFields));
+        $checkRules           = $this->getCheckRules($checkRules);
         $data                 = $this->pass($this->checkData, $checkRules);
         $this->validateFields = array_merge($this->validateFields, $checkFields);
         $this->validatedData  = array_merge($this->validatedData, $data);
