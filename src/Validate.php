@@ -23,6 +23,7 @@ use W7\Validate\Exception\ValidateRuntimeException;
 use W7\Validate\Support\Concerns\DefaultInterface;
 use W7\Validate\Support\Concerns\FilterInterface;
 use W7\Validate\Support\Concerns\MessageProviderInterface;
+use W7\Validate\Support\DataAttribute;
 use W7\Validate\Support\Event\ValidateEventAbstract;
 use W7\Validate\Support\MessageProvider;
 use W7\Validate\Support\Storage\ValidateCollection;
@@ -467,21 +468,26 @@ class Validate extends RuleManager
         if (!$data->has($field)) {
             return;
         }
-        $value = $data->get($field);
+        $value         = $data->get($field);
+        $dataAttribute = new DataAttribute();
 
         if (is_callable($callback)) {
             $value = call_user_func($callback, $value);
         } elseif ((is_string($callback) || is_object($callback)) && class_exists($callback) && is_subclass_of($callback, FilterInterface::class)) {
             /** @var FilterInterface $filter */
-            $filter = new $callback;
+            $filter = new $callback($dataAttribute);
             $value  = $filter->handle($value);
         } elseif (is_string($callback) && method_exists($this, 'filter' . ucfirst($callback))) {
-            $value = call_user_func([$this, 'filter' . ucfirst($callback)], $value);
+            $value = call_user_func([$this, 'filter' . ucfirst($callback)], $value, $dataAttribute);
         } else {
             throw new ValidateRuntimeException('The provided filter is wrong');
         }
 
-        $data->set($field, $value);
+        if (true === $dataAttribute->deleteField) {
+            $data->forget($field);
+        } else {
+            $data->set($field, $value);
+        }
     }
 
     /**
@@ -528,21 +534,28 @@ class Validate extends RuleManager
         $isEmpty = function ($value) {
             return null === $value || [] === $value || '' === $value;
         };
-        $value = $data->get($field);
+        $value         = $data->get($field);
+        $dataAttribute = new DataAttribute();
+
         if ($isEmpty($value) || true === $any) {
             if (is_callable($callback)) {
-                $value = call_user_func($callback, $value, $field, $this->checkData);
+                $value = call_user_func($callback, $value, $field, $this->checkData, $dataAttribute);
             } elseif ((is_string($callback) || is_object($callback)) && class_exists($callback) && is_subclass_of($callback, DefaultInterface::class)) {
                 /** @var DefaultInterface $default */
-                $default = new $callback();
+                $default = new $callback($dataAttribute);
                 $value   = $default->handle($value, $field, $this->checkData);
             } elseif (is_string($callback) && method_exists($this, 'default' . ucfirst($callback))) {
-                $value = call_user_func([$this, 'default' . ucfirst($callback)], $value, $field, $this->checkData);
+                $value = call_user_func([$this, 'default' . ucfirst($callback)], $value, $field, $this->checkData, $dataAttribute);
             } else {
                 $value = $callback;
             }
         }
-        $data->set($field, $value);
+        
+        if (true === $dataAttribute->deleteField) {
+            $data->forget($field);
+        } else {
+            $data->set($field, $value);
+        }
     }
 
     /**

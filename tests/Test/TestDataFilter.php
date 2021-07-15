@@ -14,6 +14,7 @@ namespace W7\Tests\Test;
 
 use W7\Tests\Material\BaseTestValidate;
 use W7\Validate\Support\Concerns\FilterInterface;
+use W7\Validate\Support\DataAttribute;
 use W7\Validate\Support\ValidateScene;
 use W7\Validate\Validate;
 
@@ -99,7 +100,7 @@ class TestDataFilter extends BaseTestValidate
         $data = $v->check(['id' => ['1', '2', 3, '4']]);
 
         foreach ($data['id'] as $id) {
-            $this->assertEquals('integer', gettype($id));
+            $this->assertSame('integer', gettype($id));
         }
     }
 
@@ -138,8 +139,33 @@ class TestDataFilter extends BaseTestValidate
         };
 
         $data = $v->check(['id' => '你好']);
-        $this->assertEquals(0, $data['id']);
+        $this->assertSame(0, $data['id']);
         $data = $v->scene('test')->check(['id' => '你好']);
-        $this->assertEquals('你好', $data['id']);
+        $this->assertSame('你好', $data['id']);
+    }
+
+    public function testFilterDeleteField()
+    {
+        $v                  = new class extends Validate {
+            protected $rule = [
+                'a' => ''
+            ];
+
+            protected $filter = [
+                'a' => 'deleteField'
+            ];
+
+            public function filterDeleteField($value, DataAttribute $dataAttribute)
+            {
+                $dataAttribute->deleteField = true;
+                return '';
+            }
+        };
+
+        $data = $v->check([
+            'a' => 123
+        ]);
+
+        $this->assertTrue(empty($data));
     }
 }
