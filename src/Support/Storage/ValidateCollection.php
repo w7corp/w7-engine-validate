@@ -19,11 +19,17 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\HigherOrderWhenProxy;
 use Illuminate\Support\Str;
 
+/**
+ * Validator collection is a subclass of Illuminate\Support\Collection
+ *
+ * @link https://v.neww7.com/en/3/Collection.html#description
+ */
 class ValidateCollection extends Collection
 {
     /**
      * Determine if an item exists in the collection by key.
      *
+     * @link https://v.neww7.com/en/3/Collection.html#has
      * @param mixed $key
      * @return bool
      */
@@ -43,6 +49,7 @@ class ValidateCollection extends Collection
     /**
      * Execute when the specified field exists
      *
+     * @link https://v.neww7.com/en/3/Collection.html#whenhas
      * @param mixed          $key       Fields to be validated
      * @param callable       $callback  Methods of execution
      * @param callable|null  $default   Methods to execute when not present
@@ -56,6 +63,7 @@ class ValidateCollection extends Collection
     /**
      * Execute when the specified field does not exist
      *
+     * @link https://v.neww7.com/en/3/Collection.html#whennothas
      * @param mixed           $key       Fields to be validated
      * @param callable        $callback  Methods to execute when not present
      * @param callable|null   $default   Methods of execution
@@ -69,6 +77,7 @@ class ValidateCollection extends Collection
     /**
      * Get an item from the collection by key.
      *
+     * @link https://v.neww7.com/en/3/Collection.html#get
      * @param mixed              $key     Field Name
      * @param mixed|Closure|null $default Default Value
      * @return array|ArrayAccess|mixed
@@ -123,6 +132,7 @@ class ValidateCollection extends Collection
     /**
      * Write the specified value in the collection
      *
+     * @link https://v.neww7.com/en/3/Collection.html#set
      * @param mixed $key
      * @param mixed $value
      * @return $this

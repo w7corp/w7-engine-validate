@@ -21,9 +21,10 @@ use W7\Validate\Support\Rule\BaseRule;
 use W7\Validate\Support\Storage\ValidateCollection;
 
 /**
- * Class ValidateScene
- * @package W7\Validate\Support
+ * Scene classes for validators
  *
+ * @link https://v.neww7.com/en/3/Scene.html#methods-of-the-scene-class
+ * @package W7\Validate\Support
  * @property-read array  $events         Events to be processed for this validate
  * @property-read array  $befores        Methods to be executed before this validate
  * @property-read array  $afters         Methods to be executed after this validate
@@ -96,6 +97,7 @@ class ValidateScene extends RuleManagerScene
     /**
      * Add conditions to a given field based on a Closure.
      *
+     * @link https://v.neww7.com/en/3/Scene.html#sometimes
      * @param string|string[]       $attribute field name
      * @param string|array|BaseRule $rules     rules
      * @param callable              $callback  Closure,method provides a {@see ValidateCollection} $data parameter,
@@ -126,6 +128,7 @@ class ValidateScene extends RuleManagerScene
     /**
      * Join the event
      *
+     * @link https://v.neww7.com/en/3/Scene.html#event
      * @param string $handler  Full class name of the event, full namespace string or add ::class
      * @param mixed ...$params Parameters to be passed to the event
      * @return $this
@@ -139,6 +142,7 @@ class ValidateScene extends RuleManagerScene
     /**
      * Add a method that needs to be executed before validation
      *
+     * @link https://v.neww7.com/en/3/Scene.html#before
      * @param string $callbackName Validate the method name in the class
      * @param mixed  ...$params    Parameters to be passed to the method
      * @return $this
@@ -152,6 +156,7 @@ class ValidateScene extends RuleManagerScene
     /**
      * Add a method that needs to be executed after validation
      *
+     * @link https://v.neww7.com/en/3/Scene.html#after
      * @param string $callbackName Validate the method name in the class
      * @param mixed  ...$params    Parameters to be passed to the method
      * @return $this
@@ -165,6 +170,7 @@ class ValidateScene extends RuleManagerScene
     /**
      * Set a default value for the specified field
      *
+     * @link https://v.neww7.com/en/3/Scene.html#default
      * @param string                                        $field    Name of the data field to be processed
      * @param callable|Closure|mixed|DefaultInterface|null  $callback The default value or an anonymous function that returns the default value which will
      * be assigned to the attributes being validated if they are empty. The signature of the anonymous function
@@ -198,6 +204,7 @@ class ValidateScene extends RuleManagerScene
     /**
      * Set a filter for the specified field
      *
+     * @link https://v.neww7.com/en/3/Scene.html#filter
      * Filter is a data processor.
      * It invokes the specified filter callback to process the attribute value
      * and save the processed value back to the attribute.
@@ -236,6 +243,7 @@ class ValidateScene extends RuleManagerScene
     /**
      * Specify the next scene or next scene selector
      *
+     * @link https://v.neww7.com/en/3/Scene.html#next
      * @param string $name
      * @return $this
      */
@@ -260,6 +268,7 @@ class ValidateScene extends RuleManagerScene
     /**
      * Get the current validation data
      *
+     * @link https://v.neww7.com/en/3/Scene.html#getdata
      * @param string $key
      * @param mixed $default
      * @return array|mixed
@@ -275,6 +284,7 @@ class ValidateScene extends RuleManagerScene
     /**
      * Get the current validation data,Return the {@see ValidateCollection} type
      *
+     * @link https://v.neww7.com/en/3/Scene.html#getvalidatedata
      * @return ValidateCollection
      */
     public function getValidateData(): ValidateCollection

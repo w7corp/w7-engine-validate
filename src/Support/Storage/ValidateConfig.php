@@ -67,6 +67,7 @@ final class ValidateConfig
     /**
      * Provide validator factory
      *
+     * @link https://v.neww7.com/en/3/Start.html#configuration-validator-factory
      * @param Factory $factory
      * @return ValidateConfig
      */
@@ -175,6 +176,7 @@ final class ValidateConfig
     /**
      * Set the custom rules namespace prefix, If more than one exists, they all take effect
      *
+     * @link https://v.neww7.com/en/3/Rule.html#pre-processing
      * @param string $rulesPath Custom rules namespace prefixes
      * @return $this
      */

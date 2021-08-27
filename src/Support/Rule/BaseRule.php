@@ -12,6 +12,11 @@
 
 namespace W7\Validate\Support\Rule;
 
+/**
+ * Custom Rules
+ *
+ * @link https://v.neww7.com/en/3/Rule.html#using-rule-objects
+ */
 abstract class BaseRule implements RuleInterface
 {
     /**

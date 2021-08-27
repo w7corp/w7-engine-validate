@@ -14,6 +14,11 @@ namespace W7\Validate\Support;
 
 use W7\Validate\Support\Concerns\SceneInterface;
 
+/**
+ * Scene classes for rule managers
+ *
+ * @link https://v.neww7.com/en/3/Scene.html#methods-of-the-scene-class
+ */
 class RuleManagerScene implements SceneInterface
 {
     /**

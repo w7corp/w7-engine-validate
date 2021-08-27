@@ -34,90 +34,110 @@ class Validate extends RuleManager
 {
     /**
      * Global Event Handler
+     *
+     * @link https://v.neww7.com/en/3/Validate.html#event
      * @var array
      */
     protected $event = [];
 
     /**
      * Whether to stop running after the first verification failure
+     *
+     * @link https://v.neww7.com/en/3/Validate.html#bail
      * @var bool
      */
     protected $bail = true;
 
     /**
      * All validated fields cannot be empty when present
+     *
+     * @link https://v.neww7.com/en/3/Validate.html#filled
      * @var bool
      */
     protected $filled = true;
 
     /**
      * The filter. This can be a global function name, anonymous function, etc.
+     *
+     * @link https://v.neww7.com/en/3/Validate.html#filter
      * @var array
      */
     protected $filter = [];
 
     /**
      * Sets the specified property to the specified default value.
+     *
+     * @link https://v.neww7.com/en/3/Validate.html#default
      * @var array
      */
     protected $default = [];
 
     /**
      * Event Priority
+     *
      * @var bool
      */
     private $eventPriority = true;
 
     /**
      * Events to be processed for this validate
+     *
      * @var array
      */
     private $events = [];
 
     /**
      * Methods to be executed before this validate
+     *
      * @var array
      */
     private $befores = [];
 
     /**
      * Methods to be executed after this validate
+     *
      * @var array
      */
     private $afters = [];
 
     /**
      * This validation requires a default value for the value
+     *
      * @var array
      */
     private $defaults = [];
 
     /**
      * Filters to be passed for this validation
+     *
      * @var array
      */
     private $filters = [];
 
     /**
      * Error Message Provider
+     *
      * @var MessageProviderInterface
      */
     private $messageProvider = null;
 
     /**
      * Data to be validated
+     *
      * @var array
      */
     private $checkData = [];
 
     /**
      * Data validated this time
+     *
      * @var array
      */
     private $validatedData = [];
 
     /**
      * Fields validated this time
+     *
      * @var array
      */
     private $validateFields = [];

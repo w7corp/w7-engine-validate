@@ -19,16 +19,23 @@ use W7\Validate\Support\Rule\BaseRule;
 use W7\Validate\Support\RuleManagerScene;
 use W7\Validate\Support\Storage\ValidateConfig;
 
+/**
+ * @link https://v.neww7.com/en/3/RuleManager.html#introduction
+ */
 class RuleManager
 {
     /**
      * All original validation rules
+     *
+     * @link https://v.neww7.com/en/3/Validate.html#rule
      * @var array
      */
     protected $rule = [];
 
     /**
      * Define a scenario for the validation rule
+     *
+     * @link https://v.neww7.com/en/3/Validate.html#scene
      * @var array
      */
     protected $scene = [];
@@ -43,18 +50,21 @@ class RuleManager
     /**
      * The array of custom error messages.
      *
+     * @link https://v.neww7.com/en/3/Validate.html#message
      * @var array
      */
     protected $message = [];
 
     /**
      * Current validate scene
+     *
      * @var string|null
      */
     private $currentScene = null;
 
     /**
      * Extension method name
+     *
      * @var array
      */
     private static $extendName = [];

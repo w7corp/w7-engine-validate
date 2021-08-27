@@ -17,6 +17,7 @@ interface SceneInterface
     /**
      * Specify the list of fields to be validated
      *
+     * @link https://v.neww7.com/en/3/Scene.html#only
      * @param array $fields
      * @return $this
      */
@@ -25,6 +26,7 @@ interface SceneInterface
     /**
      * Adding a validation rule for a field
      *
+     * @link https://v.neww7.com/en/3/Scene.html#append
      * @param string       $field
      * @param string|array $rules
      * @return $this
@@ -34,6 +36,7 @@ interface SceneInterface
     /**
      * Remove the validation rule for a field
      *
+     * @link https://v.neww7.com/en/3/Scene.html#remove
      * @param string            $field
      * @param array|string|null $rule  Validate rules.if $rule is null,remove all rules from the current field
      * @return $this
@@ -43,6 +46,7 @@ interface SceneInterface
     /**
      * Add fields to the validation list
      *
+     * @link https://v.neww7.com/en/3/Scene.html#appendcheckfield
      * @param string $field
      * @return $this
      */
@@ -51,6 +55,7 @@ interface SceneInterface
     /**
      * Delete fields from the validation list
      *
+     * @link https://v.neww7.com/en/3/Scene.html#removecheckfield
      * @param string $field
      * @return $this
      */
