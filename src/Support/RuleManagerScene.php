@@ -48,7 +48,9 @@ class RuleManagerScene implements SceneInterface
     public function append(string $field, $rules): SceneInterface
     {
         if (isset($this->checkRules[$field])) {
-            if (!is_array($this->checkRules[$field])) {
+            if (empty($this->checkRules[$field])) {
+                $this->checkRules[$field] = [];
+            } elseif (!is_array($this->checkRules[$field])) {
                 $this->checkRules[$field] = explode('|', $this->checkRules[$field]);
             }
 
