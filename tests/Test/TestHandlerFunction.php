@@ -12,55 +12,58 @@
 
 namespace W7\Tests\Test;
 
-use W7\Tests\Material\HandlerDataValidate;
 use W7\Tests\Material\BaseTestValidate;
 use W7\Validate\Exception\ValidateException;
 use W7\Validate\Validate;
 
 class TestHandlerFunction extends BaseTestValidate
 {
-	public function testAfterFunction(){
-		$v = new class extends Validate{
-			protected $rule = [
-				'id' => 'required'
-			];
+    public function testAfterFunction()
+    {
+        $v                  = new class extends Validate {
+            protected $rule = [
+                'id' => 'required'
+            ];
 
-			protected $scene = [
-				'testAfter' => ['id','after' => 'checkId']
-			];
+            protected $scene = [
+                'testAfter' => ['id', 'after' => 'checkId']
+            ];
 
-			protected function afterCheckId($data){
-				if ($data['id'] < 0){
-					return "ID错误";
-				}
-				return true;
-			}
-		};
+            protected function afterCheckId($data)
+            {
+                if ($data['id'] < 0) {
+                    return 'ID错误';
+                }
+                return true;
+            }
+        };
 
-		$this->expectException(ValidateException::class);
-		$this->expectExceptionMessage("ID错误");
+        $this->expectException(ValidateException::class);
+        $this->expectExceptionMessage('ID错误');
 
-		$v->scene("testAfter")->check(['id' => -1]);
-	}
+        $v->scene('testAfter')->check(['id' => -1]);
+    }
 
-	public function testBeforeFunction(){
-		$v = new class extends Validate{
-			protected $rule = [
-				'id' => 'required'
-			];
+    public function testBeforeFunction()
+    {
+        $v                  = new class extends Validate {
+            protected $rule = [
+                'id' => 'required'
+            ];
 
-			protected $scene = [
-				'testBefore' => ['id','before' => 'checkSiteStatus']
-			];
+            protected $scene = [
+                'testBefore' => ['id', 'before' => 'checkSiteStatus']
+            ];
 
-			protected function beforeCheckSiteStatus(array $data){
-				return "站点未开启";
-			}
-		};
+            protected function beforeCheckSiteStatus(array $data)
+            {
+                return '站点未开启';
+            }
+        };
 
-		$this->expectException(ValidateException::class);
-		$this->expectExceptionMessage("站点未开启");
+        $this->expectException(ValidateException::class);
+        $this->expectExceptionMessage('站点未开启');
 
-		$v->scene("testBefore")->check([]);
-	}
+        $v->scene('testBefore')->check([]);
+    }
 }
