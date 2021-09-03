@@ -56,11 +56,25 @@ class RuleManager
     protected $message = [];
 
     /**
+     * Regular validation rules
+     *
+     * @var array
+     */
+    protected $regex = [];
+
+    /**
      * Current validate scene
      *
      * @var string|null
      */
     private $currentScene = null;
+
+    /**
+     * Rules for using regular expressions for validation
+     *
+     * @var string[]
+     */
+    private $regexRule = ['regex', 'not_regex'];
 
     /**
      * Extension method name
@@ -74,7 +88,7 @@ class RuleManager
      * @var array
      */
     private static $implicitRules = [];
-    
+
     /**
      * Set current validate scene
      *
@@ -145,6 +159,16 @@ class RuleManager
 
             return array_map(function ($ruleName) use ($field) {
                 if (is_string($ruleName)) {
+                    foreach ($this->regexRule as $regexRuleName) {
+                        $regexRuleName = $regexRuleName . ':';
+                        if (0 === strpos($ruleName, $regexRuleName)) {
+                            $regexName = substr($ruleName, strlen($regexRuleName));
+                            if (isset($this->regex[$regexName])) {
+                                return $regexRuleName . $this->regex[$regexName];
+                            }
+                        }
+                    }
+
                     $ruleClass = $this->getRuleClass($ruleName);
                     if (false !== $ruleClass) {
                         if (!empty($message = $this->getMessage($field, $ruleName))) {
@@ -294,8 +318,8 @@ class RuleManager
         list($rule, $param) = Common::getKeyAndParam($ruleName, false);
 
         // Retrieve the real custom rule method name, and modify the corresponding error message
-        if (array_key_exists($rule, self::$extendName)) {
-            $ruleName = md5(get_called_class() . $rule);
+        $ruleName = md5(get_called_class() . $rule);
+        if (array_key_exists($rule, self::$extendName) && in_array($ruleName, self::$extendName[$rule])) {
             // Determine if an error message is defined for a custom rule method
             if (null !== $field && isset($this->message[$field . '.' . $rule])) {
                 $this->message[$field . '.' . $ruleName] = $this->message[$field . '.' . $rule];
@@ -369,13 +393,15 @@ class RuleManager
                     }
                 }
 
-                $ruleName = Common::getKeyAndParam($value)[0];
+                if (is_string($value)) {
+                    $ruleName = Common::getKeyAndParam($value)[0];
 
-                if (in_array($ruleName, self::$implicitRules)) {
-                    return 'filled';
+                    if (in_array($ruleName, self::$implicitRules)) {
+                        return 'filled';
+                    }
                 }
-
-                return $ruleName;
+                
+                return $value;
             }, $rule);
 
             if (empty(array_intersect($conflictRules, $rulesName))) {
