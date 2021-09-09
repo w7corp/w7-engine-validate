@@ -17,6 +17,7 @@ use W7\Tests\Material\BaseTestValidate;
 use W7\Tests\Material\Count;
 use W7\Tests\Material\TestValidate;
 use W7\Validate\Exception\ValidateException;
+use W7\Validate\Exception\ValidateRuntimeException;
 use W7\Validate\Support\Event\ValidateEventAbstract;
 use W7\Validate\Support\ValidateScene;
 use W7\Validate\Validate;
@@ -207,5 +208,66 @@ class TestHandlerEvent extends BaseTestValidate
 
         $this->assertEquals(1, Count::value('customSceneEventAfter'));
         $this->assertEquals(1, Count::value('customSceneEventBefore'));
+    }
+
+    /**
+     * @test 测试场景中 事件和闭包方法的优先级
+     *
+     * @throws ValidateException
+     */
+    public function testEventPriority()
+    {
+        $v = new class extends Validate {
+            protected function sceneEventCallback(ValidateScene $scene)
+            {
+                $scene->setEventPriority(false)
+                    ->event(TestSceneEventA::class)
+                    ->before(function () {
+                        Count::assertEquals(0, 'sceneEventBefore-A');
+                        return true;
+                    })
+                    ->after(function () {
+                        Count::assertEquals(1, 'sceneEventAfter-A');
+                        return true;
+                    });
+            }
+
+            protected function sceneEventPriority(ValidateScene $scene)
+            {
+                $scene->setEventPriority(true)
+                    ->event(TestSceneEventA::class)
+                    ->before(function () {
+                        Count::assertEquals(1, 'sceneEventBefore-A');
+                        return true;
+                    })
+                    ->after(function () {
+                        Count::assertEquals(0, 'sceneEventAfter-A');
+                        return true;
+                    });
+            }
+        };
+
+        Count::reset('sceneEventAfter-A');
+        Count::reset('sceneEventBefore-A');
+        $v->scene('eventPriority')->check([]);
+        Count::reset('sceneEventAfter-A');
+        Count::reset('sceneEventBefore-A');
+        $v->scene('eventCallback')->check([]);
+    }
+
+    /**
+     * @test 测试当指定的事件类不存在时
+     *
+     * @throws ValidateException
+     */
+    public function testNonexistentEvent()
+    {
+        $v                   = new class extends Validate {
+            protected $event = [
+                'test'
+            ];
+        };
+        $this->expectException(ValidateRuntimeException::class);
+        $v->check([]);
     }
 }

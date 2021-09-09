@@ -15,6 +15,7 @@ namespace W7\Tests\Test;
 use W7\Tests\Material\BaseTestValidate;
 use W7\Tests\Material\Count;
 use W7\Validate\Exception\ValidateException;
+use W7\Validate\Exception\ValidateRuntimeException;
 use W7\Validate\Validate;
 
 class TestValidateSceneNext extends BaseTestValidate
@@ -110,5 +111,52 @@ class TestValidateSceneNext extends BaseTestValidate
         $data = $v->scene('testC')->check(['a' => 1]);
         $this->assertEquals(1, $data['a']);
         Count::assertEquals(1, 'ruleTest');
+    }
+
+    /**
+     * @test 测试在场景中，当next指定的场景和当前的场景名一致时，是否会导致死循环
+     *
+     * @throws ValidateException
+     */
+    public function testNextSceneNameEqCurrentSceneName()
+    {
+        $v                   = new class extends Validate {
+            protected $scene = [
+                'test' => ['next' => 'test']
+            ];
+        };
+
+        $this->expectException(ValidateRuntimeException::class);
+        $this->expectExceptionMessage('The scene used cannot be the same as the current scene.');
+        $v->scene('test')->check([]);
+    }
+
+    /**
+     * @test 测试场景选择器中直接返回字段数组
+     *
+     * @throws ValidateException
+     */
+    public function testSceneSelectorFields()
+    {
+        $v                  = new class extends Validate {
+            protected $rule = [
+                'a' => 'required'
+            ];
+
+            protected $scene = [
+                'test' => ['next' => 'getFields']
+            ];
+
+            protected function getFieldsSelector(array $data): array
+            {
+                return ['a'];
+            }
+        };
+
+        $data = $v->scene('test')->check([
+            'a' => 123
+        ]);
+
+        $this->assertSame(123, $data['a']);
     }
 }

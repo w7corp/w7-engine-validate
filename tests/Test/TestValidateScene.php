@@ -15,6 +15,7 @@ namespace W7\Tests\Test;
 use W7\Tests\Material\ArticleValidate;
 use W7\Tests\Material\BaseTestValidate;
 use W7\Validate\Exception\ValidateException;
+use W7\Validate\Validate;
 
 class TestValidateScene extends BaseTestValidate
 {
@@ -85,5 +86,24 @@ class TestValidateScene extends BaseTestValidate
             'content' => '1'
         ]);
         $this->assertEquals('1', $data['content']);
+    }
+
+    /**
+     * @test 测试当指定的验证场景不存在时，是否验证全部的规则
+     */
+    public function testNotFountSceneName()
+    {
+        $v                  = new class extends Validate {
+            protected $rule = [
+                'user' => 'required',
+                'pass' => 'required'
+            ];
+        };
+
+        try {
+            $v->scene('notFount')->check([]);
+        } catch (ValidateException $e) {
+            $this->assertCount(2, $e->getData());
+        }
     }
 }

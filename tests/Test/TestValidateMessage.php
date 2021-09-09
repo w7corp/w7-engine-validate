@@ -13,10 +13,21 @@
 namespace W7\Tests\Test;
 
 use W7\Tests\Material\BaseTestValidate;
-use W7\Validate\RuleManager;
+use W7\Validate\Exception\ValidateException;
+use W7\Validate\Support\Event\ValidateEventAbstract;
 use W7\Validate\Support\MessageProvider;
+use W7\Validate\Support\ValidateScene;
+use W7\Validate\Validate;
 
-class TestMessage extends RuleManager
+class TestErrorMessageEvent extends ValidateEventAbstract
+{
+    public function afterValidate(): bool
+    {
+        $this->message = 'user.required';
+        return false;
+    }
+}
+class TestMessage extends Validate
 {
     protected $rule = [
         'user'    => 'required|email',
@@ -42,6 +53,28 @@ class TestMessage extends RuleManager
         'remark'  => '备注',
         'captcha' => '验证码',
     ];
+
+    protected function sceneTestSceneEventClosure(ValidateScene $scene)
+    {
+        $scene->after(function () {
+            return 'user.required';
+        });
+    }
+
+    protected function sceneTestSceneEventCallable(ValidateScene $scene)
+    {
+        $scene->before('testMessage');
+    }
+
+    protected function sceneTestSceneEvent(ValidateScene $scene)
+    {
+        $scene->event(TestErrorMessageEvent::class);
+    }
+
+    protected function beforeTestMessage(): string
+    {
+        return 'pass.required';
+    }
 }
 
 class TestValidateMessage extends BaseTestValidate
@@ -55,6 +88,9 @@ class TestValidateMessage extends BaseTestValidate
         $this->testMessage = new TestMessage();
     }
 
+    /**
+     * @test 测试消息处理器对错误消息的处理是否符合预期
+     */
     public function testGetCustomMessage()
     {
         $message = (new MessageProvider())->setRuleManager($this->testMessage);
@@ -66,5 +102,41 @@ class TestValidateMessage extends BaseTestValidate
         ])->getMessage('user', 'email'));
 
         $this->assertEquals('你输入的密码与:attribute不一致', $message->getMessage('re_pass', 'eq'));
+    }
+
+    /**
+     * @test 测试在验证场景中的事件方法中(闭包方式)返回错误
+     *
+     * @throws ValidateException
+     */
+    public function testMessageInSceneEventClosure()
+    {
+        $this->expectException(ValidateException::class);
+        $this->expectExceptionMessage('用户名必须填写');
+        $this->testMessage->scene('testSceneEventClosure')->check([]);
+    }
+
+    /**
+     * @test 测试在验证场景中的事件方法中(Callable方式)返回错误
+     *
+     * @throws ValidateException
+     */
+    public function testMessageInSceneEventCallable()
+    {
+        $this->expectException(ValidateException::class);
+        $this->expectExceptionMessage('密码必须填写');
+        $this->testMessage->scene('testSceneEventCallable')->check([]);
+    }
+
+    /**
+     * @test 测试在验证场景中的事件返回错误
+     *
+     * @throws ValidateException
+     */
+    public function testMessageInSceneEvent()
+    {
+        $this->expectException(ValidateException::class);
+        $this->expectExceptionMessage('用户名必须填写');
+        $this->testMessage->scene('testSceneEvent')->check([]);
     }
 }

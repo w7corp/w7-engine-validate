@@ -143,11 +143,11 @@ class ValidateScene extends RuleManagerScene
      * Add a method that needs to be executed before validation
      *
      * @link https://v.neww7.com/en/3/Scene.html#before
-     * @param string $callbackName Validate the method name in the class
-     * @param mixed  ...$params    Parameters to be passed to the method
+     * @param string|Closure|callable $callbackName {@see Closure}，{@see callable} or Validate the method name in the class
+     * @param mixed                   ...$params    Parameters to be passed to the method
      * @return $this
      */
-    public function before(string $callbackName, ...$params): ValidateScene
+    public function before($callbackName, ...$params): ValidateScene
     {
         $this->befores[] = [$callbackName, $params];
         return $this;
@@ -157,11 +157,11 @@ class ValidateScene extends RuleManagerScene
      * Add a method that needs to be executed after validation
      *
      * @link https://v.neww7.com/en/3/Scene.html#after
-     * @param string $callbackName Validate the method name in the class
-     * @param mixed  ...$params    Parameters to be passed to the method
+     * @param string|Closure|callable $callbackName {@see Closure}，{@see callable} or Validate the method name in the class
+     * @param mixed                   ...$params    Parameters to be passed to the method
      * @return $this
      */
-    public function after(string $callbackName, ...$params): ValidateScene
+    public function after($callbackName, ...$params): ValidateScene
     {
         $this->afters[] = [$callbackName, $params];
         return $this;

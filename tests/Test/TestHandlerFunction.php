@@ -14,6 +14,7 @@ namespace W7\Tests\Test;
 
 use W7\Tests\Material\BaseTestValidate;
 use W7\Validate\Exception\ValidateException;
+use W7\Validate\Exception\ValidateRuntimeException;
 use W7\Validate\Validate;
 
 class TestHandlerFunction extends BaseTestValidate
@@ -65,5 +66,20 @@ class TestHandlerFunction extends BaseTestValidate
         $this->expectExceptionMessage('站点未开启');
 
         $v->scene('testBefore')->check([]);
+    }
+
+    /**
+     * @test 测试当指定的方法不存在时
+     *
+     * @throws ValidateException
+     */
+    public function testNonexistentFunction()
+    {
+        $v = Validate::make()->setScene([
+            'test' => ['after' => '111', 'before' => '222']
+        ]);
+
+        $this->expectException(ValidateRuntimeException::class);
+        $v->scene('test')->check([]);
     }
 }

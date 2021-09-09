@@ -1,11 +1,11 @@
 # 增强表单验证
-[![star](https://icon.itwmw.com/badge/dynamic/json?label=&query=star&url=https%3A%2F%2Fwww.itwmw.com%2Ftools%2Fgitee.php%3Fname%3Dwe7coreteam%2Fw7-engine-validate&logo=gitee&logoColor=fff&labelColor=c72e34&suffix=%20Stars&color=383d48)](https://gitee.com/we7coreteam/w7-engine-validate/stargazers)
-[![fork](https://icon.itwmw.com/badge/dynamic/json?label=&query=fork&url=https%3A%2F%2Fwww.itwmw.com%2Ftools%2Fgitee.php%3Fname%3Dwe7coreteam%2Fw7-engine-validate&logo=gitee&logoColor=fff&labelColor=c72e34&suffix=%20Forks&color=383d48)](https://gitee.com/we7coreteam/w7-engine-validate/members)
+[![Star](https://icon.itwmw.com/badge/dynamic/json?label=&query=star&url=https%3A%2F%2Fwww.itwmw.com%2Ftools%2Fgitee.php%3Fname%3Dwe7coreteam%2Fw7-engine-validate&logo=gitee&logoColor=fff&labelColor=c72e34&suffix=%20Stars&color=383d48)](https://gitee.com/we7coreteam/w7-engine-validate/stargazers)
+[![Fork](https://icon.itwmw.com/badge/dynamic/json?label=&query=fork&url=https%3A%2F%2Fwww.itwmw.com%2Ftools%2Fgitee.php%3Fname%3Dwe7coreteam%2Fw7-engine-validate&logo=gitee&logoColor=fff&labelColor=c72e34&suffix=%20Forks&color=383d48)](https://gitee.com/we7coreteam/w7-engine-validate/members)
 ![Docs](https://icon.itwmw.com/badge/License-Apache--2.0-blue)
 ![Version Support](https://icon.itwmw.com/badge/PHP-%5E7.2.5%7C%5E8.0%7C%5E8.1-brightgreen?logo=php&logoColor=violet)
 [![Docs](https://icon.itwmw.com/badge/Docs-passing-brightgreen)](https://v.neww7.com)
 ![Tests](https://icon.itwmw.com/badge/Tests-100%25%20passed-brightgreen)
-![document](https://icon.itwmw.com/packagist/dt/w7/engine-validate?style=social&logo=packagist)
+![Download](https://icon.itwmw.com/packagist/dt/w7/engine-validate?style=social&logo=packagist)
 ## 介绍
 一个让你的表单验证更为方便，快捷，安全的扩展，满足你的一切验证需求。
 

@@ -12,9 +12,11 @@
 
 namespace W7\Tests\Test;
 
+use Illuminate\Contracts\Validation\ImplicitRule;
 use Illuminate\Support\Arr;
 use W7\Tests\Material\BaseTestValidate;
 use W7\Validate\Exception\ValidateException;
+use W7\Validate\Support\Rule\BaseRule;
 use W7\Validate\Support\ValidateScene;
 use W7\Validate\Validate;
 
@@ -100,8 +102,40 @@ class TestDependentRule extends Validate
     ];
 }
 
+class TestImplicitRuleClass extends BaseRule implements ImplicitRule
+{
+    protected $message = '给定的值为空';
+
+    public function passes($attribute, $value): bool
+    {
+        return !empty($value);
+    }
+}
+
 class TestCustomRuleAndMessage extends BaseTestValidate
 {
+    public function testCustomRuleIsObject()
+    {
+        $v = Validate::make([
+            'id' => [
+                new class extends BaseRule {
+                    protected $message = '输入的字符不合格';
+
+                    public function passes($attribute, $value): bool
+                    {
+                        return is_numeric($value);
+                    }
+                }
+            ]
+        ]);
+
+        $this->expectException(ValidateException::class);
+        $this->expectExceptionMessage('输入的字符不合格');
+        
+        $v->check([
+            'id' => 'aaa'
+        ]);
+    }
     /**
      * @test 测试依赖规则
      *
@@ -120,7 +154,7 @@ class TestCustomRuleAndMessage extends BaseTestValidate
     }
 
     /**
-     * @test 测试当值为空，规则也依旧执行
+     * @test 测试当值为空，规则也依旧执行(方法扩展)
      * @throws ValidateException
      */
     public function testImplicitRule()
@@ -128,6 +162,22 @@ class TestCustomRuleAndMessage extends BaseTestValidate
         $this->expectException(ValidateException::class);
         $this->expectExceptionMessage('给定的值为空');
         TestImplicitRule::make()->check([]);
+    }
+
+    /**
+     * @test 测试当值为空，规则也依旧执行(规则类)
+     *
+     * @throws ValidateException
+     */
+    public function testImplicitRuleForRuleClass()
+    {
+        $this->expectException(ValidateException::class);
+        $this->expectExceptionMessage('给定的值为空');
+        Validate::make([
+            'a' => [
+                new TestImplicitRuleClass()
+            ]
+        ])->check([]);
     }
 
     /**

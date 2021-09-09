@@ -17,7 +17,6 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\Factory;
 use Illuminate\Validation\ValidationData;
 use Illuminate\Validation\ValidationException;
-use LogicException;
 use W7\Validate\Exception\ValidateException;
 use W7\Validate\Exception\ValidateRuntimeException;
 use W7\Validate\Support\Concerns\DefaultInterface;
@@ -345,7 +344,7 @@ class Validate extends RuleManager
     private function next(string $next, array $rules, string $currentSceneName = ''): array
     {
         if ($next === $currentSceneName) {
-            throw new LogicException('The scene used cannot be the same as the current scene.');
+            throw new ValidateRuntimeException('The scene used cannot be the same as the current scene.');
         }
 
         // Pre-validation
@@ -385,8 +384,6 @@ class Validate extends RuleManager
                 $callbacks = $this->afters;
                 $typeName  = 'after';
                 break;
-            default:
-                throw new LogicException('Type Error');
         }
 
         if (empty($callbacks)) {
@@ -395,11 +392,15 @@ class Validate extends RuleManager
 
         foreach ($callbacks as $callback) {
             list($callback, $param) = $callback;
-            $callback               = $typeName . ucfirst($callback);
-            if (!method_exists($this, $callback)) {
-                throw new LogicException('Method Not Found');
+            if (!is_callable($callback)) {
+                $callback = $typeName . ucfirst($callback);
+                if (!method_exists($this, $callback)) {
+                    throw new ValidateRuntimeException('Method Not Found');
+                }
+                $callback = [$this, $callback];
             }
-            if (($result = call_user_func([$this, $callback], $data, ...$param)) !== true) {
+
+            if (($result = call_user_func($callback, $data, ...$param)) !== true) {
                 if (isset($this->message[$result])) {
                     $result = $this->getMessageProvider()->handleMessage($this->message[$result]);
                 }
@@ -691,8 +692,6 @@ class Validate extends RuleManager
             case 2:
                 $type = 'afters';
                 break;
-            default:
-                throw new LogicException('Type Error');
         }
 
         if (is_string($callback)) {

@@ -13,6 +13,7 @@
 namespace W7\Tests\Test;
 
 use W7\Tests\Material\BaseTestValidate;
+use W7\Validate\Exception\ValidateRuntimeException;
 use W7\Validate\Support\Concerns\FilterInterface;
 use W7\Validate\Support\DataAttribute;
 use W7\Validate\Support\ValidateScene;
@@ -104,6 +105,11 @@ class TestDataFilter extends BaseTestValidate
         }
     }
 
+    /**
+     * @test 测试当数据不存在时，过滤器的处理
+     *
+     * @throws \W7\Validate\Exception\ValidateException
+     */
     public function testNotHasDataFilter()
     {
         $v                  = new class extends Validate {
@@ -120,6 +126,11 @@ class TestDataFilter extends BaseTestValidate
         $this->assertArrayNotHasKey('id', $data);
     }
 
+    /**
+     * @test 测试场景中取消设置过滤器
+     *
+     * @throws \W7\Validate\Exception\ValidateException
+     */
     public function testCancelFilter()
     {
         $v                  = new class extends Validate {
@@ -144,6 +155,11 @@ class TestDataFilter extends BaseTestValidate
         $this->assertSame('你好', $data['id']);
     }
 
+    /**
+     * @test 测试过滤器中删除字段
+     *
+     * @throws \W7\Validate\Exception\ValidateException
+     */
     public function testFilterDeleteField()
     {
         $v                  = new class extends Validate {
@@ -167,5 +183,30 @@ class TestDataFilter extends BaseTestValidate
         ]);
 
         $this->assertTrue(empty($data));
+    }
+
+    /**
+     * @test 测试不存在的过滤器
+     *
+     * @throws \W7\Validate\Exception\ValidateException
+     */
+    public function testNonexistentFilter()
+    {
+        $v                  = new class extends Validate {
+            protected $rule = [
+                'a' => 'required'
+            ];
+
+            protected function sceneTest(ValidateScene $scene)
+            {
+                $scene->only(['a'])->filter('a', 'test');
+            }
+        };
+
+        $this->expectException(ValidateRuntimeException::class);
+
+        $v->scene('test')->check([
+            'a' => 123
+        ]);
     }
 }
