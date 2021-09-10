@@ -15,6 +15,7 @@ namespace W7\Tests\Test;
 use Illuminate\Contracts\Validation\ImplicitRule;
 use Illuminate\Support\Arr;
 use W7\Tests\Material\BaseTestValidate;
+use W7\Tests\Material\Rules\Length;
 use W7\Validate\Exception\ValidateException;
 use W7\Validate\Support\Rule\BaseRule;
 use W7\Validate\Support\ValidateScene;
@@ -47,7 +48,6 @@ class TestCustomRuleB extends TestCustomRuleA
         return '十' === (string)$value;
     }
 }
-
 class TestExtendRule extends Validate
 {
     public function __construct()
@@ -229,5 +229,14 @@ class TestCustomRuleAndMessage extends BaseTestValidate
         }
 
         $this->assertFalse(isset($data), '验证错误的通过');
+    }
+
+    /**
+     * @ test 规则单独使用
+     */
+    public function testSeparateUseRules()
+    {
+        $this->assertTrue(Length::make(5)->check(12345));
+        $this->assertFalse(Length::make(5)->check(1234));
     }
 }

@@ -254,18 +254,6 @@ class ValidateScene extends RuleManagerScene
     }
 
     /**
-     * Provide the data to be validated
-     *
-     * @param array $data
-     * @return $this
-     */
-    public function setData(array $data = []): ValidateScene
-    {
-        $this->checkData = $data;
-        return $this;
-    }
-
-    /**
      * Get the current validation data
      *
      * @link https://v.neww7.com/en/3/Scene.html#getdata

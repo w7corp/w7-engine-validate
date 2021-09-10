@@ -46,4 +46,14 @@ abstract class BaseRule implements RuleInterface
     {
         return $this->getMessage();
     }
+
+    public static function make(...$params): BaseRule
+    {
+        return new static(...$params);
+    }
+
+    public function check($data): bool
+    {
+        return $this->passes('', $data);
+    }
 }

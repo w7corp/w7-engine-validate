@@ -59,10 +59,12 @@ class RuleManagerScene implements SceneInterface
                 $this->checkRules[$field] = explode('|', $this->checkRules[$field]);
             }
 
-            if (!is_array($rules)) {
+            if (is_string($rules)) {
                 $rules = explode('|', $rules);
+                array_push($this->checkRules[$field], ...$rules);
+            } else {
+                array_push($this->checkRules[$field], $rules);
             }
-            array_push($this->checkRules[$field], ...$rules);
         }
 
         return $this;

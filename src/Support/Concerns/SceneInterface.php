@@ -12,6 +12,8 @@
 
 namespace W7\Validate\Support\Concerns;
 
+use Closure;
+
 interface SceneInterface
 {
     /**
@@ -27,8 +29,18 @@ interface SceneInterface
      * Adding a validation rule for a field
      *
      * @link https://v.neww7.com/en/3/Scene.html#append
-     * @param string       $field
-     * @param string|array $rules
+     * @param string               $field
+     * @param string|array|Closure $rules If you only need the functionality of a custom rule once throughout your application,
+     * you may use a closure instead of a rule object.
+     * The closure receives the attribute's name,
+     * the attribute's value, and a `$fail` callback that should be called if validation fails:
+     * <code>
+     * function ($attribute, $value, $fail) {
+     *     if ($value === 'foo') {
+     *         $fail('The '.$attribute.' is invalid.');
+     *     }
+     * },
+     * </code>
      * @return $this
      */
     public function append(string $field, $rules): SceneInterface;

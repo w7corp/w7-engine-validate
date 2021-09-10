@@ -14,6 +14,7 @@ namespace W7\Tests\Test;
 
 use W7\Tests\Material\ArticleValidate;
 use W7\Tests\Material\BaseTestValidate;
+use W7\Tests\Material\Count;
 use W7\Validate\Exception\ValidateException;
 use W7\Validate\Support\ValidateScene;
 use W7\Validate\Validate;
@@ -165,5 +166,38 @@ class TestValidateScene extends BaseTestValidate
         } catch (ValidateException $e) {
             $this->assertCount(2, $e->getData());
         }
+    }
+
+    /**
+     * @test 测试在场景中增加闭包规则
+     * @throws ValidateException
+     */
+    public function testAppendClosureRule()
+    {
+        $v = new class extends Validate {
+            protected function sceneTest(ValidateScene $scene)
+            {
+                $scene->appendCheckField('a')
+                    ->append('a', function ($attribute, $value, $fail) {
+                        Count::incremental('testAppendClosureRule');
+                        if (!is_numeric($value)) {
+                            $fail('a必须为数字');
+                        }
+                    });
+            }
+        };
+
+        $data = $v->scene('test')->check([
+            'a' => 123
+        ]);
+
+        $this->assertSame(123, $data['a']);
+        Count::assertEquals(1, 'testAppendClosureRule');
+
+        $this->expectException(ValidateException::class);
+        $this->expectExceptionMessage('a必须为数字');
+        $v->scene('test')->check([
+            'a' => 'aaa'
+        ]);
     }
 }
