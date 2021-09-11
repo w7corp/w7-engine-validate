@@ -108,6 +108,17 @@ class TestCustomSceneEvent extends ValidateEventAbstract
         return true;
     }
 }
+
+class TestErrorEventForBefore extends ValidateEventAbstract
+{
+    public $message = '该操作已完成';
+
+    public function beforeValidate(): bool
+    {
+        Count::incremental('testEventBefore');
+        return 1 === Count::value('testEventBefore');
+    }
+}
 class TestHandlerEvent extends BaseTestValidate
 {
     public function testErrorEvent()
@@ -118,6 +129,22 @@ class TestHandlerEvent extends BaseTestValidate
         $v->scene('errorEvent')->check([
             'name' => 123
         ]);
+    }
+
+    public function testErrorEventForBefore()
+    {
+        $v                   = new class extends Validate {
+            protected $event = [
+                TestErrorEventForBefore::class
+            ];
+        };
+
+        $v->check([]);
+        
+        $this->expectException(ValidateException::class);
+        $this->expectExceptionMessage('该操作已完成');
+
+        $v->check([]);
     }
 
     public function testEventIsCheckName()

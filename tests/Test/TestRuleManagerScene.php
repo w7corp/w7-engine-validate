@@ -32,7 +32,7 @@ class TestRuleManagerScene extends BaseTestValidate
             'pass' => 'required|lengthBetween:6,16'
         ];
 
-        $this->assertEquals($needRules, $userRule->scene('login')->getRules(null,true));
+        $this->assertEquals($needRules, $userRule->scene('login')->getRules(null, true));
         $this->assertEquals($needRules, $userRule->getRules(null, 'login'));
         $this->assertEquals($needRules, $userRule->getInitialRules('login'));
     }
@@ -40,7 +40,7 @@ class TestRuleManagerScene extends BaseTestValidate
     public function testCustomValidateScene()
     {
         $userRule = new UserRulesManager();
-        $rules    = $userRule->scene('register')->getRules(null,true);
+        $rules    = $userRule->scene('register')->getRules(null, true);
 
         $this->assertCount(4, $rules);
         $this->assertArrayHasKey('remark', $rules);
@@ -82,5 +82,29 @@ class TestRuleManagerScene extends BaseTestValidate
         $messages = $userRule->getMessages();
 
         $this->assertEquals('验证码错误', $messages['captcha.' . $extendRuleName]);
+    }
+
+    /**
+     * @test 测试当规则管理器使用了不存在的场景名，结果是否取出全部规则
+     */
+    public function testGetRulesUsingNonExistentSceneName()
+    {
+        $v                  = new class extends UserRulesManager {
+            protected $rule = [
+              'user' => 'required',
+              'pass' => 'required',
+              'code' => 'required',
+              'name' => 'required'
+           ];
+
+            protected $scene = [
+              'login' => ['user', 'pass']
+           ];
+        };
+
+        $rules = $v->scene('login')->getRules();
+        $this->assertSame(2, \count(array_intersect(array_keys($rules), ['user', 'pass'])));
+        $rules = $v->scene('nonExistentSceneName')->getRules();
+        $this->assertSame(4, \count(array_intersect(array_keys($rules), ['user', 'pass', 'code', 'name'])));
     }
 }
