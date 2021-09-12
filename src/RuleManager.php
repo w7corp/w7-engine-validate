@@ -199,14 +199,14 @@ class RuleManager
 
         list($ruleName, $param) = Common::getKeyAndParam($ruleName, true);
 
+        if (isset($rulesClass[$ruleName]) && 0 === $rulesClass[$ruleName]) {
+            return false;
+        }
+
         foreach (ValidateConfig::instance()->getRulePath() as $rulesPath) {
             $ruleNameSpace = $rulesPath . ucfirst($ruleName);
             if (isset($rulesClass[$ruleNameSpace])) {
-                if (0 === $rulesClass[$ruleNameSpace]) {
-                    continue;
-                } else {
-                    return new $ruleNameSpace(...$param);
-                }
+                return new $ruleNameSpace(...$param);
             } elseif (class_exists($ruleNameSpace) && is_subclass_of($ruleNameSpace, BaseRule::class)) {
                 $rulesClass[$ruleNameSpace] = 1;
                 return new $ruleNameSpace(...$param);
@@ -495,7 +495,7 @@ class RuleManager
      *
      * <p color="yellow">If you have defined an extension rule using the {@see RuleManager},
      * you need to call the `getCheckRules` method first before calling this method.
-     * Otherwise the error message may not match the extension rule name.</p>
+     * Otherwise, the error message may not match the extension rule name.</p>
      *
      * @param string      $key  Full message key
      * @param string|null $rule If the first value is a field name, the second value is a rule, otherwise leave it blank
@@ -504,12 +504,10 @@ class RuleManager
     protected function getMessage(string $key, ?string $rule = null)
     {
         if (null !== $rule) {
-            $messageName = Common::makeMessageName($key, $rule);
-        } else {
-            $messageName = $key;
+            $key = Common::makeMessageName($key, $rule);
         }
 
-        return $this->message[$messageName] ?? '';
+        return $this->message[$key] ?? '';
     }
 
     /**

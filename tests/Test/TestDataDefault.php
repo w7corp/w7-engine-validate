@@ -153,11 +153,12 @@ class TestDataDefault extends BaseTestValidate
                     ->default('name', '小张');
             }
         };
-        $this->expectException(ValidateException::class);
-        $v->check([]);
 
         $data = $v->scene('test')->check([]);
         $this->assertSame('小张', $data['name']);
+
+        $this->expectException(ValidateException::class);
+        $v->check([]);
     }
 
     public function testCancelDefaultValue()

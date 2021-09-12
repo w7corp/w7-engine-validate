@@ -257,6 +257,7 @@ class Validate extends RuleManager
 
         $data = $this->handlerFilter($data, $fields);
         $this->initScene();
+        $this->scene(null);
         return $data;
     }
 
@@ -359,7 +360,7 @@ class Validate extends RuleManager
             }
         }
 
-        if (empty($next) || false === $next) {
+        if (empty($next)) {
             return [];
         }
         

@@ -16,8 +16,10 @@ use W7\Tests\Material\ArticleValidate;
 use W7\Tests\Material\BaseTestValidate;
 use W7\Tests\Material\Count;
 use W7\Validate\Exception\ValidateException;
+use W7\Validate\Exception\ValidateRuntimeException;
 use W7\Validate\Support\ValidateScene;
 use W7\Validate\Validate;
+use function PHPUnit\Framework\assertEquals;
 
 class TestSomeTimes extends Validate
 {
@@ -198,6 +200,41 @@ class TestValidateScene extends BaseTestValidate
         $this->expectExceptionMessage('a必须为数字');
         $v->scene('test')->check([
             'a' => 'aaa'
+        ]);
+    }
+
+    /**
+     * @test 测试在场景中获取验证的值
+     * @throws ValidateException
+     */
+    public function testGetDataForScene()
+    {
+        $v                  = new class extends Validate {
+            protected $rule = [
+              'name' => 'required'
+           ];
+
+            protected function sceneGetData(ValidateScene $scene)
+            {
+                $scene->only(['name']);
+
+                assertEquals('名字', $scene->getData('name'));
+            }
+
+            protected function sceneGetNonExistentData(ValidateScene $scene)
+            {
+                $scene->only(['name']);
+                $test = $scene->test;
+            }
+        };
+
+        $v->scene('getData')->check([
+            'name' => '名字'
+        ]);
+
+        $this->expectException(ValidateRuntimeException::class);
+        $v->scene('getNonExistentData')->check([
+            'name' => '名字'
         ]);
     }
 }

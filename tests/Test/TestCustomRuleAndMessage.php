@@ -20,6 +20,7 @@ use W7\Validate\Exception\ValidateException;
 use W7\Validate\Support\Rule\BaseRule;
 use W7\Validate\Support\ValidateScene;
 use W7\Validate\Validate;
+use function PHPUnit\Framework\assertEquals;
 
 class TestCustomRuleA extends Validate
 {
@@ -238,5 +239,34 @@ class TestCustomRuleAndMessage extends BaseTestValidate
     {
         $this->assertTrue(Length::make(5)->check(12345));
         $this->assertFalse(Length::make(5)->check(1234));
+    }
+
+    /**
+     * @test 测试传递参数到自定义规则
+     * @throws ValidateException
+     */
+    public function testPassingParamsToCustomRules()
+    {
+        $v                  = new class extends Validate {
+            protected $rule = [
+               'a' => 'test:111'
+           ];
+
+            protected function ruleTest($attribute, $value, $parameters)
+            {
+                assertEquals(111, $parameters[0]);
+                return false;
+            }
+
+            protected $message = [
+              'a.test' => 'testErrorMessage'
+           ];
+        };
+
+        $this->expectException(ValidateException::class);
+        $this->expectExceptionMessage('testErrorMessage');
+        $v->check([
+            'a' => 123
+        ]);
     }
 }
