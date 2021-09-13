@@ -237,4 +237,64 @@ class TestValidateScene extends BaseTestValidate
             'name' => '名字'
         ]);
     }
+
+    /**
+     * @test 测试在场景中动态移除验证规则
+     */
+    public function testRemoveRuleForScene()
+    {
+        $v                  = new class extends Validate {
+            protected $rule = [
+                'id' => 'required|max:100|min:1'
+            ];
+
+            protected function sceneRemoveRule(ValidateScene $scene)
+            {
+                $scene->only(['id'])
+                    ->remove('id', 'required');
+            }
+
+            protected function sceneRemoveRuleForArray(ValidateScene $scene)
+            {
+                $scene->only(['id'])
+                    ->remove('id', ['max', 'min']);
+            }
+
+            protected function sceneRemoveRuleForHasParams(ValidateScene $scene)
+            {
+                $scene->only(['id'])
+                    ->remove('id', 'max:100');
+            }
+        };
+
+        $rules = $v->scene('removeRule')->getRules();
+        $this->assertEquals(['max:100', 'min:1'], array_values($rules['id']));
+
+        $rules = $v->scene('removeRuleForArray')->getRules();
+        $this->assertEquals(['required'], array_values($rules['id']));
+
+        $rules = $v->scene('removeRuleForHasParams')->getRules();
+        $this->assertEquals(['required', 'min:1'], array_values($rules['id']));
+    }
+
+    public function testRemoveCheckField()
+    {
+        $v                  = new class extends Validate {
+            protected $rule = [
+                'user' => 'required',
+                'pass' => 'required'
+            ];
+
+            protected function sceneTest(ValidateScene $scene)
+            {
+                $scene->only(['user', 'pass'])
+                    ->removeCheckField('pass');
+            }
+        };
+        $rules = $v->getRules();
+        $this->assertEquals(['user', 'pass'], array_keys($rules));
+
+        $rules = $v->scene('test')->getRules();
+        $this->assertEquals(['user'], array_keys($rules));
+    }
 }

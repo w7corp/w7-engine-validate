@@ -58,6 +58,7 @@ class RuleManager
     /**
      * Regular validation rules
      *
+     * @link https://v.neww7.com/en/3/Validate.html#regex
      * @var array
      */
     protected $regex = [];
@@ -85,9 +86,17 @@ class RuleManager
 
     /**
      * Implicit extension method name
+     *
      * @var array
      */
     private static $implicitRules = [];
+
+    /**
+     * Scene Management Class
+     *
+     * @var string
+     */
+    protected $sceneProvider = RuleManagerScene::class;
 
     /**
      * Set current validate scene
@@ -128,7 +137,7 @@ class RuleManager
         }
 
         if (method_exists($this, 'scene' . ucfirst($sceneName))) {
-            $scene = new RuleManagerScene($this->rule);
+            $scene = new $this->sceneProvider($this->rule);
             call_user_func([$this, 'scene' . ucfirst($sceneName)], $scene);
             return $scene->getRules();
         }

@@ -141,6 +141,11 @@ class Validate extends RuleManager
      */
     private $validateFields = [];
 
+	/**
+	 * {@inheritdoc }
+	 */
+    protected $sceneProvider = ValidateScene::class;
+    
     /**
      * Create a validator
      *
@@ -279,7 +284,7 @@ class Validate extends RuleManager
         }
 
         if (method_exists($this, 'scene' . ucfirst($sceneName))) {
-            $scene = new ValidateScene($this->rule, $this->checkData);
+            $scene = new $this->sceneProvider($this->rule, $this->checkData);
             call_user_func([$this, 'scene' . ucfirst($sceneName)], $scene);
             $this->events        = $scene->events;
             $this->afters        = $scene->afters;

@@ -40,4 +40,24 @@ class TestCustomMessageProvider extends BaseTestValidate
         $this->expectException(ValidateRuntimeException::class);
         Validate::make()->setMessageProvider('Test');
     }
+
+    public function testGetMessage()
+    {
+        $messageProvider = new TestMessageProvider();
+        $messageProvider->setData([
+            'user' => 'admin',
+            'pass' => '123456'
+        ]);
+
+        $messageProvider->setCustomAttributes([
+            'user' => '账号',
+            'pass' => '密码'
+        ]);
+
+        $message = $messageProvider->handleMessage('@{user}:{:user},@{pass}:{:pass}');
+        $this->assertEquals('账号:admin,密码:123456', $message);
+
+        $message = $messageProvider->handleMessage(['@{user}:{:user},@{pass}:{:pass}']);
+        $this->assertEquals(['账号:admin,密码:123456'], $message);
+    }
 }

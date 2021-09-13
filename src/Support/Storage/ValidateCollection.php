@@ -84,7 +84,7 @@ class ValidateCollection extends Collection
      */
     public function get($key, $default = null)
     {
-        if (false !== strpos($key, '*')) {
+        if (Str::contains($key, '*')) {
             $explicitPath = rtrim(explode('*', $key)[0], '.') ?: null;
             $results      = [];
             $_default     = rand(1e+5, 1e+10) . time();
@@ -94,29 +94,25 @@ class ValidateCollection extends Collection
                 Arr::set($results, $explicitPath, $_value);
             }
 
-            if (! Str::contains($key, '*') || Str::endsWith($key, '*')) {
-                $value = Arr::get($this->items, $key);
-            } else {
-                data_set($results, $key, null, true);
+            data_set($results, $key, null, true);
 
-                $results = Arr::dot($results);
+            $results = Arr::dot($results);
 
-                $keys = [];
+            $keys = [];
 
-                $pattern = str_replace('\*', '[^\.]+', preg_quote($key));
+            $pattern = str_replace('\*', '[^\.]+', preg_quote($key));
 
-                foreach ($results as $_key => $_value) {
-                    if (preg_match('/^' . $pattern . '/', $_key, $matches)) {
-                        $keys[] = $matches[0];
-                    }
+            foreach ($results as $_key => $_value) {
+                if (preg_match('/^' . $pattern . '/', $_key, $matches)) {
+                    $keys[] = $matches[0];
                 }
+            }
 
-                $value = [];
-                $keys  = array_unique($keys);
+            $value = [];
+            $keys  = array_unique($keys);
 
-                foreach ($keys as $key) {
-                    $value[] = Arr::get($this->items, $key);
-                }
+            foreach ($keys as $key) {
+                $value[] = Arr::get($this->items, $key);
             }
 
             $value = $value ?: value($default);

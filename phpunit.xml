@@ -22,6 +22,7 @@
         <exclude>
             <directory suffix=".php">src/Providers</directory>
             <directory suffix=".php">src/Exception</directory>
+            <file>src/Support/Storage/ValidateConfig.php</file>
         </exclude>
         <report>
             <html outputDirectory="coverage" lowUpperBound="50" highLowerBound="90"/>

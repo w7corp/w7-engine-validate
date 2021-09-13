@@ -72,12 +72,10 @@ class MessageProvider implements MessageProviderInterface
     public function getInitialMessage(string $key, ?string $rule = null): ?string
     {
         if (null !== $rule) {
-            $messageName = Common::makeMessageName($key, $rule);
-        } else {
-            $messageName = $key;
+            $key = Common::makeMessageName($key, $rule);
         }
 
-        return $this->message[$messageName] ?? '';
+        return $this->message[$key] ?? '';
     }
 
     /** @inheritDoc */

@@ -150,4 +150,20 @@ class TestValidateCollection extends BaseTestValidate
 
         $this->assertFalse($data->get('have'));
     }
+
+    public function testGetArray()
+    {
+        $data = validate_collect([
+            'user' => 'test',
+            'pass' => 123456
+        ]);
+
+        $this->assertSame('test', $data->user);
+
+        $data->pass = 'root';
+        $this->assertSame('root', $data->pass);
+
+        $this->expectException(\Exception::class);
+        $this->assertSame('test', $data->nonExistent);
+    }
 }

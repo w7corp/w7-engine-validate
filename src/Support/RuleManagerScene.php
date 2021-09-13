@@ -98,8 +98,8 @@ class RuleManagerScene implements SceneInterface
                 $rules = explode('|', $rules);
             }
 
-            if (false !== strpos($rule, ':')) {
-                $rule = substr($rule, 0, strpos($rule, ':'));
+            if (false !== ($index = strpos($rule, ':'))) {
+                $rule = substr($rule, 0, $index);
             }
 
             $rules = array_filter($rules, function ($value) use ($rule) {

@@ -4,7 +4,7 @@
 ![Docs](https://icon.itwmw.com/badge/License-Apache--2.0-blue)
 ![Version Support](https://icon.itwmw.com/badge/PHP-%5E7.2.5%7C%5E8.0%7C%5E8.1-brightgreen?logo=php&logoColor=violet)
 [![Docs](https://icon.itwmw.com/badge/Docs-passing-brightgreen)](https://v.neww7.com)
-![Tests](https://icon.itwmw.com/badge/Test%20Coverage-94.90%25-brightgreen)
+![Tests](https://icon.itwmw.com/badge/Test%20Coverage-100%25-brightgreen)
 ![Download](https://icon.itwmw.com/packagist/dt/w7/engine-validate?style=social&logo=packagist)
 ## 介绍
 一个让你的表单验证更为方便，快捷，安全的扩展，满足你的一切验证需求。
