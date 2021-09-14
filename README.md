@@ -1,11 +1,16 @@
-# 增强表单验证
-[![Star](https://icon.itwmw.com/badge/dynamic/json?label=&query=star&url=https%3A%2F%2Fwww.itwmw.com%2Ftools%2Fgitee.php%3Fname%3Dwe7coreteam%2Fw7-engine-validate&logo=gitee&logoColor=fff&labelColor=c72e34&suffix=%20Stars&color=383d48)](https://gitee.com/we7coreteam/w7-engine-validate/stargazers)
-[![Fork](https://icon.itwmw.com/badge/dynamic/json?label=&query=fork&url=https%3A%2F%2Fwww.itwmw.com%2Ftools%2Fgitee.php%3Fname%3Dwe7coreteam%2Fw7-engine-validate&logo=gitee&logoColor=fff&labelColor=c72e34&suffix=%20Forks&color=383d48)](https://gitee.com/we7coreteam/w7-engine-validate/members)
-![Docs](https://icon.itwmw.com/badge/License-Apache--2.0-blue)
-![Version Support](https://icon.itwmw.com/badge/PHP-%5E7.2.5%7C%5E8.0%7C%5E8.1-brightgreen?logo=php&logoColor=violet)
-[![Docs](https://icon.itwmw.com/badge/Docs-passing-brightgreen)](https://v.neww7.com)
-![Tests](https://icon.itwmw.com/badge/Test%20Coverage-100%25-brightgreen)
-![Download](https://icon.itwmw.com/packagist/dt/w7/engine-validate?style=social&logo=packagist)
+<div align="center">
+    <h1>微擎表单验证</h1>
+    <img src="https://icon.itwmw.com/badge/dynamic/json?label=&query=star&url=https%3A%2F%2Fwww.itwmw.com%2Ftools%2Fgitee.php%3Fname%3Dwe7coreteam%2Fw7-engine-validate&logo=gitee&logoColor=fff&labelColor=c72e34&suffix=%20Stars&color=383d48" alt="Stars"/>
+    <img src="https://icon.itwmw.com/badge/dynamic/json?label=&query=fork&url=https%3A%2F%2Fwww.itwmw.com%2Ftools%2Fgitee.php%3Fname%3Dwe7coreteam%2Fw7-engine-validate&logo=gitee&logoColor=fff&labelColor=c72e34&suffix=%20Forks&color=383d48" alt="Forks"/>
+    <div>
+        <img src="https://icon.itwmw.com/badge/License-Apache--2.0-blue" alt="License" />
+        <img src="https://icon.itwmw.com/badge/PHP-%5E7.2.5%7C%5E8.0%7C%5E8.1-blue?logo=php&logoColor=violet" alt="PHP Version Support" />
+        <img src="https://icon.itwmw.com/coverity/scan/23686" alt="Coverity"/>
+        <img src="https://icon.itwmw.com/badge/Test%20Coverage-100%25-brightgreen" alt="Tests" />
+        <img src="https://icon.itwmw.com/packagist/dt/w7/engine-validate?style=social&logo=packagist" alt="Download" />
+    </div>
+</div>
+
 ## 介绍
 一个让你的表单验证更为方便，快捷，安全的扩展，满足你的一切验证需求。
 
@@ -206,4 +211,11 @@ protected $bail = true;
 - 验证规则实现了[ImplicitRule](https://v.neww7.com/3/Rule.html#implicitrule-隐式规则对象)标记接口
 ```php
 protected bool $filled = true;
+```
+### $regex
+预定义正则表达式验证规则,详情查看[正则表达式规则](https://v.neww7.com/3/Rule.html#%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%E8%A7%84%E5%88%99)
+```php
+protected $regex = [
+    'number' => '/^\d+$/'
+];
 ```
