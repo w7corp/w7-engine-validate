@@ -5,7 +5,7 @@
     <div>
         <img src="https://icon.itwmw.com/badge/License-Apache--2.0-blue" alt="License" />
         <img src="https://icon.itwmw.com/badge/PHP-%5E7.2.5%7C%5E8.0%7C%5E8.1-blue?logo=php&logoColor=violet" alt="PHP Version Support" />
-        <img src="https://icon.itwmw.com/coverity/scan/23686" alt="Coverity"/>
+        <img src="https://app.fossa.com/api/projects/custom%2B27665%2Fgitee.com%2Fwe7coreteam%2Fw7-engine-validate.svg?type=shield" alt="FOSSA Status"/>
         <img src="https://icon.itwmw.com/badge/Test%20Coverage-100%25-brightgreen" alt="Tests" />
         <img src="https://icon.itwmw.com/packagist/dt/w7/engine-validate?style=social&logo=packagist" alt="Download" />
     </div>
