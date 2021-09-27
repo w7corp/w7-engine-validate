@@ -45,7 +45,7 @@ class RuleManagerScene implements SceneInterface
     /** @inheritDoc */
     public function only(array $fields): SceneInterface
     {
-        $this->checkRules = array_intersect_key($this->rules, array_flip($fields));
+        $this->checkRules = Common::getRulesAndFill($this->rules, $fields);
         return $this;
     }
 

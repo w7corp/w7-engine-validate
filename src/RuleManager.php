@@ -469,7 +469,7 @@ class RuleManager
         $rules = $this->getInitialRules();
         if (null !== $field) {
             $field = is_array($field) ? $field : [$field];
-            $rules = array_intersect_key($rules, array_flip($field));
+            $rules = Common::getRulesAndFill($rules, $field);
         }
 
         if (false === $initial) {

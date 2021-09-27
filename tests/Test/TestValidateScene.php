@@ -277,6 +277,9 @@ class TestValidateScene extends BaseTestValidate
         $this->assertEquals(['required', 'min:1'], array_values($rules['id']));
     }
 
+    /**
+     * @test 测试在自定义场景中动态移除字段
+     */
     public function testRemoveCheckField()
     {
         $v                  = new class extends Validate {
@@ -296,5 +299,46 @@ class TestValidateScene extends BaseTestValidate
 
         $rules = $v->scene('test')->getRules();
         $this->assertEquals(['user'], array_keys($rules));
+    }
+
+    /**
+     * @test 测试当场景指定的字段没有定义规则
+     * @throws ValidateException
+     */
+    public function testSpecifyFieldUndefinedRule()
+    {
+        $v                   = new class extends Validate {
+            protected $scene = [
+                'login' => ['user', 'pass']
+            ];
+        };
+
+        $data = $v->scene('login')->check([
+            'user' => 1,
+            'pass' => 2
+        ]);
+
+        $this->assertEquals(['user', 'pass'], array_keys($data));
+    }
+
+    /**
+     * 测试当自定义场景中指定的字段没有定义规则
+     * @throws ValidateException
+     */
+    public function testSpecifyFieldUndefinedRuleForCustomScene()
+    {
+        $v = new class extends Validate {
+            protected function sceneLogin(ValidateScene $scene)
+            {
+                $scene->only(['user', 'pass']);
+            }
+        };
+
+        $data = $v->scene('login')->check([
+            'user' => 1,
+            'pass' => 2
+        ]);
+        
+        $this->assertEquals(['user', 'pass'], array_keys($data));
     }
 }

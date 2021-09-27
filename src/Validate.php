@@ -19,6 +19,7 @@ use Illuminate\Validation\ValidationData;
 use Illuminate\Validation\ValidationException;
 use W7\Validate\Exception\ValidateException;
 use W7\Validate\Exception\ValidateRuntimeException;
+use W7\Validate\Support\Common;
 use W7\Validate\Support\Concerns\DefaultInterface;
 use W7\Validate\Support\Concerns\FilterInterface;
 use W7\Validate\Support\Concerns\MessageProviderInterface;
@@ -141,9 +142,9 @@ class Validate extends RuleManager
      */
     private $validateFields = [];
 
-	/**
-	 * {@inheritdoc }
-	 */
+    /**
+     * {@inheritdoc }
+     */
     protected $sceneProvider = ValidateScene::class;
     
     /**
@@ -327,10 +328,10 @@ class Validate extends RuleManager
             if (isset($sceneRule['next']) && !empty($sceneRule['next'])) {
                 $next = $sceneRule['next'];
                 unset($sceneRule['next']);
-                $rules = array_intersect_key($this->rule, array_flip($sceneRule));
+                $rules = Common::getRulesAndFill($this->rule, $sceneRule);
                 return $this->next($next, $rules, $sceneName);
             } else {
-                return array_intersect_key($this->rule, array_flip($sceneRule));
+                return Common::getRulesAndFill($this->rule, $sceneRule);
             }
         }
 
@@ -361,7 +362,7 @@ class Validate extends RuleManager
         if (method_exists($this, lcfirst($next) . 'Selector')) {
             $next = call_user_func([$this, lcfirst($next) . 'Selector'], $this->validatedData);
             if (is_array($next)) {
-                return array_intersect_key($this->rule, array_flip($next));
+                return Common::getRulesAndFill($this->rule, $next);
             }
         }
 

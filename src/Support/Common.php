@@ -54,4 +54,18 @@ class Common
         }
         return $fieldName . '.' . $rule;
     }
+
+    /**
+     * Get rules for a given field and populate non-existent fields
+     *
+     * @param array $rules
+     * @param array $fields
+     * @return array
+     */
+    public static function getRulesAndFill(array $rules, array $fields): array
+    {
+        $rules    = array_intersect_key($rules, array_flip($fields));
+        $notExist = array_diff($fields, array_keys($rules));
+        return array_merge($rules, array_fill_keys($notExist, []));
+    }
 }
