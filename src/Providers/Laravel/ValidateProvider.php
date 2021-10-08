@@ -12,14 +12,16 @@
 
 namespace W7\Validate\Providers\Laravel;
 
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\ServiceProvider;
+use Itwmw\Validation\Factory;
 use W7\Validate\Support\Storage\ValidateConfig;
 
 class ValidateProvider extends ServiceProvider
 {
     public function boot()
     {
-        ValidateConfig::instance()->setFactory(App::make('validator'));
+        $factory = new Factory(null, str_replace('-', '_', config('app.locale')));
+        $factory->setPresenceVerifier(new PresenceVerifier($this->app->get('db')));
+        ValidateConfig::instance()->setFactory($factory);
     }
 }
