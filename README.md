@@ -14,7 +14,6 @@
 ## 介绍
 一个让你的表单验证更为方便，快捷，安全的扩展，满足你的一切验证需求。
 
-> 此验证基于`illuminate/validation`扩展，验证器支持Laravel的内置规则，内置规则文档可查看[规则文档](https://learnku.com/docs/laravel/7.x/validation/5144#c58a91)
 ## 目录
 - [验证器](https://v.neww7.com/3/Validate.html)
 - [验证场景](https://v.neww7.com/3/Scene.html)
