@@ -193,11 +193,6 @@ protected $filter = [
 ];
 ```
 关于过滤器的详情请查看[过滤器](https://v.neww7.com/3/Filter.html)一节
-### $bail
-是否首次验证失败后停止运行,如果此属性值为`true`,所有规则会自动增加`bail`规则，默认为`true`
-```php
-protected $bail = true;
-```
 ### $filled
 所有验证的字段在存在时不能为空，如果此属性值为`true`,所有规则会自动增加`filled`规则，默认为`true`
 

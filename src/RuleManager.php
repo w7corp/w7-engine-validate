@@ -357,23 +357,6 @@ class RuleManager
     }
 
     /**
-     * Add the `bail` rule
-     *
-     * @param array $rules Original Rules
-     * @return array
-     */
-    protected function addBailRule(array $rules): array
-    {
-        foreach ($rules as &$rule) {
-            if (!in_array('bail', $rule)) {
-                array_unshift($rule, 'bail');
-            }
-        }
-
-        return $rules;
-    }
-
-    /**
      * Add the `filled` rule
      *
      * @param array $rules Original Rules

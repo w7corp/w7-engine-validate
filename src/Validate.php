@@ -41,14 +41,6 @@ class Validate extends RuleManager
     protected $event = [];
 
     /**
-     * Whether to stop running after the first verification failure
-     *
-     * @link https://v.neww7.com/en/3/Validate.html#bail
-     * @var bool
-     */
-    protected $bail = true;
-
-    /**
      * All validated fields cannot be empty when present
      *
      * @link https://v.neww7.com/en/3/Validate.html#filled
@@ -195,7 +187,7 @@ class Validate extends RuleManager
             $this->handleEvent($data, 'afterValidate');
             return $data;
         } catch (ValidationException $e) {
-            $error       = $this->getMessageProvider()->handleMessage($e->getMessage());
+            $error = $this->getMessageProvider()->handleMessage($e->getMessage());
             throw new ValidateException($error, 403, $e->getAttribute(), $e);
         }
     }
@@ -222,10 +214,6 @@ class Validate extends RuleManager
 
         if ($this->filled) {
             $checkRules = $this->addFilledRule($checkRules);
-        }
-
-        if ($this->bail) {
-            $checkRules = $this->addBailRule($checkRules);
         }
 
         // Defaults and filters only handle the fields that are being validated now
