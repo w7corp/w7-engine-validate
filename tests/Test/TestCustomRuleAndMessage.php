@@ -12,8 +12,8 @@
 
 namespace W7\Tests\Test;
 
-use Illuminate\Contracts\Validation\ImplicitRule;
-use Illuminate\Support\Arr;
+use Itwmw\Validation\Support\Interfaces\ImplicitRule;
+use Itwmw\Validation\Support\Arr;
 use W7\Tests\Material\BaseTestValidate;
 use W7\Tests\Material\Rules\Length;
 use W7\Validate\Exception\ValidateException;

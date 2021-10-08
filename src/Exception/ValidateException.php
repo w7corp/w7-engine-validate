@@ -17,16 +17,16 @@ use Throwable;
 
 class ValidateException extends Exception
 {
-    protected $data = [];
+    protected $attribute;
 
-    public function __construct($message = '', $code = 0, array $data = [], Throwable $previous = null)
+    public function __construct($message = '', $code = 0, string $attribute = '', Throwable $previous = null)
     {
-        $this->data = $data;
+        $this->attribute = $attribute;
         parent::__construct($message, $code, $previous);
     }
 
-    public function getData(): array
+    public function getAttribute(): string
     {
-        return $this->data;
+        return $this->attribute;
     }
 }

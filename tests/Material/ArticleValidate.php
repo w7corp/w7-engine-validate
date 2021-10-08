@@ -20,7 +20,7 @@ class ArticleValidate extends Validate
     protected $rule = [
         'id'      => 'required|numeric',
         'content' => 'required|between:1,2000',
-        'title'   => 'required|between:4,50|alpha|checkTitle',
+        'title'   => 'required|between:4,50|chs|checkTitle',
         'type'    => 'required|numeric',
     ];
 
@@ -31,7 +31,8 @@ class ArticleValidate extends Validate
         'content.digits_between' => '文章长度为1~2000个字符',
         'title.required'         => '文章标题必须填写',
         'title.digits_between'   => '文章标题格式错误',
-        'title.alpha'            => '文章标题长度为4~50个字符',
+        'title.between'          => '文章标题长度为4~50个字符',
+        'title.chs'              => '文章标题只能为中文',
         'type.required'          => '文章分类必须填写',
         'type.numeric'           => '文章分类错误',
         'title.checkTitle'       => '有错误啦'

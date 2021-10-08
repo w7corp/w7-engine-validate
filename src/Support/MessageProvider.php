@@ -12,9 +12,9 @@
 
 namespace W7\Validate\Support;
 
-use Illuminate\Support\Arr;
 use W7\Validate\RuleManager;
 use W7\Validate\Support\Concerns\MessageProviderInterface;
+use Itwmw\Validation\Support\Arr;
 
 class MessageProvider implements MessageProviderInterface
 {
@@ -79,20 +79,8 @@ class MessageProvider implements MessageProviderInterface
     }
 
     /** @inheritDoc */
-    public function handleMessage($messages)
+    public function handleMessage(string $messages): string
     {
-        if (is_array($messages)) {
-            foreach ($messages as &$errorMessages) {
-                if (is_array($errorMessages)) {
-                    $errorMessages = array_map([$this, 'replacingFieldsInMessage'], $errorMessages);
-                } else {
-                    $errorMessages = $this->replacingFieldsInMessage($errorMessages);
-                }
-            }
-
-            return $messages;
-        }
-
         return $this->replacingFieldsInMessage($messages);
     }
 

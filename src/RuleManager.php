@@ -13,11 +13,11 @@
 namespace W7\Validate;
 
 use Closure;
-use Illuminate\Contracts\Validation\ImplicitRule;
 use W7\Validate\Support\Common;
 use W7\Validate\Support\Rule\BaseRule;
 use W7\Validate\Support\RuleManagerScene;
 use W7\Validate\Support\Storage\ValidateConfig;
+use W7\Validation\Support\Interfaces\ImplicitRule;
 
 /**
  * @link https://v.neww7.com/en/3/RuleManager.html#introduction

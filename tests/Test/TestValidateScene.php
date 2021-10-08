@@ -39,8 +39,7 @@ class TestSomeTimes extends Validate
 
     protected function sceneTestSomeTimesMultiField(ValidateScene $scene)
     {
-        $scene->appendCheckField('b')
-            ->appendCheckField('a')
+        $scene->only(['a', 'b'])
             ->sometimes(['a', 'b'], 'required', function () {
                 return true;
             });
@@ -132,7 +131,14 @@ class TestValidateScene extends BaseTestValidate
         try {
             $v->scene('notFount')->check([]);
         } catch (ValidateException $e) {
-            $this->assertCount(2, $e->getData());
+            $this->assertSame('user', $e->getAttribute());
+        }
+        try {
+            $v->scene('notFount')->check([
+                'user' => 123
+            ]);
+        } catch (ValidateException $e) {
+            $this->assertSame('pass', $e->getAttribute());
         }
     }
 
@@ -166,7 +172,15 @@ class TestValidateScene extends BaseTestValidate
         try {
             $v->scene('testSomeTimesMultiField')->check([]);
         } catch (ValidateException $e) {
-            $this->assertCount(2, $e->getData());
+            $this->assertSame('a', $e->getAttribute());
+        }
+
+        try {
+            $v->scene('testSomeTimesMultiField')->check([
+                'a' => 123
+            ]);
+        } catch (ValidateException $e) {
+            $this->assertSame('b', $e->getAttribute());
         }
     }
 

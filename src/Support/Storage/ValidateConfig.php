@@ -12,14 +12,9 @@
 
 namespace W7\Validate\Support\Storage;
 
-use Composer\Autoload\ClassLoader;
-use Illuminate\Contracts\Container\Container;
-use Illuminate\Contracts\Translation\Translator;
-use Illuminate\Filesystem\Filesystem;
-use Illuminate\Translation\FileLoader;
-use Illuminate\Validation\Factory;
-use Illuminate\Validation\PresenceVerifierInterface;
-use ReflectionClass;
+use Itwmw\Validation\Factory;
+use Itwmw\Validation\Support\Interfaces\PresenceVerifierInterface;
+use Itwmw\Validation\Support\Translation\Interfaces\Translator;
 
 final class ValidateConfig
 {
@@ -34,12 +29,6 @@ final class ValidateConfig
      * @var Translator
      */
     protected $translator;
-
-    /**
-     * Containers
-     * @var Container
-     */
-    protected $container;
 
     /**
      * Validator Factory
@@ -85,7 +74,7 @@ final class ValidateConfig
     public function getFactory(): Factory
     {
         if (empty($this->factory)) {
-            $this->factory = new Factory($this->getTranslator(), $this->getContainer());
+            $this->factory = new Factory($this->getTranslator());
             if ($this->getPresenceVerifier()) {
                 $this->factory->setPresenceVerifier($this->getPresenceVerifier());
             }
@@ -117,28 +106,6 @@ final class ValidateConfig
     }
 
     /**
-     * Provide containers
-     *
-     * @param Container $container
-     * @return ValidateConfig
-     */
-    public function setContainer(Container $container): ValidateConfig
-    {
-        $this->container = $container;
-        return $this;
-    }
-
-    /**
-     * Get container
-     *
-     * @return Container|null
-     */
-    private function getContainer(): ?Container
-    {
-        return $this->container ?? null;
-    }
-
-    /**
      * Provide translator
      *
      * @param Translator $translator
@@ -155,21 +122,8 @@ final class ValidateConfig
      *
      * @return Translator
      */
-    private function getTranslator(): Translator
+    private function getTranslator(): ?Translator
     {
-        if (empty($this->translator)) {
-            $reflection = new ReflectionClass(ClassLoader::class);
-            $vendorDir  = dirname($reflection->getFileName(), 2);
-            $langPath   = $vendorDir . DIRECTORY_SEPARATOR . 'laravel-lang' . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR;
-            if (file_exists($langPath . 'locales')) {
-                $langPath .= 'locales';
-            } else {
-                $langPath .= 'src';
-            }
-            $loader = new FileLoader(new Filesystem(), $langPath);
-            return new \Illuminate\Translation\Translator($loader, 'zh_CN');
-        }
-
         return $this->translator;
     }
 

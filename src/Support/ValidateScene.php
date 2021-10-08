@@ -13,12 +13,12 @@
 namespace W7\Validate\Support;
 
 use Closure;
-use Illuminate\Support\Arr;
+use Itwmw\Validation\Support\Arr;
 use W7\Validate\Exception\ValidateRuntimeException;
 use W7\Validate\Support\Concerns\DefaultInterface;
 use W7\Validate\Support\Concerns\FilterInterface;
 use W7\Validate\Support\Rule\BaseRule;
-use W7\Validate\Support\Storage\ValidateCollection;
+use Itwmw\Validation\Support\Collection\Collection as ValidateCollection;
 
 /**
  * Scene classes for validators

@@ -19,10 +19,10 @@ interface MessageProviderInterface
     /**
      * Handling a message
      *
-     * @param string|string[]$messages
-     * @return string|string[]
+     * @param string $messages
+     * @return string
      */
-    public function handleMessage($messages);
+    public function handleMessage(string $messages): string;
 
     /**
      * Get a validation message for the processed attributes and rules.

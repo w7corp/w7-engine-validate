@@ -12,7 +12,7 @@
 
 namespace W7\Validate\Support\Rule;
 
-use Illuminate\Contracts\Validation\Rule;
+use Itwmw\Validation\Support\Interfaces\Rule;
 
 interface RuleInterface extends Rule
 {

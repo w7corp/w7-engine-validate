@@ -17,12 +17,19 @@
         "validator",
         "form validate"
     ],
+    "repositories": [
+        {
+            "name": "itwmw/validation",
+            "type": "path",
+            "symlink": true,
+            "url": "../itwmw-validation"
+        }
+    ],
     "require": {
         "php": "^7.2.5|^8.0|^8.1",
-        "illuminate/validation": "^6.0|^7.0|^8.0"
+        "itwmw/validation": "dev-master"
     },
     "require-dev": {
-        "laravel-lang/lang": "*",
         "phpunit/phpunit": "^8|^9",
         "friendsofphp/php-cs-fixer": "^3.0"
     },
@@ -49,6 +56,13 @@
             "providers": [
                 "W7\\Validate\\Providers\\Laravel\\ValidateProvider"
             ]
+        },
+        "think": {
+            "services": [
+                "W7\\Validate\\Providers\\Think\\ValidateService"
+            ]
         }
-    }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }

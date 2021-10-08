@@ -13,10 +13,10 @@
 namespace W7\Validate;
 
 use Closure;
-use Illuminate\Support\Str;
-use Illuminate\Validation\Factory;
-use Illuminate\Validation\ValidationData;
-use Illuminate\Validation\ValidationException;
+use Itwmw\Validation\Factory;
+use Itwmw\Validation\Support\Str;
+use Itwmw\Validation\ValidationData;
+use Itwmw\Validation\Support\ValidationException;
 use W7\Validate\Exception\ValidateException;
 use W7\Validate\Exception\ValidateRuntimeException;
 use W7\Validate\Support\Common;
@@ -26,7 +26,7 @@ use W7\Validate\Support\Concerns\MessageProviderInterface;
 use W7\Validate\Support\DataAttribute;
 use W7\Validate\Support\Event\ValidateEventAbstract;
 use W7\Validate\Support\MessageProvider;
-use W7\Validate\Support\Storage\ValidateCollection;
+use Itwmw\Validation\Support\Collection\Collection as ValidateCollection;
 use W7\Validate\Support\Storage\ValidateConfig;
 use W7\Validate\Support\ValidateScene;
 
@@ -195,15 +195,8 @@ class Validate extends RuleManager
             $this->handleEvent($data, 'afterValidate');
             return $data;
         } catch (ValidationException $e) {
-            $errors       = $this->getMessageProvider()->handleMessage($e->errors());
-            $errorMessage = '';
-
-            foreach ($errors as $message) {
-                $errorMessage = $message[0];
-                break;
-            }
-
-            throw new ValidateException($errorMessage, 403, $errors, $e);
+            $error       = $this->getMessageProvider()->handleMessage($e->getMessage());
+            throw new ValidateException($error, 403, $e->getAttribute(), $e);
         }
     }
 

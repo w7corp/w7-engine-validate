@@ -214,7 +214,7 @@ class TestValidateSceneNextAndEvent extends BaseTestValidate
 
             ]);
         } catch (ValidateException $e) {
-            $this->assertArrayHasKey('b', $e->getData());
+            $this->assertSame('b', $e->getAttribute());
         }
 
         try {
@@ -222,7 +222,7 @@ class TestValidateSceneNextAndEvent extends BaseTestValidate
                 'b' => '123'
             ]);
         } catch (ValidateException $e) {
-            $this->assertArrayHasKey('c', $e->getData());
+            $this->assertSame('c', $e->getAttribute());
         }
 
         $data = $v->scene('testA')->check([
