@@ -249,6 +249,34 @@ class Validate extends RuleManager
     }
 
     /**
+     * Add a custom implicit validation rule
+     *
+     * @param string               $rule      Rule Name
+     * @param Closure|string|array $extension Closure rules, providing four parameters:$attribute, $value, $parameters, $validator
+     * @param string|null          $message   Error Message
+     * @return Validate
+     */
+    protected function extendImplicitRule(string $rule, $extension, ?string $message = null): Validate
+    {
+        self::validatorExtend('Implicit', $rule, $extension, $message, true);
+        return $this;
+    }
+
+    /**
+     * Add a custom dependent validation rule.
+     *
+     * @param string               $rule      Rule Name
+     * @param Closure|string|array $extension Closure rules, providing four parameters:$attribute, $value, $parameters, $validator
+     * @param string|null          $message   Error Message
+     * @return Validate
+     */
+    protected function extendDependentRule(string $rule, $extension, ?string $message = null): Validate
+    {
+        self::validatorExtend('Dependent', $rule, $extension, $message, true);
+        return $this;
+    }
+
+    /**
      * Get the rules that need to be validation in the scene
      *
      * @param string|null $sceneName The scene name, or the current scene name if not provided.

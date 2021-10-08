@@ -17,7 +17,7 @@ use W7\Validate\Support\Common;
 use W7\Validate\Support\Rule\BaseRule;
 use W7\Validate\Support\RuleManagerScene;
 use W7\Validate\Support\Storage\ValidateConfig;
-use W7\Validation\Support\Interfaces\ImplicitRule;
+use Itwmw\Validation\Support\Interfaces\ImplicitRule;
 
 /**
  * @link https://v.neww7.com/en/3/RuleManager.html#introduction
@@ -270,34 +270,33 @@ class RuleManager
      */
     public static function replacer(string $rule, $replacer)
     {
-        if (array_key_exists($rule, self::$extendName)) {
-            $ruleName = md5(get_called_class() . $rule);
-            if (in_array($ruleName, self::$extendName[$rule])) {
-                $rule = $ruleName;
-            }
-        }
         ValidateConfig::instance()->getFactory()->replacer($rule, $replacer);
     }
 
     /**
      * Register for custom validator extensions
      *
-     * @param string               $type      Type
-     * @param string               $rule      Rule Name
-     * @param Closure|string|array $extension Closure rules, providing four parameters:$attribute, $value, $parameters, $validator
-     * @param string|null          $message   Error Messages
+     * @param string               $type               Type
+     * @param string               $rule               Rule Name
+     * @param Closure|string|array $extension          Closure rules, providing four parameters:$attribute, $value, $parameters, $validator
+     * @param string|null          $message            Error Messages
+     * @param boolean              $avoidDuplication   Avoid duplication caused by multiple validators with the same rule name
      */
-    private static function validatorExtend(string $type, string $rule, $extension, ?string $message = null)
+    protected static function validatorExtend(string $type, string $rule, $extension, ?string $message = null, bool $avoidDuplication = false)
     {
-        // Multiple rule managers using the same rule will result in the later methods not taking effect.
-        // So here a unique rule name is generated based on the namespace.
-        $ruleName = md5(get_called_class() . $rule);
+        if ($avoidDuplication) {
+            // Multiple rule managers using the same rule will result in the later methods not taking effect.
+            // So here a unique rule name is generated based on the namespace.
+            $ruleName = md5(get_called_class() . $rule);
 
-        if (array_key_exists($rule, self::$extendName)) {
-            array_push(self::$extendName[$rule], $ruleName);
-            self::$extendName[$rule] = array_unique(self::$extendName[$rule]);
+            if (array_key_exists($rule, self::$extendName)) {
+                array_push(self::$extendName[$rule], $ruleName);
+                self::$extendName[$rule] = array_unique(self::$extendName[$rule]);
+            } else {
+                self::$extendName[$rule] = [$ruleName];
+            }
         } else {
-            self::$extendName[$rule] = [$ruleName];
+            $ruleName = $rule;
         }
 
         if (!empty($type)) {
@@ -340,7 +339,7 @@ class RuleManager
             // If it is a class method, register the rule to the rule manager first,
             // and then process the corresponding error message
             if (method_exists($this, 'rule' . ucfirst($rule))) {
-                self::extend($rule, Closure::fromCallable([$this, 'rule' . ucfirst($rule)]));
+                self::validatorExtend('', $rule, Closure::fromCallable([$this, 'rule' . ucfirst($rule)]), '', true);
 
                 if ('' !== $param) {
                     $rule = $rule . ':' . $param;
