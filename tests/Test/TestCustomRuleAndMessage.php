@@ -269,4 +269,122 @@ class TestCustomRuleAndMessage extends BaseTestValidate
             'a' => 123
         ]);
     }
+
+    /**
+     * @test 测试全局定义的规则
+     * @throws ValidateException
+     */
+    public function testGlobalExtendRule()
+    {
+        Validate::extend('sex', function ($attribute, $value) {
+            return in_array($value, ['男', '女']);
+        }, '请输入主流性别');
+
+        $v                  = new class extends Validate {
+            protected $rule = [
+                'sex' => 'required|sex'
+            ];
+        };
+
+        $this->expectException(ValidateException::class);
+        $this->expectExceptionMessage('请输入主流性别');
+        $v->check([
+            'sex' => 1
+        ]);
+    }
+
+    /**
+     * @test 测试当全局规则和类规则名称相同时的优先级处理是否符合预期
+     * @depends testGlobalExtendRule
+     */
+    public function testExtendRulePriority()
+    {
+        $v                  = new class extends Validate {
+            protected $rule = [
+                'sex' => 'required|sex'
+            ];
+
+            protected function ruleSex($attribute, $value): bool
+            {
+                return in_array($value, [0, 1]);
+            }
+        };
+
+        $data = $v->check([
+            'sex' => 1
+        ]);
+
+        $this->assertSame(1, $data['sex']);
+    }
+
+    /**
+     * @test 测试在类中使用`extendImplicitRule`方法扩展存在规则
+     * @throws ValidateException
+     */
+    public function testExtendImplicitRuleInClass()
+    {
+        $v = new class extends Validate {
+            public function __construct()
+            {
+                $this->extendImplicitRule('empty', function ($attribute, $value) {
+                    return !empty($value);
+                }, ':attribute参数不可为空');
+            }
+
+            protected $rule = [
+                'name' => 'empty'
+            ];
+        };
+
+        $this->expectException(ValidateException::class);
+        $this->expectExceptionMessage('name参数不可为空');
+        $v->check([]);
+    }
+
+    /**
+     * @test 测试在类中使用`extendDependentRule`方法扩展依赖规则
+     */
+    public function testExtendDependentRuleInClass()
+    {
+        $v = new class extends Validate {
+            public function __construct()
+            {
+                $this->extendDependentRule('contains', function ($attribute, $value, $parameters, $validator) {
+                    return str_contains($value, Arr::get($validator->getData(), $parameters[0]));
+                }, '不支持该域的邮箱');
+            }
+
+            protected $rule = [
+                '*.email' => 'contains:*.provider'
+            ];
+        };
+
+        $this->expectException(ValidateException::class);
+        $this->expectExceptionMessage('不支持该域的邮箱');
+        $v->check([
+            ['email' => '995645888@qq.com', 'provider' => 'qq.com'],
+            ['email' => '351409246@qq.com', 'provider' => 'qq.com'],
+            ['email' => 'admin@itwmw.com', 'provider' => 'qq.com']
+        ]);
+    }
+
+    /**
+     * @test 测试替换全局规则的错误消息
+     * @depends testGlobalExtendRule
+     */
+    public function testReplacerGlobalRuleMessage()
+    {
+        Validate::replacer('sex', function () {
+            return '请输入正确性别';
+        });
+
+        $this->expectException(ValidateException::class);
+        $this->expectExceptionMessage('请输入正确性别');
+
+        Validate::make([
+            'sex' => 'required|sex'
+        ])->check([
+            'sex' => 666
+        ]);
+    }
 }
