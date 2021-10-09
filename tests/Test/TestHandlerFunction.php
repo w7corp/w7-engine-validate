@@ -40,7 +40,7 @@ class TestHandlerFunction extends BaseTestValidate
         };
 
         $this->expectException(ValidateException::class);
-        $this->expectExceptionMessage('ID错误');
+        $this->expectExceptionMessageMatches('/^ID错误$/');
 
         $v->scene('testAfter')->check(['id' => -1]);
     }
@@ -63,7 +63,7 @@ class TestHandlerFunction extends BaseTestValidate
         };
 
         $this->expectException(ValidateException::class);
-        $this->expectExceptionMessage('站点未开启');
+        $this->expectExceptionMessageMatches('/^站点未开启$/');
 
         $v->scene('testBefore')->check([]);
     }

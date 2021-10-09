@@ -127,7 +127,7 @@ class TestValidateSceneNext extends BaseTestValidate
         };
 
         $this->expectException(ValidateRuntimeException::class);
-        $this->expectExceptionMessage('The scene used cannot be the same as the current scene.');
+        $this->expectExceptionMessageMatches('/^The scene used cannot be the same as the current scene.$/');
         $v->scene('test')->check([]);
     }
 

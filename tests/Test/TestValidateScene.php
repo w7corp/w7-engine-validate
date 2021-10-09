@@ -98,7 +98,7 @@ class TestValidateScene extends BaseTestValidate
     public function testUseScene()
     {
         $validate = new ArticleValidate();
-        $this->expectExceptionMessage('缺少参数：文章Id');
+        $this->expectExceptionMessageMatches('/^缺少参数：文章Id$/');
         $validate->scene('save')->check($this->userInput);
     }
 
@@ -157,7 +157,7 @@ class TestValidateScene extends BaseTestValidate
         $this->assertSame(0, $data['aIsRequired']);
 
         $this->expectException(ValidateException::class);
-        $this->expectExceptionMessage('a不能为空');
+        $this->expectExceptionMessageMatches('/^a不能为空$/');
         $v->scene('test')->check([
             'aIsRequired' => 1
         ]);
@@ -211,7 +211,7 @@ class TestValidateScene extends BaseTestValidate
         Count::assertEquals(1, 'testAppendClosureRule');
 
         $this->expectException(ValidateException::class);
-        $this->expectExceptionMessage('a必须为数字');
+        $this->expectExceptionMessageMatches('/^a必须为数字$/');
         $v->scene('test')->check([
             'a' => 'aaa'
         ]);
