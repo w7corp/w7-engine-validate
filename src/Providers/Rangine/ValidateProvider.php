@@ -12,8 +12,11 @@
 
 namespace W7\Validate\Providers\Rangine;
 
+use Itwmw\Validation\Factory;
 use W7\Core\Provider\ProviderAbstract;
+use W7\Facade\Config;
 use W7\Facade\Container;
+use W7\Validate\Providers\Laravel\PresenceVerifier;
 use W7\Validate\Support\Storage\ValidateConfig;
 
 class ValidateProvider extends ProviderAbstract
@@ -25,6 +28,8 @@ class ValidateProvider extends ProviderAbstract
      */
     public function boot()
     {
-        ValidateConfig::instance()->setFactory(Container::get("W7\Contract\Validation\ValidatorFactoryInterface"));
+        $factory = new Factory(null, str_replace('-', '_', Config::get('app.setting.lang', 'zh_cn')));
+        $factory->setPresenceVerifier(new PresenceVerifier(Container::get('db-factory')));
+        ValidateConfig::instance()->setFactory($factory);
     }
 }
