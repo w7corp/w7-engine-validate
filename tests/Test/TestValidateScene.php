@@ -341,4 +341,29 @@ class TestValidateScene extends BaseTestValidate
         
         $this->assertEquals(['user', 'pass'], array_keys($data));
     }
+
+    /**
+     * @test 测试当验证规则为空时最后结果是否为空
+     * @throws ValidateException
+     */
+    public function testValidateRuleIsEmpty()
+    {
+        $v                  = new class extends Validate {
+            protected $rule = [
+                'a' => 'required',
+                'b' => 'required'
+            ];
+
+            protected $scene = [
+                'empty' => []
+            ];
+        };
+
+        $data = $v->scene('empty')->check([
+            'a' => 1,
+            'c' => 2
+        ]);
+
+        $this->assertEmpty($data);
+    }
 }
