@@ -230,6 +230,8 @@ class Validate extends RuleManager
 
         if (!empty($checkRules)) {
             $data = $this->getValidationFactory()->make($data, $checkRules, $this->message, $this->customAttributes)->validate();
+        } else {
+            $data = [];
         }
 
         $data = array_merge($this->validatedData, $data);
