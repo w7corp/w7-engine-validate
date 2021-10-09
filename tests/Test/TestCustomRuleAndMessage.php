@@ -131,7 +131,7 @@ class TestCustomRuleAndMessage extends BaseTestValidate
         ]);
 
         $this->expectException(ValidateException::class);
-        $this->expectExceptionMessage('输入的字符不合格');
+        $this->expectExceptionMessageMatches('/^输入的字符不合格$/');
         
         $v->check([
             'id' => 'aaa'
@@ -145,7 +145,7 @@ class TestCustomRuleAndMessage extends BaseTestValidate
     public function testDependentRule()
     {
         $this->expectException(ValidateException::class);
-        $this->expectExceptionMessage('不支持该域的邮箱');
+        $this->expectExceptionMessageMatches('/^不支持该域的邮箱$/');
         
         TestDependentRule::make()->check([
             ['email' => '995645888@qq.com', 'provider' => 'qq.com'],
@@ -161,7 +161,7 @@ class TestCustomRuleAndMessage extends BaseTestValidate
     public function testImplicitRule()
     {
         $this->expectException(ValidateException::class);
-        $this->expectExceptionMessage('给定的值为空');
+        $this->expectExceptionMessageMatches('/^给定的值为空$/');
         TestImplicitRule::make()->check([]);
     }
 
@@ -173,7 +173,7 @@ class TestCustomRuleAndMessage extends BaseTestValidate
     public function testImplicitRuleForRuleClass()
     {
         $this->expectException(ValidateException::class);
-        $this->expectExceptionMessage('给定的值为空');
+        $this->expectExceptionMessageMatches('/^给定的值为空$/');
         Validate::make([
             'a' => [
                 new TestImplicitRuleClass()
@@ -188,7 +188,7 @@ class TestCustomRuleAndMessage extends BaseTestValidate
     public function testExtendRule()
     {
         $this->expectException(ValidateException::class);
-        $this->expectExceptionMessage('绑定手机号不是有效的手机号码');
+        $this->expectExceptionMessageMatches('/^绑定手机号不是有效的手机号码$/');
         TestExtendRule::make()->check([
             'bind' => 123
         ]);
@@ -201,7 +201,7 @@ class TestCustomRuleAndMessage extends BaseTestValidate
     public function testReplacerErrorMessage()
     {
         $this->expectException(ValidateException::class);
-        $this->expectExceptionMessage('绑定手机号是错误的手机号码');
+        $this->expectExceptionMessageMatches('/^绑定手机号是错误的手机号码$/');
         TestExtendRule::make()->scene('replacerMobileMessage')->check([
             'bind' => 123
         ]);
@@ -264,7 +264,7 @@ class TestCustomRuleAndMessage extends BaseTestValidate
         };
 
         $this->expectException(ValidateException::class);
-        $this->expectExceptionMessage('testErrorMessage');
+        $this->expectExceptionMessageMatches('/^testErrorMessage$/');
         $v->check([
             'a' => 123
         ]);

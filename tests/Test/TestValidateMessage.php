@@ -112,7 +112,7 @@ class TestValidateMessage extends BaseTestValidate
     public function testMessageInSceneEventClosure()
     {
         $this->expectException(ValidateException::class);
-        $this->expectExceptionMessage('用户名必须填写');
+        $this->expectExceptionMessageMatches('/^用户名必须填写$/');
         $this->testMessage->scene('testSceneEventClosure')->check([]);
     }
 
@@ -124,7 +124,7 @@ class TestValidateMessage extends BaseTestValidate
     public function testMessageInSceneEventCallable()
     {
         $this->expectException(ValidateException::class);
-        $this->expectExceptionMessage('密码必须填写');
+        $this->expectExceptionMessageMatches('/^密码必须填写$/');
         $this->testMessage->scene('testSceneEventCallable')->check([]);
     }
 
@@ -136,7 +136,7 @@ class TestValidateMessage extends BaseTestValidate
     public function testMessageInSceneEvent()
     {
         $this->expectException(ValidateException::class);
-        $this->expectExceptionMessage('用户名必须填写');
+        $this->expectExceptionMessageMatches('/^用户名必须填写$/');
         $this->testMessage->scene('testSceneEvent')->check([]);
     }
 }

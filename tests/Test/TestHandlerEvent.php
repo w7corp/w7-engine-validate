@@ -125,7 +125,7 @@ class TestHandlerEvent extends BaseTestValidate
     {
         $v = new TestValidate();
         $this->expectException(ValidateException::class);
-        $this->expectExceptionMessage('不是中文');
+        $this->expectExceptionMessageMatches('/^不是中文$/');
         $v->scene('errorEvent')->check([
             'name' => 123
         ]);
@@ -142,7 +142,7 @@ class TestHandlerEvent extends BaseTestValidate
         $v->check([]);
         
         $this->expectException(ValidateException::class);
-        $this->expectExceptionMessage('该操作已完成');
+        $this->expectExceptionMessageMatches('/^该操作已完成$/');
 
         $v->check([]);
     }
@@ -151,7 +151,7 @@ class TestHandlerEvent extends BaseTestValidate
     {
         $v = new TestValidate();
         $this->expectException(ValidateException::class);
-        $this->expectExceptionMessage('用户名不是admin');
+        $this->expectExceptionMessageMatches('/^用户名不是admin$/');
         $v->scene('checkName')->check([
             'name' => 123
         ]);
@@ -161,7 +161,7 @@ class TestHandlerEvent extends BaseTestValidate
     {
         $v = new TestValidate();
         $this->expectException(ValidateException::class);
-        $this->expectExceptionMessage('error');
+        $this->expectExceptionMessageMatches('/^error$/');
         $v->scene('beforeThrowError')->check([]);
     }
 

@@ -45,7 +45,7 @@ class TestRegexRule extends BaseTestValidate
         $this->assertEquals('123', $data['num']);
         
         $this->expectException(ValidateException::class);
-        $this->expectExceptionMessage('给定的值必须是数字');
+        $this->expectExceptionMessageMatches('/^给定的值必须是数字$/');
         $v->check([
             'num' => 'sss'
         ]);
@@ -72,7 +72,7 @@ class TestRegexRule extends BaseTestValidate
         };
 
         $this->expectException(ValidateException::class);
-        $this->expectExceptionMessage('给定的值不可以为纯数字');
+        $this->expectExceptionMessageMatches('/^给定的值不可以为纯数字$/');
         $v->check([
             'user' => '123'
         ]);
@@ -115,7 +115,7 @@ class TestRegexRule extends BaseTestValidate
         $this->assertSame(1, $data['status']);
 
         $this->expectException(ValidateException::class);
-        $this->expectExceptionMessage('状态不符合要求');
+        $this->expectExceptionMessageMatches('/^状态不符合要求$/');
         $v->scene('test')->check([
             'status' => 'close'
         ]);
