@@ -54,7 +54,7 @@ class TestCustomMessageProvider extends BaseTestValidate
             'pass' => '密码'
         ]);
 
-        $message = $messageProvider->handleMessage('@{user}:{:user},@{pass}:{:pass}');
+        $message = $messageProvider->handleMessage('{@user}:{:user},{@pass}:{:pass}');
         $this->assertEquals('账号:admin,密码:123456', $message);
     }
 }

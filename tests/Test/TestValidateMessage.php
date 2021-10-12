@@ -42,7 +42,7 @@ class TestMessage extends Validate
         'user.required' => '用户名必须填写',
         'user.email'    => '你输入的:{:user}，不是有效的:attribute',
         'pass.required' => '密码必须填写',
-        're_pass.eq'    => '你输入的@{pass}与:attribute不一致'
+        're_pass.eq'    => '你输入的{@pass}与:attribute不一致'
     ];
 
     protected $customAttributes = [

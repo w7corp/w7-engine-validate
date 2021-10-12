@@ -105,7 +105,7 @@ class MessageProvider implements MessageProviderInterface
             }
         }
 
-        if (preg_match_all('/@{(.*?)}/', $message, $matches) > 0) {
+        if (preg_match_all('/{@(.*?)}/', $message, $matches) > 0) {
             foreach ($matches[0] as $index => $pregString) {
                 $message = str_replace($pregString, $this->customAttributes[$matches[1][$index]] ?? '', $message);
             }
