@@ -74,7 +74,13 @@ final class ValidateConfig
     public function getFactory(): Factory
     {
         if (empty($this->factory)) {
-            $this->factory = new Factory($this->getTranslator());
+            $translator = $this->getTranslator();
+            if (is_null($translator)) {
+                $this->factory = new Factory();
+            } else {
+                $this->factory = new Factory($translator);
+            }
+
             if ($this->getPresenceVerifier()) {
                 $this->factory->setPresenceVerifier($this->getPresenceVerifier());
             }

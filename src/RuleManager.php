@@ -56,6 +56,13 @@ class RuleManager
     protected $message = [];
 
     /**
+     * Messages for class method rules
+     *
+     * @var array
+     */
+    protected $ruleMessage = [];
+    
+    /**
      * Regular validation rules
      *
      * @link https://v.neww7.com/en/3/Validate.html#regex
@@ -339,7 +346,15 @@ class RuleManager
             // If it is a class method, register the rule to the rule manager first,
             // and then process the corresponding error message
             if (method_exists($this, 'rule' . ucfirst($rule))) {
-                self::validatorExtend('', $rule, Closure::fromCallable([$this, 'rule' . ucfirst($rule)]), '', true);
+                if (array_key_exists(lcfirst($rule), $this->ruleMessage)) {
+                    $message = $this->ruleMessage[lcfirst($rule)];
+                } elseif (array_key_exists(ucfirst($rule), $this->ruleMessage)) {
+                    $message = $this->ruleMessage[ucfirst($rule)];
+                } else {
+                    $message = '';
+                }
+
+                self::validatorExtend('', $rule, Closure::fromCallable([$this, 'rule' . ucfirst($rule)]), $message, true);
 
                 if ('' !== $param) {
                     $rule = $rule . ':' . $param;

@@ -390,4 +390,34 @@ class TestCustomRuleAndMessage extends BaseTestValidate
             'sex' => 666
         ]);
     }
+
+    /**
+     * @test 为类方法规则定义错误消息
+     * @throws ValidateException
+     */
+    public function testCustomRuleMessage()
+    {
+        $v                         = new class extends Validate {
+            protected $ruleMessage = [
+                'isChildren' => '不是未成年'
+            ];
+
+            protected $rule = [
+                'age' => 'numeric|isChildren'
+            ];
+
+            protected function ruleIsChildren($attribute, $value): bool
+            {
+                return $value < 18;
+            }
+        };
+
+        $data = $v->check(['age' => 15]);
+        $this->assertSame(15, $data['age']);
+
+        $this->expectException(ValidateException::class);
+        $this->expectExceptionMessageMatches('/^不是未成年$/');
+
+        $v->check(['age' => 20]);
+    }
 }
