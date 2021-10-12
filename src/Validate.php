@@ -228,26 +228,24 @@ class Validate extends RuleManager
             $this->handleEvent($data, 'beforeValidate');
         }
 
+        $validatedData = $this->validatedData;
         if (!empty($checkRules)) {
-            $data = $this->getValidationFactory()->make($data, $checkRules, $this->message, $this->customAttributes)->validate();
-        } else {
-            $data = [];
+            $validatedData = $this->getValidationFactory()->make($data, $checkRules, $this->message, $this->customAttributes)->validate();
+            $validatedData = array_merge($this->validatedData, $validatedData);
         }
-
-        $data = array_merge($this->validatedData, $data);
 
         if ($this->eventPriority) {
-            $this->handleCallback($data, 2);
-            $this->handleEvent($data, 'afterValidate');
+            $this->handleCallback($validatedData, 2);
+            $this->handleEvent($validatedData, 'afterValidate');
         } else {
-            $this->handleEvent($data, 'afterValidate');
-            $this->handleCallback($data, 2);
+            $this->handleEvent($validatedData, 'afterValidate');
+            $this->handleCallback($validatedData, 2);
         }
 
-        $data = $this->handlerFilter($data, $fields);
+        $validatedData = $this->handlerFilter($validatedData, $fields);
         $this->initScene();
         $this->scene(null);
-        return $data;
+        return $validatedData;
     }
 
     /**
