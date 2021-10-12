@@ -18,7 +18,7 @@ use W7\Validate\Exception\ValidateRuntimeException;
 use W7\Validate\Support\Concerns\DefaultInterface;
 use W7\Validate\Support\Concerns\FilterInterface;
 use W7\Validate\Support\Rule\BaseRule;
-use Itwmw\Validation\Support\Collection\Collection as ValidateCollection;
+use Itwmw\Validation\Support\Collection\Collection;
 
 /**
  * Scene classes for validators
@@ -100,7 +100,7 @@ class ValidateScene extends RuleManagerScene
      * @link https://v.neww7.com/en/3/Scene.html#sometimes
      * @param string|string[]       $attribute field name
      * @param string|array|BaseRule $rules     rules
-     * @param callable              $callback  Closure,method provides a {@see ValidateCollection} $data parameter,
+     * @param callable              $callback  Closure,method provides a {@see Collection} $data parameter,
      *                                         which is the current validation data,
      *                                         if the Closure passed as the third argument returns true, the rules will be added.
      * @return $this
@@ -270,12 +270,12 @@ class ValidateScene extends RuleManagerScene
     }
 
     /**
-     * Get the current validation data,Return the {@see ValidateCollection} type
+     * Get the current validation data,Return the {@see Collection} type
      *
      * @link https://v.neww7.com/en/3/Scene.html#getvalidatedata
-     * @return ValidateCollection
+     * @return Collection
      */
-    public function getValidateData(): ValidateCollection
+    public function getValidateData(): Collection
     {
         return validate_collect($this->getData());
     }

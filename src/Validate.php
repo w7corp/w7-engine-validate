@@ -26,7 +26,7 @@ use W7\Validate\Support\Concerns\MessageProviderInterface;
 use W7\Validate\Support\DataAttribute;
 use W7\Validate\Support\Event\ValidateEventAbstract;
 use W7\Validate\Support\MessageProvider;
-use Itwmw\Validation\Support\Collection\Collection as ValidateCollection;
+use Itwmw\Validation\Support\Collection\Collection;
 use W7\Validate\Support\Storage\ValidateConfig;
 use W7\Validate\Support\ValidateScene;
 
@@ -498,9 +498,9 @@ class Validate extends RuleManager
      *
      * @param string                           $field    Name of the data field to be processed
      * @param callable|Closure|FilterInterface $callback The filter. This can be a global function name, anonymous function, etc.
-     * @param ValidateCollection $data
+     * @param Collection $data
      */
-    private function filterValue(string $field, $callback, ValidateCollection $data)
+    private function filterValue(string $field, $callback, Collection $data)
     {
         if (!$data->has($field)) {
             return;
@@ -563,10 +563,10 @@ class Validate extends RuleManager
      *
      * @param string                                   $field    Name of the data field to be processed
      * @param callable|Closure|DefaultInterface|mixed  $callback The default value or an anonymous function that returns the default value which will
-     * @param ValidateCollection                       $data     Data to be processed
+     * @param Collection                       $data     Data to be processed
      * @param bool                                     $any      Whether to handle arbitrary values, default only handle values that are not null
      */
-    private function setDefaultData(string $field, $callback, ValidateCollection $data, bool $any = false)
+    private function setDefaultData(string $field, $callback, Collection $data, bool $any = false)
     {
         $isEmpty = function ($value) {
             return null === $value || [] === $value || '' === $value;
