@@ -149,7 +149,7 @@ $v->setMessages([
 ]);
 ```
 ### $scene
-定义验证场景的数据，用于指定验证场景对应的验证字段等，详细用法查看[验证场景](https://v.neww7.com/3/Scene.html)一节,同样也可以通过`setScene`方法来进行设置，此方法为叠加，如果参数为`null`则为清空全部验证场景
+定义验证场景的数据，用于指定验证场景对应的验证字段等，详细用法查看[验证场景](https://v.neww7.com/4/Scene.html)一节,同样也可以通过`setScene`方法来进行设置，此方法为叠加，如果参数为`null`则为清空全部验证场景
 ```php
 // 类中定义
 protected $scene = [
@@ -162,7 +162,7 @@ $v->setScene([
 ]);
 ```
 ### $event
-定义此验证器下的全局事件，详细用法查看[事件](https://v.neww7.com/3/Event.html)一节
+定义此验证器下的全局事件，详细用法查看[事件](https://v.neww7.com/4/Event.html)一节
 ```php
 protected $event = [
     CheckSiteStatus::class
@@ -170,7 +170,7 @@ protected $event = [
 ```
 ### $customAttributes
 定义验证字段的名称,也可以通过`setCustomAttributes`方法来进行设置，此方法为叠加，如果参数为`null`则为清空全部字段名称，
-错误消息中的[:attribute](https://v.neww7.com/3/Message.html#attribute)会使用下面的值对应的替换
+错误消息中的[:attribute](https://v.neww7.com/4/Message.html#attribute)会使用下面的值对应的替换
 ```php
 protected $customAttributes = [
     'user' => '账号',
@@ -184,7 +184,7 @@ protected $default = [
     'name' => '张三'
 ];
 ```
-关于默认值的详情请查看[默认值](https://v.neww7.com/3/Default.html)一节
+关于默认值的详情请查看[默认值](https://v.neww7.com/4/Default.html)一节
 ### $filter
 用于数据验证后处理数据
 ```php
@@ -192,6 +192,7 @@ protected $filter = [
     'name' => 'trim'
 ];
 ```
+关于过滤器的详情请查看[过滤器](https://v.neww7.com/4/Filter.html)一节
 ### $ruleMessage
 类方法规则的错误信息
 ```php
@@ -199,20 +200,19 @@ protected $filter = [
     ':attribute的值只能具有中文'
 ];
 ```
-点击查看[示例](https://v.neww7.com/3/Rule.html#%E4%BD%BF%E7%94%A8%E8%A7%84%E5%88%99%E5%AF%B9%E8%B1%A1)
-关于过滤器的详情请查看[过滤器](https://v.neww7.com/3/Filter.html)一节
+点击查看[示例](https://v.neww7.com/4/Rule.html#%E4%BD%BF%E7%94%A8%E8%A7%84%E5%88%99%E5%AF%B9%E8%B1%A1)
 ### $filled
 所有验证的字段在存在时不能为空，如果此属性值为`true`,所有规则会自动增加`filled`规则，默认为`true`
 
 当出现以下情况时，不会自动添加`filled`规则
 - 验证规则中存在`filled`, `nullable`, `accepted`, `present`,`required`, `required_if`, `required_unless`, `required_with`,`required_with_all`, `required_without`, `required_without_all`规则
-- 验证规则存在[extendImplicit](https://v.neww7.com/3/Rule.html#extendimplicit-隐式扩展)定义的规则
-- 验证规则实现了[ImplicitRule](https://v.neww7.com/3/Rule.html#implicitrule-隐式规则对象)标记接口
+- 验证规则存在[extendImplicit](https://v.neww7.com/4/Rule.html#extendimplicit-隐式扩展)定义的规则
+- 验证规则实现了[ImplicitRule](https://v.neww7.com/4/Rule.html#implicitrule-隐式规则对象)标记接口
 ```php
 protected bool $filled = true;
 ```
 ### $regex
-预定义正则表达式验证规则,详情查看[正则表达式规则](https://v.neww7.com/3/Rule.html#%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%E8%A7%84%E5%88%99)
+预定义正则表达式验证规则,详情查看[正则表达式规则](https://v.neww7.com/4/Rule.html#%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%E8%A7%84%E5%88%99)
 ```php
 protected $regex = [
     'number' => '/^\d+$/'
