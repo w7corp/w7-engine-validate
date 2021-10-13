@@ -206,8 +206,9 @@ protected $filter = [
 
 当出现以下情况时，不会自动添加`filled`规则
 - 验证规则中存在`filled`, `nullable`, `accepted`, `present`,`required`, `required_if`, `required_unless`, `required_with`,`required_with_all`, `required_without`, `required_without_all`规则
-- 验证规则存在[extendImplicit](https://v.neww7.com/4/Rule.html#extendimplicit-隐式扩展)定义的规则
-- 验证规则实现了[ImplicitRule](https://v.neww7.com/4/Rule.html#implicitrule-隐式规则对象)标记接口
+- 验证规则存在[extendImplicit](https://v.neww7.com/4/Rule.html#extendimplicit-%E9%9A%90%E5%BC%8F%E6%89%A9%E5%B1%95)定义的规则
+- 验证规则存在[extendImplicitRule](https://v.neww7.com/4/Rule.html#%E5%AE%9A%E4%B9%89Implicit%E9%AA%8C%E8%AF%81%E5%99%A8)定义的规则
+- 验证规则实现了`Itwmw\Validation\Support\Interfaces\ImplicitRule`标记接口
 ```php
 protected bool $filled = true;
 ```
