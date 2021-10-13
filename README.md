@@ -15,15 +15,15 @@
 一个让你的表单验证更为方便，快捷，安全的扩展，满足你的一切验证需求。
 
 ## 目录
-- [验证器](https://v.neww7.com/3/Validate.html)
-- [验证场景](https://v.neww7.com/3/Scene.html)
-- [场景事件](https://v.neww7.com/3/Event.html)
-- [规则管理器](https://v.neww7.com/3/RuleManager.html)
-- [自定义验证规则](https://v.neww7.com/3/Rule.html)
-- [自定义消息](https://v.neww7.com/3/Message.html)
-- [默认值](https://v.neww7.com/3/Default.html)
-- [过滤器](https://v.neww7.com/3/Filter.html)
-- [验证集合](https://v.neww7.com/3/Collection.html)
+- [验证器](https://v.neww7.com/4/Validate.html)
+- [验证场景](https://v.neww7.com/4/Scene.html)
+- [场景事件](https://v.neww7.com/4/Event.html)
+- [规则管理器](https://v.neww7.com/4/RuleManager.html)
+- [自定义验证规则](https://v.neww7.com/4/Rule.html)
+- [自定义消息](https://v.neww7.com/4/Message.html)
+- [默认值](https://v.neww7.com/4/Default.html)
+- [过滤器](https://v.neww7.com/4/Filter.html)
+- [验证集合](https://v.neww7.com/4/Collection.html)
 
 ## 安装
 使用composer命令
@@ -192,6 +192,14 @@ protected $filter = [
     'name' => 'trim'
 ];
 ```
+### $ruleMessage
+类方法规则的错误信息
+```php
+ protected $ruleMessage = [
+    ':attribute的值只能具有中文'
+];
+```
+点击查看[示例](https://v.neww7.com/3/Rule.html#%E4%BD%BF%E7%94%A8%E8%A7%84%E5%88%99%E5%AF%B9%E8%B1%A1)
 关于过滤器的详情请查看[过滤器](https://v.neww7.com/3/Filter.html)一节
 ### $filled
 所有验证的字段在存在时不能为空，如果此属性值为`true`,所有规则会自动增加`filled`规则，默认为`true`
