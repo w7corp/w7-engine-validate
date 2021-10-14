@@ -11,6 +11,9 @@
     </div>
 </div>
 
+中文 | 
+[English](https://gitee.com/we7coreteam/w7-engine-validate/blob/4.x/README-EN.md)
+
 ## 介绍
 一个让你的表单验证更为方便，快捷，安全的扩展，满足你的一切验证需求。
 
@@ -19,6 +22,7 @@
 - [验证场景](https://v.neww7.com/4/Scene.html)
 - [场景事件](https://v.neww7.com/4/Event.html)
 - [规则管理器](https://v.neww7.com/4/RuleManager.html)
+- [内置规则](https://v.neww7.com/4/BuiltRule.html)
 - [自定义验证规则](https://v.neww7.com/4/Rule.html)
 - [自定义消息](https://v.neww7.com/4/Message.html)
 - [默认值](https://v.neww7.com/4/Default.html)
@@ -33,7 +37,6 @@ composer require w7/engine-validate
 
 完整文档查看[完整文档](https://v.neww7.com)
 
-# 验证器
 ## 简单验证
 支持简单定义一个验证器并进行验证：
 ```php
