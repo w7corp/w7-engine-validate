@@ -19,20 +19,22 @@ class PresenceVerifier implements PresenceVerifierInterface
 {
     protected $db;
 
+    protected $connectionResolver;
+
     public function __construct(ConnectionResolverInterface $db)
     {
-        $this->db = $db;
+        $this->connectionResolver = $db;
     }
 
     public function table(string $table): PresenceVerifierInterface
     {
-        $this->db = $this->db->table($table)->useWritePdo();
+        $this->db = $this->connectionResolver->table($table)->useWritePdo();
         return $this;
     }
 
     public function setConnection($connection)
     {
-        $this->db->connection($connection);
+        $this->connectionResolver->connection($connection);
         return $this;
     }
 
